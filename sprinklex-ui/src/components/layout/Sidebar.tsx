@@ -1,0 +1,115 @@
+import { Link, useLocation } from "react-router-dom";
+import {
+  MapPin,
+  Search,
+  CreditCard,
+  DollarSign,
+  TrendingUp,
+  PieChart,
+  BarChart2,
+  Layers,
+  List,
+  FileBarChart,
+  ChevronDown,
+  LayoutDashboard,
+  Menu,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { steps } from "@/app/steps";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
+
+const STEP_ICONS: Record<string, typeof MapPin> = {
+  "1": MapPin,
+  "2": Search,
+  "3": CreditCard,
+  "4": DollarSign,
+  "5": TrendingUp,
+  "6a": PieChart,
+  "6b": BarChart2,
+  "6c": Layers,
+  "7": List,
+  "8": FileBarChart,
+};
+
+export function Sidebar({
+  collapsed,
+  onToggle,
+  forceShow,
+}: {
+  collapsed?: boolean;
+  onToggle?: () => void;
+  forceShow?: boolean;
+}) {
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(true);
+
+  return (
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r border-slate-200 bg-white transition-all duration-300",
+        !forceShow && "hidden lg:flex",
+        collapsed ? "w-[72px]" : "w-[260px]"
+      )}
+    >
+      {/* Logo / Brand */}
+      <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4">
+        <Link to="/" className={cn("flex items-center justify-center -ml-1", collapsed && "w-full")}>
+          <SprinkleXLogo size={collapsed ? "sm" : "md"} showText={!collapsed} />
+        </Link>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+        >
+          <Menu className="h-5 w-5" strokeWidth={2} />
+        </button>
+      </div>
+
+      {/* Main Menu */}
+      <nav className="flex-1 overflow-y-auto py-4">
+        <div className="px-3">
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500"
+            >
+              Main Menu
+              <ChevronDown className={cn("h-4 w-4 transition-transform", menuOpen && "rotate-180")} />
+            </button>
+          )}
+          {menuOpen && (
+            <ul className="mt-1 space-y-0.5">
+              {steps.map((step) => {
+                const Icon = STEP_ICONS[step.id] ?? LayoutDashboard;
+                const isActive = location.pathname === step.path;
+                return (
+                  <li key={step.id}>
+                    <Tooltip content={step.tooltip ?? step.headerTitle.replace(/^Step \d+\w? - /, "")} wrapperClassName="w-full [&>a]:w-full">
+                      <Link
+                        to={step.path}
+                        className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-[#4285F4]/10 text-[#4285F4]"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                      )}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
+                      {!collapsed && (
+                        <span className="truncate">{step.headerTitle.replace(/^Step \d+\w? - /, "")}</span>
+                      )}
+                    </Link>
+                    </Tooltip>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </nav>
+    </aside>
+  );
+}

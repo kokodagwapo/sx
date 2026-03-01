@@ -1,0 +1,4 @@
+tvm,loanAmount,upb,rate,firstPaymentDate,purpose,fico,ltv,cltv,dti,occupancy,city,state,propertyType,units,product,term
+TV001,250000,250000,4.125,6/1/2025,Purchase,720,80,80,36,Owner,Austin,TX,Single-family,1,30 FRM,360
+TV002,185000,185000,3.875,7/1/2025,Refinance,745,75,75,32,Owner,Denver,CO,Single-family,1,15 FRM,180
+TV003,420000,420000,4.25,8/1/2025,Purchase,698,85,85,38,Investment,Miami,FL,Condo,1,30 FRM,360

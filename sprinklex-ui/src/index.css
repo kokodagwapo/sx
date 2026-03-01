@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: hsl(var(--app-bg));
+  color: hsl(var(--app-fg));
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Thin, almost invisible scrollbars — WebKit (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 2px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Staggered fade-in animation for cards */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fade-in-up 0.5s var(--ease-out-expo) forwards;
+}
+
+.animate-fade-in-up-delay-1 { animation-delay: 80ms; }
+.animate-fade-in-up-delay-2 { animation-delay: 160ms; }
+.animate-fade-in-up-delay-3 { animation-delay: 240ms; }
+.animate-fade-in-up-delay-4 { animation-delay: 320ms; }
+.animate-fade-in-up-delay-5 { animation-delay: 400ms; }
+.animate-fade-in-up-delay-6 { animation-delay: 480ms; }
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-count-up {
+  animation: count-up 0.6s var(--ease-out-expo) forwards;
+}
