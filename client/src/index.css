@@ -1,169 +1,119 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(210, 15%, 15%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(210, 15%, 15%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(210, 15%, 15%);
-  --primary: hsl(221, 83%, 53%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(158, 64%, 52%);
-  --secondary-foreground: hsl(0, 0%, 100%);
-  --muted: hsl(220, 14%, 96%);
-  --muted-foreground: hsl(220, 8%, 46%);
-  --accent: hsl(43, 96%, 56%);
-  --accent-foreground: hsl(210, 15%, 15%);
-  --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(0, 0%, 100%);
-  --border: hsl(220, 13%, 91%);
-  --input: hsl(220, 13%, 91%);
-  --ring: hsl(221, 83%, 53%);
-  --chart-1: hsl(221, 83%, 53%);
-  --chart-2: hsl(158, 64%, 52%);
-  --chart-3: hsl(43, 96%, 56%);
-  --chart-4: hsl(147, 79%, 42%);
-  --chart-5: hsl(342, 75%, 51%);
-  --sidebar-background: hsl(0, 0%, 100%);
-  --sidebar-foreground: hsl(210, 15%, 15%);
-  --sidebar-primary: hsl(221, 83%, 53%);
-  --sidebar-primary-foreground: hsl(0, 0%, 100%);
-  --sidebar-accent: hsl(220, 14%, 96%);
-  --sidebar-accent-foreground: hsl(221, 83%, 53%);
-  --sidebar-border: hsl(220, 13%, 91%);
-  --sidebar-ring: hsl(221, 83%, 53%);
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  --font-serif: 'Georgia', serif;
-  --font-mono: 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-  --radius: 1rem;
-  --neutral-50: hsl(220, 14%, 96%);
-  --neutral-100: hsl(220, 13%, 91%);
-  --neutral-200: hsl(220, 13%, 84%);
-  --neutral-300: hsl(220, 9%, 71%);
-  --neutral-400: hsl(220, 9%, 56%);
-  --neutral-500: hsl(220, 8%, 46%);
-  --neutral-600: hsl(220, 9%, 32%);
-  --neutral-700: hsl(220, 13%, 23%);
-  --neutral-800: hsl(220, 15%, 16%);
-  --neutral-900: hsl(220, 15%, 9%);
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  --app-bg: 0 0% 98%;
+  --app-fg: 220 15% 15%;
+  --card-bg: 0 0% 100%;
+  --card-fg: 220 15% 15%;
+  --muted-bg: 220 10% 96%;
+  --muted-fg: 220 10% 46%;
+  --border: 220 13% 91%;
+
+  --primary: 217 89% 61%;
+  --primary-hex: #4285F4;
+  --accent-green: 142 69% 42%;
+  --accent-green-hex: #34A853;
+  --status-success: 142 69% 42%;
+  --status-pending: 38 92% 50%;
+  --status-canceled: 0 84% 60%;
+  --sidebar-bg: 0 0% 100%;
+  --sidebar-border: 220 13% 91%;
+
+  --pastel-rose: #f9a8d4;
+  --pastel-mint: #86efac;
+  --pastel-sky: #7dd3fc;
+  --pastel-lavender: #c4b5fd;
+  --pastel-peach: #fdba74;
+  --pastel-amber: #fcd34d;
+
+  --radius-card: 8px;
+  --radius-sm: 6px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 150ms var(--ease-out-expo);
+  --transition-base: 220ms var(--ease-out-expo);
 }
 
-.dark {
-  --background: hsl(222.2, 84%, 4.9%);
-  --foreground: hsl(210, 40%, 98%);
-  --card: hsl(222.2, 84%, 4.9%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --popover: hsl(222.2, 84%, 4.9%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --primary: hsl(217.2, 91.2%, 59.8%);
-  --primary-foreground: hsl(222.2, 84%, 4.9%);
-  --secondary: hsl(158.8, 64.4%, 51.6%);
-  --secondary-foreground: hsl(222.2, 84%, 4.9%);
-  --muted: hsl(217.2, 32.6%, 17.5%);
-  --muted-foreground: hsl(215, 20.2%, 65.1%);
-  --accent: hsl(42.7, 96.1%, 48.4%);
-  --accent-foreground: hsl(210, 40%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --border: hsl(217.2, 32.6%, 17.5%);
-  --input: hsl(217.2, 32.6%, 17.5%);
-  --ring: hsl(217.2, 91.2%, 59.8%);
-  --chart-1: hsl(220, 70%, 50%);
-  --chart-2: hsl(160, 60%, 45%);
-  --chart-3: hsl(30, 80%, 55%);
-  --chart-4: hsl(280, 65%, 60%);
-  --chart-5: hsl(340, 75%, 55%);
-  --sidebar-background: hsl(222.2, 84%, 4.9%);
-  --sidebar-foreground: hsl(210, 40%, 98%);
-  --sidebar-primary: hsl(217.2, 91.2%, 59.8%);
-  --sidebar-primary-foreground: hsl(222.2, 84%, 4.9%);
-  --sidebar-accent: hsl(217.2, 32.6%, 17.5%);
-  --sidebar-accent-foreground: hsl(210, 40%, 98%);
-  --sidebar-border: hsl(217.2, 32.6%, 17.5%);
-  --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+.container-page {
+  width: min(1320px, 100%);
+  margin-inline: auto;
+  padding-inline: 20px;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  
-  html {
-    scroll-behavior: smooth;
-  }
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
 
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: hsl(var(--app-bg));
+  color: hsl(var(--app-fg));
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 2px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@layer utilities {
-  .animate-fadeIn {
-    animation: fadeIn 0.6s ease-in-out forwards;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .text-neutral-50 {
-    color: var(--neutral-50);
-  }
-  
-  .text-neutral-500 {
-    color: var(--neutral-500);
-  }
-  
-  .text-neutral-900 {
-    color: var(--neutral-900);
-  }
-  
-  .bg-neutral-50 {
-    background-color: var(--neutral-50);
-  }
-  
-  .bg-neutral-500 {
-    background-color: var(--neutral-500);
-  }
-  
-  .bg-neutral-900 {
-    background-color: var(--neutral-900);
-  }
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fade-in-up 0.5s var(--ease-out-expo) forwards;
 }
 
-/* Custom focus styles for better accessibility */
-input:focus, 
-select:focus, 
-button:focus,
-textarea:focus {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
-}
+.animate-fade-in-up-delay-1 { animation-delay: 80ms; }
+.animate-fade-in-up-delay-2 { animation-delay: 160ms; }
+.animate-fade-in-up-delay-3 { animation-delay: 240ms; }
+.animate-fade-in-up-delay-4 { animation-delay: 320ms; }
+.animate-fade-in-up-delay-5 { animation-delay: 400ms; }
+.animate-fade-in-up-delay-6 { animation-delay: 480ms; }
 
-/* Loading state styles */
-.loading {
-  opacity: 0.6;
-  pointer-events: none;
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-
-/* Ensure smooth transitions for all interactive elements */
-button, 
-a, 
-.card {
-  transition: all 0.2s ease-in-out;
+.animate-count-up {
+  animation: count-up 0.6s var(--ease-out-expo) forwards;
 }

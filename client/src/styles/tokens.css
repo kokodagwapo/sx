@@ -1,0 +1,53 @@
+:root {
+  /* Typography — distinctive pairing */
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  /* Dashboard theme — blue/green accents */
+  --app-bg: 0 0% 98%;
+  --app-fg: 220 15% 15%;
+  --card-bg: 0 0% 100%;
+  --card-fg: 220 15% 15%;
+  --muted-bg: 220 10% 96%;
+  --muted-fg: 220 10% 46%;
+  --border: 220 13% 91%;
+
+  /* Primary blue — #4285F4 */
+  --primary: 217 89% 61%;
+  --primary-hex: #4285F4;
+  /* Accent green — #34A853 */
+  --accent-green: 142 69% 42%;
+  --accent-green-hex: #34A853;
+  /* Status colors */
+  --status-success: 142 69% 42%;
+  --status-pending: 38 92% 50%;
+  --status-canceled: 0 84% 60%;
+  --sidebar-bg: 0 0% 100%;
+  --sidebar-border: 220 13% 91%;
+
+  /* Pastel chart palette */
+  --pastel-rose: #f9a8d4;
+  --pastel-mint: #86efac;
+  --pastel-sky: #7dd3fc;
+  --pastel-lavender: #c4b5fd;
+  --pastel-peach: #fdba74;
+  --pastel-amber: #fcd34d;
+
+  /* Radii — MotaAdmin style */
+  --radius-card: 8px;
+  --radius-sm: 6px;
+
+  /* Transitions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 150ms var(--ease-out-expo);
+  --transition-base: 220ms var(--ease-out-expo);
+}
+
+/* Utility-ish defaults */
+.container-page {
+  width: min(1320px, 100%);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
