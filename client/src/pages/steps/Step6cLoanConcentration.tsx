@@ -30,8 +30,8 @@ import {
 import { baseKpis } from "@/data/mock/kpis";
 import { cn } from "@/lib/utils";
 
-const CURRENT_BAR_COLOR = "#3b82f6";
-const PROFORMA_BAR_COLOR = "#dc2626";
+const CURRENT_BAR_COLOR = "#38bdf8";
+const PROFORMA_BAR_COLOR = "#4ade80";
 
 const columns = [
   sortableColumn<ConcentrationRow>("loanType", "Loan Type", { icon: FileText }),

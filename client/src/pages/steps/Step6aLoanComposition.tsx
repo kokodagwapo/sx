@@ -98,8 +98,8 @@ export default function Step6aLoanComposition() {
                 data={step6aComposition}
                 currentLabel="As of Last Quarter"
                 proFormaLabel="Projected with Selected Loans"
-                currentColor="#3b82f6"
-                proFormaColor="#dc2626"
+                currentColor="#38bdf8"
+                proFormaColor="#4ade80"
                 onBarClick={(name) => setSelectedLoanType((prev) => (prev === name ? null : name))}
               />
             </div>

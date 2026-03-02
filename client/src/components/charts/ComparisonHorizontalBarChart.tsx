@@ -8,6 +8,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
+const DEFAULT_CURRENT = "#38bdf8";
+const DEFAULT_PROFORMA = "#4ade80";
+
 export type ComparisonDatum = {
   name: string;
   current: number;
@@ -26,20 +30,16 @@ function CustomTooltip({
   if (!active || !payload?.length || !label) return null;
   const [current, proForma] = payload;
   return (
-    <div className="rounded-lg border border-slate-200/80 bg-white/95 px-3 py-2.5 shadow-lg backdrop-blur-sm">
-      <div className="text-xs font-semibold text-slate-800">{label}</div>
+    <div className="rounded-lg border border-white/10 bg-slate-900/90 px-3 py-2.5 shadow-xl backdrop-blur-sm">
+      <div className="text-xs font-semibold text-white">{label}</div>
       <div className="mt-1.5 space-y-1 text-xs">
         <div className="flex justify-between gap-4">
-          <span className="text-slate-500">{current?.name}</span>
-          <span className="font-medium tabular-nums text-slate-800">
-            {current?.value?.toLocaleString()}K
-          </span>
+          <span className="text-slate-400">{current?.name}</span>
+          <span className="font-medium tabular-nums text-white">{current?.value?.toLocaleString()}K</span>
         </div>
         <div className="flex justify-between gap-4">
-          <span className="text-slate-500">{proForma?.name}</span>
-          <span className="font-medium tabular-nums text-slate-800">
-            {proForma?.value?.toLocaleString()}K
-          </span>
+          <span className="text-slate-400">{proForma?.name}</span>
+          <span className="font-medium tabular-nums text-white">{proForma?.value?.toLocaleString()}K</span>
         </div>
       </div>
     </div>
@@ -50,8 +50,8 @@ export function ComparisonHorizontalBarChart({
   data,
   currentLabel = "As of Last Quarter",
   proFormaLabel = "Projected with Selected Loans",
-  currentColor = "#3b82f6",
-  proFormaColor = "#dc2626",
+  currentColor = DEFAULT_CURRENT,
+  proFormaColor = DEFAULT_PROFORMA,
   onBarClick,
 }: {
   data: ComparisonDatum[];
@@ -65,32 +65,59 @@ export function ComparisonHorizontalBarChart({
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148,163,184,0.2)" />
-          <XAxis type="number" tick={{ fontSize: 11, fill: "#64748b" }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`} />
-          <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "#475569" }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(148,163,184,0.08)" }} />
-          <Legend wrapperStyle={{ fontSize: 11 }} formatter={(v) => <span className="text-slate-600">{v}</span>} />
+          <defs>
+            <linearGradient id="cmpCurrent" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={currentColor} stopOpacity={0.7} />
+              <stop offset="100%" stopColor={currentColor} stopOpacity={1} />
+            </linearGradient>
+            <linearGradient id="cmpProForma" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={proFormaColor} stopOpacity={0.7} />
+              <stop offset="100%" stopColor={proFormaColor} stopOpacity={1} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(148,163,184,0.15)" />
+          <XAxis
+            type="number"
+            tick={{ fontSize: 11, fill: "#64748b" }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(v) => `${(v / 1000).toFixed(0)}K`}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            width={160}
+            tick={{ fontSize: 11, fill: "#475569" }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(99,102,241,0.05)" }} />
+          <Legend
+            wrapperStyle={{ fontSize: 11 }}
+            formatter={(v) => <span className="text-slate-600">{v}</span>}
+          />
           <Bar
             dataKey="current"
             name={currentLabel}
-            fill={currentColor}
+            fill="url(#cmpCurrent)"
             radius={[0, 6, 6, 0]}
             isAnimationActive
-            animationDuration={700}
+            animationDuration={800}
+            animationBegin={80}
             animationEasing="ease-out"
-            cursor={onBarClick ? "pointer" : undefined}
+            cursor={onBarClick ? "pointer" : "default"}
             onClick={onBarClick ? (e) => onBarClick(e?.name ?? "") : undefined}
           />
           <Bar
             dataKey="proForma"
             name={proFormaLabel}
-            fill={proFormaColor}
+            fill="url(#cmpProForma)"
             radius={[0, 6, 6, 0]}
             isAnimationActive
-            animationDuration={700}
+            animationDuration={800}
+            animationBegin={200}
             animationEasing="ease-out"
-            animationBegin={150}
-            cursor={onBarClick ? "pointer" : undefined}
+            cursor={onBarClick ? "pointer" : "default"}
             onClick={onBarClick ? (e) => onBarClick(e?.name ?? "") : undefined}
           />
         </BarChart>
@@ -98,4 +125,3 @@ export function ComparisonHorizontalBarChart({
     </div>
   );
 }
-

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -9,24 +10,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { PASTEL_COLORS, BAR_VALUE_COLORS, GEO_DISTRIBUTION_COLORS } from "@/styles/chartPalette";
+import { DONUT_REFERENCE_COLORS } from "@/styles/chartPalette";
 
-const FICO_COLORS = ["#7dd3fc", "#60a5fa", "#f97316", "#ea580c", "#dc2626", "#991b1b"] as const;
-
-function getValueBasedColor(value: number, maxVal: number, scheme: "blue" | "fico" | "geo" = "blue"): string {
-  if (maxVal <= 0) {
-    if (scheme === "fico") return FICO_COLORS[0];
-    if (scheme === "geo") return GEO_DISTRIBUTION_COLORS[GEO_DISTRIBUTION_COLORS.length - 1];
-    return BAR_VALUE_COLORS[0];
-  }
-  const t = value / maxVal;
-  if (scheme === "geo") {
-    const idx = Math.floor((1 - t) * GEO_DISTRIBUTION_COLORS.length);
-    return GEO_DISTRIBUTION_COLORS[Math.max(0, Math.min(idx, GEO_DISTRIBUTION_COLORS.length - 1))];
-  }
-  const idx = Math.min(Math.floor(t * 5), scheme === "fico" ? FICO_COLORS.length - 1 : BAR_VALUE_COLORS.length - 1);
-  return scheme === "fico" ? FICO_COLORS[idx] : BAR_VALUE_COLORS[idx];
-}
+const PASTEL_CYCLE = [
+  '#4ade80', '#38bdf8', '#a78bfa', '#fb923c',
+  '#f472b6', '#34d399', '#facc15', '#60a5fa',
+];
 
 export type HorizontalBarDatum = {
   name: string;
@@ -48,10 +37,10 @@ function CustomTooltip({
   const v = payload[0].value;
   const formatted = unit === "%" ? `${v.toFixed(1)}%` : v.toLocaleString();
   return (
-    <div className="rounded-lg border border-slate-200/80 bg-white/95 px-3 py-2 shadow-lg backdrop-blur-sm">
-      <div className="text-xs font-medium text-slate-500">{label}</div>
-      <div className="mt-0.5 text-sm font-semibold text-slate-800 tabular-nums">
-        {formatted} {unit === "%" ? "of Tier 1 + ALLL" : ""}
+    <div className="rounded-lg border border-white/10 bg-slate-900/90 px-3 py-2 shadow-xl backdrop-blur-sm">
+      <div className="text-xs font-medium text-slate-400">{label}</div>
+      <div className="mt-0.5 text-sm font-semibold tabular-nums text-white">
+        {formatted}{unit === "%" ? " of Tier 1 + ALLL" : ""}
       </div>
     </div>
   );
@@ -59,7 +48,7 @@ function CustomTooltip({
 
 export function HorizontalBarChart({
   data,
-  color = PASTEL_COLORS[2],
+  color,
   yAxisWidth = 140,
   valueBasedColors = false,
   colorScheme = "blue",
@@ -74,28 +63,49 @@ export function HorizontalBarChart({
   yAxisWidth?: number;
   valueBasedColors?: boolean;
   colorScheme?: "blue" | "fico" | "geo";
-  /** e.g. "%" for percentage display */
   unit?: string;
-  /** X-axis domain e.g. [0, 600] */
   domain?: [number, number];
-  /** X-axis label e.g. "# of Selected Loans" */
   xAxisLabel?: string;
   onBarClick?: (name: string) => void;
   showValueLabels?: boolean;
 }) {
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const hasLongNames = data.some((d) => d.name.length > 18);
   const axisWidth = hasLongNames ? Math.max(yAxisWidth, 160) : yAxisWidth;
-  const maxVal = Math.max(0, ...data.map((d) => d.value));
   const tickFormatter = unit === "%" ? (v: number) => `${v}%` : undefined;
+
+  const barColor = (i: number, value: number, maxVal: number): string => {
+    if (color) return color;
+    if (valueBasedColors) {
+      const t = maxVal > 0 ? value / maxVal : 0;
+      const idx = Math.min(Math.floor(t * (DONUT_REFERENCE_COLORS.length - 1)), DONUT_REFERENCE_COLORS.length - 1);
+      return DONUT_REFERENCE_COLORS[idx];
+    }
+    return PASTEL_CYCLE[i % PASTEL_CYCLE.length];
+  };
+
+  const maxVal = Math.max(1, ...data.map((d) => d.value));
+
   return (
     <div className="h-full w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
           layout="vertical"
-          margin={{ top: 12, right: 48, bottom: 12, left: 8 }}
+          margin={{ top: 12, right: showValueLabels ? 56 : 24, bottom: 12, left: 8 }}
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(148,163,184,0.2)" />
+          <defs>
+            {data.map((d, i) => {
+              const c = barColor(i, d.value, maxVal);
+              return (
+                <linearGradient key={i} id={`hbg-${i}`} x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor={c} stopOpacity={0.7} />
+                  <stop offset="100%" stopColor={c} stopOpacity={1} />
+                </linearGradient>
+              );
+            })}
+          </defs>
+          <CartesianGrid strokeDasharray="4 4" horizontal={false} stroke="rgba(148,163,184,0.15)" />
           <XAxis
             type="number"
             domain={domain}
@@ -115,45 +125,50 @@ export function HorizontalBarChart({
           />
           <Tooltip
             content={<CustomTooltip unit={unit} />}
-            cursor={{ fill: "rgba(148,163,184,0.08)" }}
+            cursor={{ fill: "rgba(99,102,241,0.05)" }}
           />
           <Bar
             dataKey="value"
-            fill={valueBasedColors ? undefined : color}
             radius={[0, 6, 6, 0]}
             maxBarSize={32}
             isAnimationActive
-            animationDuration={700}
+            animationDuration={800}
+            animationBegin={80}
             animationEasing="ease-out"
-            onClick={
-              onBarClick
-                ? (data: { name?: string }) => data?.name && onBarClick(data.name)
-                : undefined
-            }
-            cursor={onBarClick ? "pointer" : undefined}
+            onClick={onBarClick ? (d: { name?: string }) => d?.name && onBarClick(d.name) : undefined}
+            cursor={onBarClick ? "pointer" : "default"}
+            onMouseEnter={(_: unknown, idx: number) => setActiveIdx(idx)}
+            onMouseLeave={() => setActiveIdx(null)}
           >
+            {data.map((d, i) => {
+              const c = barColor(i, d.value, maxVal);
+              return (
+                <Cell
+                  key={i}
+                  fill={`url(#hbg-${i})`}
+                  opacity={activeIdx == null || activeIdx === i ? 1 : 0.45}
+                  style={{
+                    transition: "opacity 0.15s ease, filter 0.15s ease",
+                    filter: activeIdx === i ? `drop-shadow(0 0 6px ${c}99)` : "none",
+                  }}
+                />
+              );
+            })}
             {showValueLabels && (
               <LabelList
                 dataKey="value"
                 position="right"
                 formatter={(v: unknown) =>
                   typeof v === "number"
-                    ? unit === "%"
-                      ? `${v.toFixed(1)}%`
-                      : v.toLocaleString()
+                    ? unit === "%" ? `${v.toFixed(1)}%` : v.toLocaleString()
                     : ""
                 }
-                style={{ fontSize: 11, fill: "#475569" }}
+                style={{ fontSize: 11, fill: "#475569", fontWeight: 600 }}
               />
             )}
-            {valueBasedColors &&
-              data.map((entry, i) => (
-                <Cell key={`${entry.name}-${i}`} fill={getValueBasedColor(entry.value, maxVal, colorScheme)} />
-              ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
-

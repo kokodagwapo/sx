@@ -8,9 +8,8 @@ import {
   YAxis,
 } from "recharts";
 
-/** Maroon/purple palette for yield charts (reference image) */
-const YIELD_CHART_COLOR = "#6b2d5c";
-const YIELD_CHART_FILL = "#9f5f8f";
+const DEFAULT_COLOR = "#38bdf8";
+const DEFAULT_FILL = "#7dd3fc";
 
 export type TrendDatum = {
   name: string;
@@ -21,20 +20,22 @@ function CustomDot(props: {
   cx?: number;
   cy?: number;
   payload?: TrendDatum;
+  color?: string;
   onClick?: (name: string) => void;
 }) {
-  const { cx, cy, payload, onClick } = props;
+  const { cx, cy, payload, color = DEFAULT_COLOR, onClick } = props;
   if (cx == null || cy == null || !payload) return null;
   return (
     <g>
       <circle
         cx={cx}
         cy={cy}
-        r={6}
+        r={7}
         fill="white"
-        stroke={YIELD_CHART_COLOR}
-        strokeWidth={2}
-        className="cursor-pointer transition-transform hover:scale-125"
+        stroke={color}
+        strokeWidth={2.5}
+        style={{ filter: `drop-shadow(0 0 4px ${color}88)`, cursor: "pointer" }}
+        className="transition-transform hover:scale-125"
         onClick={(e) => {
           e.stopPropagation();
           onClick?.(payload.name);
@@ -44,9 +45,9 @@ function CustomDot(props: {
         x={cx}
         y={cy - 14}
         textAnchor="middle"
-        fill={YIELD_CHART_COLOR}
+        fill={color}
         fontSize={11}
-        fontWeight={600}
+        fontWeight={700}
       >
         {payload.value.toFixed(2)}
       </text>
@@ -56,8 +57,8 @@ function CustomDot(props: {
 
 export function AreaTrendChart({
   data,
-  color = YIELD_CHART_COLOR,
-  fillColor = YIELD_CHART_FILL,
+  color = DEFAULT_COLOR,
+  fillColor = DEFAULT_FILL,
   onPointClick,
   gradientId = "trendFill",
 }: {
@@ -72,19 +73,27 @@ export function AreaTrendChart({
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 24, right: 16, bottom: 8, left: 0 }}
+          margin={{ top: 28, right: 16, bottom: 8, left: 0 }}
         >
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.4} />
-              <stop offset="100%" stopColor={fillColor} stopOpacity={0.06} />
+              <stop offset="0%" stopColor={color} stopOpacity={0.45} />
+              <stop offset="100%" stopColor={fillColor} stopOpacity={0.04} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148,163,184,0.35)" />
-          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-          <YAxis domain={[0, 6]} tick={{ fontSize: 11 }} width={36} />
+          <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(148,163,184,0.18)" />
+          <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 6]} tick={{ fontSize: 11, fill: "#64748b" }} width={36} axisLine={false} tickLine={false} />
           <Tooltip
-            contentStyle={{ fontSize: 12, borderRadius: 12 }}
+            contentStyle={{
+              fontSize: 12,
+              borderRadius: 10,
+              backgroundColor: "rgba(15,23,42,0.92)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "#f8fafc",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+            }}
+            itemStyle={{ color: "#e2e8f0" }}
             formatter={(value: number | undefined) => [
               value != null ? value.toFixed(2) + "%" : "",
               "Yield",
@@ -94,24 +103,25 @@ export function AreaTrendChart({
             type="monotone"
             dataKey="value"
             stroke={color}
+            strokeWidth={2.5}
             fill={`url(#${gradientId})`}
-            strokeWidth={2}
             isAnimationActive
-            animationDuration={800}
+            animationDuration={900}
+            animationBegin={80}
             animationEasing="ease-out"
             dot={
               onPointClick
                 ? (props: { cx?: number; cy?: number; payload?: TrendDatum }) => (
-                    <CustomDot {...props} onClick={onPointClick} />
+                    <CustomDot {...props} color={color} onClick={onPointClick} />
                   )
-                : { r: 4, fill: color, stroke: "white", strokeWidth: 2 }
+                : { r: 5, fill: color, stroke: "white", strokeWidth: 2, style: { filter: `drop-shadow(0 0 4px ${color}88)` } }
             }
             activeDot={
               onPointClick
                 ? (props: { cx?: number; cy?: number; payload?: TrendDatum }) => (
-                    <CustomDot {...props} onClick={onPointClick} />
+                    <CustomDot {...props} color={color} onClick={onPointClick} />
                   )
-                : { r: 5, fill: color, stroke: "white", strokeWidth: 2 }
+                : { r: 7, fill: color, stroke: "white", strokeWidth: 2, style: { filter: `drop-shadow(0 0 6px ${color}99)` } }
             }
           />
         </AreaChart>
@@ -119,4 +129,3 @@ export function AreaTrendChart({
     </div>
   );
 }
-
