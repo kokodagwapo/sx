@@ -70,7 +70,7 @@ export function SprinkleXLogo({
             className={`font-medium ${bySizes[size]}`}
             style={{ color: TEAL, fontFamily: "var(--font-display, system-ui, sans-serif)" }}
           >
-            by Teraverde (r)
+            by Teraverde®
           </span>
         </div>
       )}
