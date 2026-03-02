@@ -185,7 +185,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
             <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Available Loans</div>
             <div className="mt-1 flex items-center gap-1">
               <span className="text-[10px] text-slate-600">1</span>
-              <div className="h-2 w-24 rounded-full bg-gradient-to-r from-[#bae6fd] via-[#fecaca] to-[#fda4af]" />
+              <div className="h-2 w-24 rounded-full bg-gradient-to-r from-[#a78bfa] via-[#4ade80] to-[#f472b6]" />
               <span className="text-[10px] text-slate-600">{maxAllCounty}</span>
             </div>
           </div>
@@ -292,7 +292,7 @@ function USCountyMap({
                       outline: "none",
                       border: "none",
                       boxShadow: "none",
-                      fill: hasData ? "#fde68a" : "#dbeafe",
+                      fill: hasData ? "#facc15" : "#e9d5ff",
                       cursor: hasData ? "pointer" : "default",
                     },
                     pressed: { outline: "none", border: "none", boxShadow: "none" },
@@ -368,7 +368,7 @@ function CountyMap({
                           ? { transition: "fill 0.2s ease" }
                           : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "white" }),
                       },
-                      hover: { outline: "none", border: "none", boxShadow: "none", fill: hasData ? "#fde68a" : "#dbeafe", cursor: hasData ? "pointer" : "default" },
+                      hover: { outline: "none", border: "none", boxShadow: "none", fill: hasData ? "#facc15" : "#e9d5ff", cursor: hasData ? "pointer" : "default" },
                       pressed: { outline: "none", border: "none", boxShadow: "none" },
                     }}
                     onClick={() => hasData && onCountyClick(fips)}
@@ -478,11 +478,12 @@ function stateCenter(fips: string): [number, number] {
   return STATE_CENTERS[fips] ?? [-98, 38];
 }
 
-/** Choropleth colors: pastel palette — light (no data) → soft blue → soft coral → soft rose (high) */
+/** Choropleth colors: pastel palette — low → high using the app palette */
 function choroplethColorFor(t: number) {
   if (t <= 0) return "white";
-  if (t < 0.25) return "#bae6fd";
-  if (t < 0.5) return "#7dd3fc";
-  if (t < 0.75) return "#fecaca";
-  return "#fda4af";
+  if (t < 0.2) return "#a78bfa"; // soft violet — low
+  if (t < 0.4) return "#38bdf8"; // sky blue
+  if (t < 0.6) return "#4ade80"; // mint green
+  if (t < 0.8) return "#fb923c"; // peach-orange
+  return "#f472b6";              // pink — high
 }

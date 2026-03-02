@@ -735,8 +735,6 @@ export default function Step1Geography() {
           <div className="w-full" style={{ height: Math.max(320, barData.length * 36) }}>
             <HorizontalBarChart
               data={barData}
-              valueBasedColors={selectedLevel === "state" || selectedLevel === "county"}
-              colorScheme="geo"
               onBarClick={(name) => setChartBarSelected((prev) => (prev === name ? null : name))}
               showValueLabels
               xAxisLabel={selectedLevel === "state" || selectedLevel === "county" ? "# of Selected Loans" : undefined}
