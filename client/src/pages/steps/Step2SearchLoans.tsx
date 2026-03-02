@@ -73,8 +73,8 @@ function aggregateDonut(loans: Step2Loan[], field: keyof Step2Loan): DonutDatum[
 }
 
 const BREAKDOWN_COLORS = [
-  "#22c55e", "#06b6d4", "#10b981", "#f59e0b",
-  "#ef4444", "#ec4899", "#8b5cf6", "#f97316",
+  "#4ade80", "#38bdf8", "#a78bfa", "#fb923c",
+  "#f472b6", "#34d399", "#facc15", "#60a5fa",
 ];
 
 function BreakdownColumn({

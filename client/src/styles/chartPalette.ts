@@ -36,14 +36,14 @@ export const GEO_DISTRIBUTION_COLORS = [
   '#1e40af', // darkest blue - lowest
 ] as const;
 
-/** Vivid donut chart palette — high-energy, high-contrast */
+/** Bright pastel palette — modern, airy, high-contrast */
 export const DONUT_REFERENCE_COLORS = [
-  '#22c55e', // vivid green
-  '#06b6d4', // neon cyan
-  '#10b981', // vivid emerald
-  '#f59e0b', // solar amber
-  '#ef4444', // vivid red
-  '#ec4899', // hot pink
-  '#8b5cf6', // bright violet
-  '#f97316', // neon orange
+  '#4ade80', // bright mint green
+  '#38bdf8', // bright sky blue
+  '#a78bfa', // soft violet
+  '#fb923c', // bright peach-orange
+  '#f472b6', // bright pink
+  '#34d399', // bright teal-green
+  '#facc15', // bright yellow
+  '#60a5fa', // cornflower blue
 ] as const;

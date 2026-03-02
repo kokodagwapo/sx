@@ -18,8 +18,8 @@ export type VerticalBarDatum = {
 };
 
 const VIVID_COLORS = [
-  "#22c55e", "#06b6d4", "#10b981", "#f59e0b",
-  "#ef4444", "#ec4899", "#8b5cf6", "#f97316",
+  "#4ade80", "#38bdf8", "#a78bfa", "#fb923c",
+  "#f472b6", "#34d399", "#facc15", "#60a5fa",
 ];
 
 export function VerticalBarChart({
@@ -118,7 +118,7 @@ export function VerticalBarChart({
                     ? label >= 1000 ? `${(label / 1000).toFixed(1)}K` : label.toLocaleString()
                     : String(label ?? "")
                 }
-                style={{ fontSize: 10, fill: "#6366f1", fontWeight: 700, fontFamily: "var(--font-sans)" }}
+                style={{ fontSize: 10, fill: "#64748b", fontWeight: 600, fontFamily: "var(--font-sans)" }}
               />
             )}
           </Bar>
