@@ -152,11 +152,7 @@ export function DataTable<T>({
               {hg.headers.map((header) => (
                 <th
                   key={header.id}
-                  className={cn(
-                    "whitespace-nowrap border-b border-slate-200/70 px-3 py-2 text-left text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-600",
-                    header.column.getCanSort() && "cursor-pointer select-none hover:text-slate-900"
-                  )}
-                  onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                  className="whitespace-nowrap border-b border-slate-200/70 px-3 py-2 text-left text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-600"
                 >
                   {header.isPlaceholder
                     ? null
