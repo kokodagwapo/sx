@@ -120,9 +120,8 @@ body {
 
 @keyframes pastel-cycle {
   0%   { fill: #e0f2fe; }
-  20%  { fill: #dbeafe; }
-  40%  { fill: #e0e7ff; }
-  60%  { fill: #ede9fe; }
-  80%  { fill: #e8f5e9; }
+  25%  { fill: #f0fdf4; }
+  50%  { fill: #faf5ff; }
+  75%  { fill: #fff7ed; }
   100% { fill: #e0f2fe; }
 }

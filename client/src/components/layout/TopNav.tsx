@@ -108,7 +108,7 @@ export function TopNav({
             }}
             className={cn(
               "block px-4 py-2.5 text-sm transition-colors",
-              i === highlighted ? "bg-[#4285F4]/10 text-[#4285F4]" : "text-slate-700 hover:bg-slate-50"
+              i === highlighted ? "bg-sky-500/10 text-sky-600" : "text-slate-700 hover:bg-sky-50"
             )}
           >
             <div className="font-medium">{r.title}</div>
@@ -120,7 +120,7 @@ export function TopNav({
   );
 
   return (
-    <header className="sticky top-0 z-[999] flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-sm">
+    <header className="sticky top-0 z-[999] flex h-14 items-center justify-between border-b border-sky-100 bg-sky-50/50 px-4 backdrop-blur-md transition-colors duration-300">
       <div className="flex items-center gap-4">
         <button
           type="button"
@@ -160,8 +160,8 @@ export function TopNav({
                     className={cn(
                       "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium transition-all duration-200",
                       isActive
-                        ? "bg-[#4285F4] text-white shadow-sm ring-2 ring-[#4285F4]/20"
-                        : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 hover:scale-105 active:scale-95"
+                        ? "bg-sky-500 text-white shadow-sm ring-2 ring-sky-500/20"
+                        : "text-slate-500 hover:bg-sky-100 hover:text-sky-700 hover:scale-105 active:scale-95"
                     )}
                   >
                     {num}
@@ -215,7 +215,7 @@ export function TopNav({
           <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[#ef4444]" />
         </button>
         <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#4285F4] text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-white">
             <User className="h-4 w-4" strokeWidth={2} />
           </div>
           <div className="hidden sm:block">

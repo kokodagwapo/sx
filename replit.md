@@ -1,8 +1,8 @@
-# PeraBida - OFW Financial Management Application
+# SprinkleX - Loan Analytics and Portfolio Management Dashboard
 
 ## Overview
 
-PeraBida is a comprehensive financial management application designed specifically for Overseas Filipino Workers (OFW) and their families. The platform focuses on transparent expense tracking, family accountability, and financial education to help OFW families manage their remittances more effectively. The application features a landing page with waitlist signup functionality, currency conversion tools, educational content, and user testimonials showcasing real-world use cases.
+SprinkleX is a comprehensive loan analytics and portfolio management dashboard. It features geographic drilldown maps, loan search, credit metrics, pricing sheets, financial metrics, and portfolio analysis across 8 workflow steps. The platform focuses on providing transparent insights into loan data and geographic distributions.
 
 ## User Preferences
 
@@ -11,13 +11,18 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React with TypeScript for type safety and modern development
-- **Routing**: Wouter for lightweight client-side routing
-- **Styling**: Tailwind CSS with custom design system using CSS variables for consistent theming
-- **UI Components**: Radix UI primitives with shadcn/ui component library for accessible, customizable components
-- **State Management**: TanStack Query for server state management and data fetching
-- **Forms**: React Hook Form with Zod validation for robust form handling and schema validation
-- **Build Tool**: Vite for fast development and optimized production builds
+- **Framework**: React with TypeScript for type safety
+- **Routing**: react-router-dom v7
+- **Styling**: Tailwind CSS v3 with pastel design system
+- **Charts**: Recharts for data visualization
+- **Maps**: react-simple-maps for interactive geographic drilldowns
+- **UI Components**: Radix UI + shadcn/ui custom components
+
+### Key Features
+- **Geographic Drilldown**: US Map -> State -> County -> Census Tract
+- **Loan Search**: Real-time filtering and search across the portfolio
+- **Portfolio Analytics**: 8-step workflow covering credit, pricing, and financial metrics
+- **Visual Design**: Warm, pastel-themed interface with smooth animations
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework for RESTful API endpoints
