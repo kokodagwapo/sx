@@ -337,7 +337,7 @@ export default function Step8Summary() {
           title="Product Type Composition"
           subtitle="TOTAL 100% • Click segment for drilldown"
         >
-          <div className="h-[210px]">
+          <div className="h-[240px]">
             <DonutChart
               data={step8ProductType}
               onSegmentClick={(name) => handleCompositionClick("productType", name)}
@@ -350,7 +350,7 @@ export default function Step8Summary() {
           title="Occupancy Composition"
           subtitle="TOTAL 100% • Click segment for drilldown"
         >
-          <div className="h-[210px]">
+          <div className="h-[240px]">
             <DonutChart
               data={step8Occupancy}
               onSegmentClick={(name) => handleCompositionClick("occupancy", name)}
@@ -363,7 +363,7 @@ export default function Step8Summary() {
           title="Purpose Composition"
           subtitle="TOTAL 100% • Click segment for drilldown"
         >
-          <div className="h-[210px]">
+          <div className="h-[240px]">
             <DonutChart
               data={step8Purpose}
               onSegmentClick={(name) => handleCompositionClick("purpose", name)}
@@ -376,7 +376,7 @@ export default function Step8Summary() {
           title="Selected Loans by State"
           subtitle="TOTAL 100% • Click segment for drilldown"
         >
-          <div className="h-[210px]">
+          <div className="h-[240px]">
             <DonutChart
               data={step8States}
               onSegmentClick={(name) => handleCompositionClick("states", name)}
