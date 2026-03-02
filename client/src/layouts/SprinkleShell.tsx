@@ -66,7 +66,7 @@ export function SprinkleShell({
 
         <KpiStrip items={kpis} animate={animateKpis} onItemClick={onKpiClick} compact={kpiCompact} />
 
-        <div className="bg-white">
+        <div className="">
           <div className="container-page py-5">
             <div
               className={cn(
