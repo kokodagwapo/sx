@@ -591,7 +591,7 @@ export default function Step1Geography() {
             className="border-0 shadow-none bg-transparent [&>header]:hidden"
             contentClassName="!p-0"
           >
-            <div className="h-[564px] min-h-[464px] overflow-hidden bg-white border border-slate-200/80 shadow-sm p-0 m-0 outline-none ring-0 rounded-xl flex flex-col">
+            <div className="h-[564px] min-h-[464px] overflow-hidden bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_4px_24px_rgba(56,189,248,0.10)] p-0 m-0 outline-none ring-0 rounded-xl flex flex-col">
               <GeoDrilldownMap
                 className="flex-1 w-full p-0 m-0 border-0 outline-none shadow-none"
                 loans={mapLoans}

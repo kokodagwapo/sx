@@ -137,7 +137,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
         </div>
       )}
 
-      <div className="relative flex-1 overflow-hidden bg-white transition-all duration-300 border-0 shadow-none p-0 m-0 outline-none rounded-none flex flex-col">
+      <div className="relative flex-1 overflow-hidden bg-transparent transition-all duration-300 border-0 shadow-none p-0 m-0 outline-none rounded-none flex flex-col">
         {/* Map controls — top center, horizontal, minimalist (drag to pan) */}
         {(level === "us-county" || level === "state") && (
           <div className="absolute top-2 right-3 z-20 flex items-center rounded-lg bg-white/40 shadow-sm backdrop-blur-md">
@@ -260,7 +260,7 @@ function USCountyMap({
   onCountyHover: (info: { fips: string; name: string; count: number; upb: number } | null) => void;
 }) {
   return (
-    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }} style={{ width: "100%", height: "100%", outline: "none", border: "none", background: "white", padding: 0, margin: 0, display: "block" }}>
+    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }} style={{ width: "100%", height: "100%", outline: "none", border: "none", background: "transparent", padding: 0, margin: 0, display: "block" }}>
       <ZoomableGroup center={center} zoom={zoom} onMoveEnd={onMoveEnd} minZoom={1} maxZoom={8} filter="none" style={{ outline: "none" }}>
         <Geographies geography={COUNTIES_URL} stroke="none" style={{ outline: "none", border: "none", padding: 0, margin: 0, display: "block" }}>
           {({ geographies }: { geographies: Geo[] }) =>
@@ -339,7 +339,7 @@ function CountyMap({
   onCountyClick: (fips: string) => void;
 }) {
   return (
-    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }} style={{ width: "100%", height: "100%", outline: "none", border: "none", background: "white", padding: 0, margin: 0, display: "block" }}>
+    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }} style={{ width: "100%", height: "100%", outline: "none", border: "none", background: "transparent", padding: 0, margin: 0, display: "block" }}>
       <ZoomableGroup center={stateCenter(stateFips)} zoom={3} filter="none" style={{ outline: "none" }}>
         <Geographies geography={COUNTIES_URL} stroke="none" style={{ outline: "none", border: "none", padding: 0, margin: 0, display: "block" }}>
           {({ geographies }: { geographies: Geo[] }) =>
