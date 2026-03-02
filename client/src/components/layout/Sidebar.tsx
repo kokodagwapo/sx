@@ -48,13 +48,13 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r border-sky-100 bg-gradient-to-b from-sky-50/90 to-sky-50/60 transition-all duration-300",
+        "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r border-slate-200 bg-white transition-all duration-300",
         !forceShow && "hidden lg:flex",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
       {/* Logo / Brand */}
-      <div className="flex h-14 items-center justify-between border-b border-sky-100 px-4">
+      <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4">
         <Link to="/" className={cn("flex items-center justify-center -ml-1", collapsed && "w-full")}>
           <SprinkleXLogo size={collapsed ? "sm" : "md"} showText={!collapsed} />
         </Link>

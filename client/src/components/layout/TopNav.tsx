@@ -120,7 +120,7 @@ export function TopNav({
   );
 
   return (
-    <header className="sticky top-0 z-[999] flex h-14 items-center justify-between border-b border-slate-200 bg-white/90 px-4 shadow-sm backdrop-blur-md">
+    <header className="sticky top-0 z-[999] flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-sm">
       <div className="flex items-center gap-4">
         <button
           type="button"
