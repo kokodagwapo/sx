@@ -104,14 +104,17 @@ export function Sidebar({
                           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                           collapsed
                             ? isActive
-                              ? "bg-white/15 text-white justify-center"
+                              ? "text-white justify-center"
                               : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
                             : isActive
-                              ? "bg-sky-500/10 text-sky-700"
+                              ? "text-sky-700"
                               : "text-sky-900/60 hover:bg-sky-200/50 hover:text-sky-800"
                         )}
                       >
-                        <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
+                        <Icon
+                          className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-yellow-400" : "")}
+                          strokeWidth={2}
+                        />
                         {!collapsed && (
                           <span className="truncate">{step.headerTitle.replace(/^Step \d+\w? - /, "")}</span>
                         )}
