@@ -104,11 +104,11 @@ export function Sidebar({
                           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                           collapsed
                             ? isActive
-                              ? "bg-sky-500 text-white shadow-sm justify-center"
-                              : "text-white/80 hover:bg-sky-500 hover:text-white justify-center"
+                              ? "bg-white/15 text-white justify-center"
+                              : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
                             : isActive
-                              ? "bg-sky-500/20 text-sky-700 shadow-sm"
-                              : "text-sky-900/70 hover:bg-sky-100 hover:text-sky-900"
+                              ? "bg-sky-500/10 text-sky-700"
+                              : "text-sky-900/60 hover:bg-sky-500/[0.06] hover:text-sky-800"
                         )}
                       >
                         <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
