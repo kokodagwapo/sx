@@ -26,18 +26,18 @@ export const step2StateCountyBars: VerticalBarDatum[] = [
 ];
 
 export const step2ProductTypeDonut: DonutDatum[] = [
-  { name: "30 FRM", value: 87, color: "#a61e3a" },
-  { name: "15 FRM", value: 13, color: "#2563eb" },
+  { name: "30 FRM", value: 87 },
+  { name: "15 FRM", value: 13 },
 ];
 
 export const step2PurposeDonut: DonutDatum[] = [
-  { name: "Purchase", value: 52, color: "#a61e3a" },
-  { name: "Refinance", value: 48, color: "#2563eb" },
+  { name: "Purchase", value: 52 },
+  { name: "Refinance", value: 48 },
 ];
 
 export const step2LoanTypeDonut: DonutDatum[] = [
-  { name: "Conventional", value: 59, color: "#a61e3a" },
-  { name: "Government", value: 41, color: "#2563eb" },
-  { name: "Jumbo", value: 9, color: "#f59e0b" },
+  { name: "Conventional", value: 59 },
+  { name: "Government", value: 41 },
+  { name: "Jumbo", value: 9 },
 ];
 

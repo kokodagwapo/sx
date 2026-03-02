@@ -33,21 +33,21 @@ export const step3Dti: HorizontalBarDatum[] = [
 
 /** Product Distribution — 30 FRM 85.2%, 15 FRM 12.6%, other ~2% */
 export const step3Product: DonutDatum[] = [
-  { name: "30 FRM", value: 85.2, color: "#dc2626" },
-  { name: "15 FRM", value: 12.6, color: "#3b82f6" },
-  { name: "Other", value: 2.2, color: "#1e40af" },
+  { name: "30 FRM", value: 85.2 },
+  { name: "15 FRM", value: 12.6 },
+  { name: "Other", value: 2.2 },
 ];
 
 /** Occupancy Distribution — Owner 91.5%, Investment 6.9% */
 export const step3Occupancy: DonutDatum[] = [
-  { name: "Owner", value: 91.5, color: "#dc2626" },
-  { name: "Investment", value: 6.9, color: "#3b82f6" },
-  { name: "Second home", value: 1.6, color: "#1e40af" },
+  { name: "Owner", value: 91.5 },
+  { name: "Investment", value: 6.9 },
+  { name: "Second home", value: 1.6 },
 ];
 
 /** Loan Purpose Distribution — Purchase 51.5%, Refinance 48.5% */
 export const step3Purpose: DonutDatum[] = [
-  { name: "Purchase", value: 51.5, color: "#dc2626" },
-  { name: "Refinance", value: 48.5, color: "#1e40af" },
+  { name: "Purchase", value: 51.5 },
+  { name: "Refinance", value: 48.5 },
 ];
 
