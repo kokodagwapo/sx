@@ -28,6 +28,7 @@ import {
   type LoanGeoRecord,
 } from "@/data/mock/step1";
 import { cn } from "@/lib/utils";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const STATE_ABBR = new Map([
   ["California", "CA"], ["Florida", "FL"], ["Georgia", "GA"], ["New York", "NY"], ["Pennsylvania", "PA"],
@@ -490,45 +491,49 @@ export default function Step1Geography() {
         <div className="flex flex-col gap-4 order-2 lg:order-1">
           {/* KPI cards */}
           <div className="grid grid-cols-2 gap-4 opacity-0 animate-fade-in-up">
-            <button
-              type="button"
-              onClick={() => setLoansDrilldownOpen((o) => !o)}
-              className={cn(
-                "flex min-h-[88px] flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-4 py-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
-                loansDrilldownOpen && "ring-2 ring-sky-500/30 border-sky-300/80"
-              )}
-            >
-              <div className="flex items-center justify-between gap-1.5">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-sky-500/20 text-sky-600">
-                    <LayoutList className="h-2.5 w-2.5" strokeWidth={2} />
+            <Tooltip content="Total number of selected loans in the portfolio. Click to expand drilldown by state.">
+              <button
+                type="button"
+                onClick={() => setLoansDrilldownOpen((o) => !o)}
+                className={cn(
+                  "flex min-h-[88px] w-full flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-4 py-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+                  loansDrilldownOpen && "ring-2 ring-sky-500/30 border-sky-300/80"
+                )}
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-sky-500/20 text-sky-600">
+                      <LayoutList className="h-2.5 w-2.5" strokeWidth={2} />
+                    </div>
+                    <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-sky-700/90">
+                      Total Loans
+                    </span>
                   </div>
-                  <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-sky-700/90">
-                    Total Loans
+                  <ChevronDown
+                    className={cn("h-3.5 w-3.5 text-slate-400 transition-transform", loansDrilldownOpen && "rotate-180")}
+                  />
+                </div>
+                <div className="mt-1 text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)]">
+                  {totalLoans.toLocaleString()}
+                </div>
+                <div className="mt-0.5 text-[9px] text-sky-600 font-medium">Click for drilldown</div>
+              </button>
+            </Tooltip>
+            <Tooltip content="Weighted Average Coupon — the average interest rate of loans weighted by unpaid principal balance.">
+              <div className="flex min-h-[88px] flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-4 py-3 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-violet-500/20 text-violet-600">
+                    <Percent className="h-2.5 w-2.5" strokeWidth={2} />
+                  </div>
+                  <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-violet-700/90">
+                    WAC
                   </span>
                 </div>
-                <ChevronDown
-                  className={cn("h-3.5 w-3.5 text-slate-400 transition-transform", loansDrilldownOpen && "rotate-180")}
-                />
-              </div>
-              <div className="mt-1 text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)]">
-                {totalLoans.toLocaleString()}
-              </div>
-              <div className="mt-0.5 text-[9px] text-sky-600 font-medium">Click for drilldown</div>
-            </button>
-            <div className="flex min-h-[88px] flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-4 py-3 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
-              <div className="flex items-center gap-2">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-violet-500/20 text-violet-600">
-                  <Percent className="h-2.5 w-2.5" strokeWidth={2} />
+                <div className="mt-1 text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)]">
+                  {weightedAvgCoupon}
                 </div>
-                <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-violet-700/90">
-                  WAC
-                </span>
               </div>
-              <div className="mt-1 text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)]">
-                {weightedAvgCoupon}
-              </div>
-            </div>
+            </Tooltip>
           </div>
 
           {/* State filter */}
