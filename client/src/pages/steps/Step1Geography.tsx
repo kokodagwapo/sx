@@ -494,7 +494,7 @@ export default function Step1Geography() {
               type="button"
               onClick={() => setLoansDrilldownOpen((o) => !o)}
               className={cn(
-                "rounded-lg border border-white/60 bg-white p-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:border-slate-200/80",
+                "rounded-xl border border-white/60 bg-white p-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:border-slate-200/80",
                 loansDrilldownOpen && "ring-2 ring-sky-500/30 border-sky-300/80"
               )}
             >
@@ -516,7 +516,7 @@ export default function Step1Geography() {
               </div>
               <div className="mt-0.5 text-[9px] text-sky-600 font-medium">Click for drilldown</div>
             </button>
-            <div className="rounded-lg border border-white/60 bg-white p-3 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:border-slate-200/80">
+            <div className="rounded-xl border border-white/60 bg-white p-3 shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:border-slate-200/80">
               <div className="flex items-center gap-1.5">
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-violet-500/10 text-violet-600">
                   <Percent className="h-2.5 w-2.5" strokeWidth={2} />
