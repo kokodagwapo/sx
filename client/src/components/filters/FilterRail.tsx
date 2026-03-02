@@ -1,15 +1,14 @@
 import { useState, useMemo } from "react";
 import { SlidersHorizontal, ChevronDown, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createPortal } from "react-dom";
 
 export type FilterGroup = {
   title: string;
   options: string[];
-  /** Section header (e.g. "Product", "Credit") */
   section?: string;
 };
 
-/** Selected filters: group title -> array of selected option values */
 export type FilterState = Record<string, string[]>;
 
 function FilterChip({
@@ -28,7 +27,7 @@ function FilterChip({
       className={cn(
         "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
         checked
-          ? "bg-slate-800 text-white"
+          ? "bg-sky-600 text-white"
           : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
       )}
     >
@@ -154,18 +153,16 @@ function StateFilterSection({
   );
 }
 
-export function FilterRail({
+function FilterBody({
   groups,
-  selected = {},
+  selected,
   onFilterChange,
   onClearAll,
-  className,
 }: {
   groups: FilterGroup[];
-  selected?: FilterState;
+  selected: FilterState;
   onFilterChange?: (group: string, value: string, checked: boolean) => void;
   onClearAll?: () => void;
-  className?: string;
 }) {
   const hasFilters = Object.keys(selected).length > 0;
   const bySection = useMemo(() => {
@@ -181,69 +178,158 @@ export function FilterRail({
   const stateGroup = groups.find((g) => g.title === "State");
   const productGroups = (bySection["Product"] ?? []).filter((g) => g.title !== "State");
   const creditGroups = bySection["Credit"] ?? [];
+  const activeCount = Object.values(selected).flat().length;
 
   return (
-    <aside className={cn("w-full", className)}>
-      <div className="sticky top-4 rounded-lg border border-slate-200/80 bg-white shadow-sm">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2.5">
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
-            <span className="text-sm font-medium text-slate-800">Filters</span>
-            {hasFilters && (
-              <span className="rounded-full bg-slate-200/80 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
-                {Object.values(selected).flat().length}
-              </span>
-            )}
-          </div>
-          {hasFilters && onClearAll && (
-            <button
-              type="button"
-              onClick={onClearAll}
-              className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-            >
-              <X className="h-3 w-3" />
-              Clear
-            </button>
+    <div className="rounded-lg border border-slate-200/80 bg-white shadow-sm">
+      <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
+          <span className="text-sm font-medium text-slate-800">Filters</span>
+          {hasFilters && (
+            <span className="rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold text-sky-700">
+              {activeCount}
+            </span>
           )}
         </div>
-
-        {/* Subtitle */}
-        {onFilterChange && (
-          <div className="border-b border-slate-100 px-3 py-1.5">
-            <p className="text-[11px] text-slate-500">Click charts or filters to drill down</p>
-          </div>
+        {hasFilters && onClearAll && (
+          <button
+            type="button"
+            onClick={onClearAll}
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+          >
+            <X className="h-3 w-3" />
+            Clear
+          </button>
         )}
-
-        {/* Sections */}
-        <div className="max-h-[calc(100vh-220px)] overflow-y-auto">
-          {productGroups.length > 0 && (
-            <FilterSection
-              title="Product"
-              groups={productGroups}
-              selected={selected}
-              onFilterChange={onFilterChange ?? (() => {})}
-              defaultOpen
-            />
-          )}
-          {stateGroup && (
-            <StateFilterSection
-              options={stateGroup.options}
-              selected={selected["State"] ?? []}
-              onFilterChange={(value, checked) => onFilterChange?.("State", value, checked)}
-            />
-          )}
-          {creditGroups.length > 0 && (
-            <FilterSection
-              title="Credit"
-              groups={creditGroups}
-              selected={selected}
-              onFilterChange={onFilterChange ?? (() => {})}
-              defaultOpen={false}
-            />
-          )}
-        </div>
       </div>
-    </aside>
+      {onFilterChange && (
+        <div className="border-b border-slate-100 px-3 py-1.5">
+          <p className="text-[11px] text-slate-500">Click charts or filters to drill down</p>
+        </div>
+      )}
+      <div className="max-h-[calc(100vh-220px)] overflow-y-auto">
+        {productGroups.length > 0 && (
+          <FilterSection
+            title="Product"
+            groups={productGroups}
+            selected={selected}
+            onFilterChange={onFilterChange ?? (() => {})}
+            defaultOpen
+          />
+        )}
+        {stateGroup && (
+          <StateFilterSection
+            options={stateGroup.options}
+            selected={selected["State"] ?? []}
+            onFilterChange={(value, checked) => onFilterChange?.("State", value, checked)}
+          />
+        )}
+        {creditGroups.length > 0 && (
+          <FilterSection
+            title="Credit"
+            groups={creditGroups}
+            selected={selected}
+            onFilterChange={onFilterChange ?? (() => {})}
+            defaultOpen={false}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function FilterRail({
+  groups,
+  selected = {},
+  onFilterChange,
+  onClearAll,
+  mobileOpen = false,
+  onMobileClose,
+  className,
+}: {
+  groups: FilterGroup[];
+  selected?: FilterState;
+  onFilterChange?: (group: string, value: string, checked: boolean) => void;
+  onClearAll?: () => void;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+  className?: string;
+}) {
+  const activeCount = Object.values(selected).flat().length;
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className={cn("hidden lg:block w-full", className)}>
+        <div className="sticky top-[72px]">
+          <FilterBody
+            groups={groups}
+            selected={selected}
+            onFilterChange={onFilterChange}
+            onClearAll={onClearAll}
+          />
+        </div>
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && createPortal(
+        <>
+          <div
+            className="fixed inset-0 z-[1100] bg-black/40 backdrop-blur-sm lg:hidden"
+            onClick={onMobileClose}
+          />
+          <div className="fixed bottom-0 left-0 right-0 z-[1101] max-h-[82vh] overflow-hidden rounded-t-2xl bg-white shadow-2xl lg:hidden flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4 text-sky-600" strokeWidth={2} />
+                <span className="text-sm font-semibold text-slate-800">Filters</span>
+                {activeCount > 0 && (
+                  <span className="rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold text-sky-700">
+                    {activeCount} active
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {activeCount > 0 && onClearAll && (
+                  <button
+                    type="button"
+                    onClick={onClearAll}
+                    className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100"
+                  >
+                    Clear all
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={onMobileClose}
+                  className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="overflow-y-auto flex-1 pb-safe">
+              <FilterBody
+                groups={groups}
+                selected={selected}
+                onFilterChange={onFilterChange}
+                onClearAll={onClearAll}
+              />
+            </div>
+            <div className="border-t border-slate-100 px-4 py-3">
+              <button
+                type="button"
+                onClick={onMobileClose}
+                className="w-full rounded-xl bg-sky-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-sky-700 active:bg-sky-800"
+              >
+                Show results
+              </button>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+    </>
   );
 }

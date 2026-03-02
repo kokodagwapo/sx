@@ -50,13 +50,15 @@ export function Sidebar({
       className={cn(
         "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r transition-all duration-300 shadow-none",
         !forceShow && "hidden lg:flex",
-        collapsed ? "w-[72px] bg-sky-600 border-sky-500" : "w-[260px] bg-sky-50 border-sky-100"
+        collapsed
+          ? "w-[72px] bg-sky-600 border-sky-500"
+          : "w-[260px] border-sky-100 bg-gradient-to-b from-sky-100/70 via-sky-50 to-white"
       )}
     >
       {/* Logo / Brand */}
       <div className={cn(
         "flex h-14 items-center justify-between border-b px-4",
-        collapsed ? "border-sky-500 justify-center" : "border-sky-100"
+        collapsed ? "border-sky-500 justify-center" : "border-sky-100/80"
       )}>
         {!collapsed && (
           <Link to="/" className="flex items-center justify-center -ml-1">
@@ -84,7 +86,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sky-700/70"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sky-700/60 letter-spacing-widest"
             >
               Main Menu
               <ChevronDown className={cn("h-4 w-4 transition-transform", menuOpen && "rotate-180")} />
@@ -101,14 +103,14 @@ export function Sidebar({
                       <Link
                         to={step.path}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                           collapsed
                             ? isActive
                               ? "text-white justify-center"
                               : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
                             : isActive
-                              ? "text-sky-700"
-                              : "text-sky-900/60 hover:bg-sky-200/50 hover:text-sky-800"
+                              ? "bg-white/80 text-sky-800 shadow-sm ring-1 ring-sky-200/80"
+                              : "text-sky-900/55 hover:bg-sky-100/70 hover:text-sky-800"
                         )}
                       >
                         <Icon

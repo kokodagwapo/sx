@@ -42,7 +42,7 @@ export function KpiStrip({
   className?: string;
 }) {
   return (
-    <div className={cn("border-b border-sky-100/60 bg-gradient-to-r from-sky-50/60 via-white to-sky-50/30 shadow-none", compact ? "py-5" : "py-4", className)}>
+    <div className={cn("border-b border-sky-100/80 bg-gradient-to-r from-sky-100/50 via-white/90 to-blue-50/40 shadow-none", compact ? "py-5" : "py-4", className)}>
       <div className="container-page">
         <div
           className={cn(

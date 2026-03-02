@@ -46,7 +46,7 @@ export function SprinkleShell({
   }, [location.pathname]);
 
   return (
-    <div className={cn("min-h-screen bg-[#eef6ff] transition-colors duration-300", className)}>
+    <div className={cn("min-h-screen bg-[#e8f2ff] transition-colors duration-300", className)}>
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((c) => !c)}
