@@ -51,11 +51,11 @@ function FilterSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b border-slate-100 last:border-b-0">
+    <div className="border-b border-white/30 last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-slate-50/50"
+        className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-white/30"
       >
         <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">{title}</span>
         {open ? (
@@ -107,11 +107,11 @@ function StateFilterSection({
     return options.filter((o) => o.toLowerCase().includes(q));
   }, [options, search]);
   return (
-    <div className="border-b border-slate-100 last:border-b-0">
+    <div className="border-b border-white/30 last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-slate-50/50"
+        className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-white/30"
       >
         <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">State</span>
         {selected.length > 0 && (
@@ -181,8 +181,8 @@ function FilterBody({
   const activeCount = Object.values(selected).flat().length;
 
   return (
-    <div className="rounded-lg border border-slate-200/80 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2.5">
+    <div className="rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.07)]">
+      <div className="flex items-center justify-between gap-2 border-b border-white/40 px-3 py-2.5">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
           <span className="text-sm font-medium text-slate-800">Filters</span>
@@ -204,7 +204,7 @@ function FilterBody({
         )}
       </div>
       {onFilterChange && (
-        <div className="border-b border-slate-100 px-3 py-1.5">
+        <div className="border-b border-white/40 px-3 py-1.5">
           <p className="text-[11px] text-slate-500">Click charts or filters to drill down</p>
         </div>
       )}
