@@ -15,12 +15,12 @@ export type KpiItem = {
 };
 
 const KPI_CARD_COLORS = [
-  { icon: "bg-sky-500/20 text-sky-600", label: "text-sky-700/90" },
-  { icon: "bg-emerald-500/20 text-emerald-600", label: "text-emerald-700/90" },
+  { icon: "bg-blue-500/20 text-blue-600", label: "text-blue-700/90" },
+  { icon: "bg-indigo-500/20 text-indigo-600", label: "text-indigo-700/90" },
+  { icon: "bg-cyan-500/20 text-cyan-600", label: "text-cyan-700/90" },
+  { icon: "bg-teal-500/20 text-teal-600", label: "text-teal-700/90" },
   { icon: "bg-violet-500/20 text-violet-600", label: "text-violet-700/90" },
-  { icon: "bg-amber-500/20 text-amber-600", label: "text-amber-700/90" },
-  { icon: "bg-rose-500/20 text-rose-600", label: "text-rose-700/90" },
-  { icon: "bg-pink-500/20 text-pink-600", label: "text-pink-700/90" },
+  { icon: "bg-fuchsia-500/20 text-fuchsia-600", label: "text-fuchsia-700/90" },
 ];
 
 function isNumericValue(v: string): boolean {

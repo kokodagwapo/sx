@@ -36,12 +36,12 @@ export const GEO_DISTRIBUTION_COLORS = [
   '#1e40af', // darkest blue - lowest
 ] as const;
 
-/** Reference image: donut chart colors (blues, orange, dark red) */
+/** Reference image: donut chart colors (vibrant and lively) */
 export const DONUT_REFERENCE_COLORS = [
-  '#1e40af', // dark blue
-  '#3b82f6', // medium blue
-  '#7dd3fc', // light blue
-  '#f97316', // orange
-  '#dc2626', // dark red
-  '#991b1b',
+  '#4f46e5', // indigo
+  '#0ea5e9', // sky
+  '#10b981', // emerald
+  '#f59e0b', // amber
+  '#ef4444', // red
+  '#8b5cf6', // violet
 ] as const;

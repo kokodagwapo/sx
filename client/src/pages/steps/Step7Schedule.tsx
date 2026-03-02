@@ -186,6 +186,7 @@ const columns = [
   sortableColumn<ScheduleRow>("firstPaymentDate", "First Payment", {
     icon: Calendar,
     cell: ({ getValue }) => (getValue() as string) ?? "—",
+    sortingFn: "date",
   }),
   sortableColumn<ScheduleRow>("purpose", "Purpose", {
     icon: Target,

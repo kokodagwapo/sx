@@ -1,5 +1,5 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { PASTEL_COLORS } from "@/styles/chartPalette";
+import { DONUT_REFERENCE_COLORS } from "@/styles/chartPalette";
 
 export type DonutDatum = {
   name: string;
@@ -27,7 +27,13 @@ export function DonutChart({
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Tooltip
-            contentStyle={{ fontSize: 12, borderRadius: 12 }}
+            contentStyle={{ 
+              fontSize: 12, 
+              borderRadius: 12,
+              backgroundColor: "rgba(255, 255, 255, 0.95)",
+              border: "1px solid #e2e8f0",
+              boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+            }}
             formatter={(value: number | undefined) => (value != null && isPercent ? `${value.toFixed(1)}%` : value ?? "")}
           />
           <Pie
@@ -36,8 +42,8 @@ export function DonutChart({
             nameKey="name"
             innerRadius={innerRadius}
             outerRadius={outerRadius}
-            paddingAngle={2}
-            stroke="rgba(255,255,255,0.85)"
+            paddingAngle={3}
+            stroke="#fff"
             strokeWidth={2}
             isAnimationActive
             animationDuration={animationDuration}
@@ -46,7 +52,7 @@ export function DonutChart({
             cursor={onSegmentClick ? "pointer" : undefined}
           >
             {data.map((entry, i) => (
-              <Cell key={`${entry.name}-${i}`} fill={entry.color ?? PASTEL_COLORS[i % PASTEL_COLORS.length]} />
+              <Cell key={`${entry.name}-${i}`} fill={entry.color ?? DONUT_REFERENCE_COLORS[i % DONUT_REFERENCE_COLORS.length]} />
             ))}
           </Pie>
         </PieChart>
@@ -54,10 +60,10 @@ export function DonutChart({
 
       <div className="pointer-events-none absolute inset-0 grid place-items-center">
         <div className="text-center">
-          <div className="text-[11px] font-medium tracking-[0.14em] uppercase text-slate-500">
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-400">
             {isPercent ? "Total" : "Sum"}
           </div>
-          <div className="mt-0.5 text-xl font-semibold tracking-tight text-slate-900 tabular-nums">
+          <div className="mt-0.5 text-2xl font-bold tracking-tight text-slate-800 tabular-nums">
             {isPercent ? "100%" : Intl.NumberFormat("en-US").format(total)}
           </div>
         </div>

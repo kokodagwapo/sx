@@ -83,10 +83,32 @@ export function stringSortFn(rowA: { getValue: (id: string) => unknown }, rowB: 
 export function dateSortFn(rowA: { getValue: (id: string) => unknown }, rowB: { getValue: (id: string) => unknown }, columnId: string) {
   const a = rowA.getValue(columnId) as string | undefined | null;
   const b = rowB.getValue(columnId) as string | undefined | null;
+  
   if (!a && !b) return 0;
   if (!a) return 1;
   if (!b) return -1;
-  return new Date(a).getTime() - new Date(b).getTime();
+  
+  // Handle common date formats like "6/1/2017"
+  const parseDate = (d: string) => {
+    const parsed = new Date(d).getTime();
+    if (!isNaN(parsed)) return parsed;
+    
+    // Fallback for MM/DD/YYYY if native fails
+    const parts = d.split('/');
+    if (parts.length === 3) {
+      const date = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+      return date.getTime();
+    }
+    return NaN;
+  };
+
+  const dateA = parseDate(a);
+  const dateB = parseDate(b);
+  
+  if (isNaN(dateA)) return 1;
+  if (isNaN(dateB)) return -1;
+  
+  return dateA - dateB;
 }
 
 /** Helper to create a sortable column with optional icon */
@@ -101,7 +123,8 @@ export function sortableColumn<T>(
 ): ColumnDef<T, unknown> {
   const { icon, cell, sortingFn } = options ?? {};
   const fn = sortingFn === "numeric" ? numericSortFn : sortingFn === "date" ? dateSortFn : sortingFn === "string" ? stringSortFn : undefined;
-  return {
+  
+  const columnDef: ColumnDef<T, unknown> = {
     accessorKey,
     header: ({ column }) => (
       <SortableHeader column={column} icon={icon} label={label} />
@@ -110,8 +133,16 @@ export function sortableColumn<T>(
       ? ({ getValue }) => cell({ getValue })
       : undefined,
     enableSorting: true,
-    sortingFn: fn,
   };
+
+  if (fn) {
+    columnDef.sortingFn = fn;
+  } else if (sortingFn === "basic") {
+    // Let react-table handle basic sorting
+    columnDef.enableSorting = true;
+  }
+
+  return columnDef;
 }
 
 export function DataTable<T>({

@@ -71,7 +71,7 @@ function DrilldownPanel({
     const c = data as CompositionDrilldown;
     return (
       <PanelCard
-        className="border-rose-200/60 bg-rose-50/30 opacity-0 animate-fade-in-up"
+        className="border-indigo-200/60 bg-indigo-50/40 opacity-0 animate-fade-in-up"
         icon={Sparkles}
         title={title}
         right={
@@ -81,15 +81,18 @@ function DrilldownPanel({
         }
       >
         <div className="space-y-4">
-          <div className="rounded-lg border border-slate-200/70 bg-white/80 px-3 py-2.5">
-            <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Definition</div>
-            <p className="mt-2 text-sm text-slate-700">{c.definition}</p>
+          <div className="rounded-lg border border-slate-200/70 bg-white/90 px-3 py-2.5 shadow-sm">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Definition</div>
+            <p className="mt-2 text-sm text-slate-700 leading-relaxed">{c.definition}</p>
           </div>
-          <div className="text-sm font-semibold text-rose-700">{c.pct.toFixed(1)}% of portfolio</div>
+          <div className="text-sm font-bold text-indigo-600 flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+            {c.pct.toFixed(1)}% of portfolio
+          </div>
           <ul className="space-y-2">
             {c.insights.map((insight, i) => (
-              <li key={i} className="flex gap-2 text-sm text-slate-700">
-                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+              <li key={i} className="flex gap-2 text-sm text-slate-700 bg-white/50 p-2 rounded-lg border border-indigo-100/50">
+                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
                 <span>{insight}</span>
               </li>
             ))}
@@ -103,7 +106,7 @@ function DrilldownPanel({
     const c = data as CreditMetricDrilldown;
     return (
       <PanelCard
-        className="border-emerald-200/60 bg-emerald-50/30 opacity-0 animate-fade-in-up"
+        className="border-blue-200/60 bg-blue-50/40 opacity-0 animate-fade-in-up"
         icon={Sparkles}
         title={title}
         right={
@@ -113,15 +116,15 @@ function DrilldownPanel({
         }
       >
         <div className="space-y-4">
-          <div className="rounded-lg border border-slate-200/70 bg-white/80 px-3 py-2.5">
-            <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Definition</div>
-            <p className="mt-2 text-sm text-slate-700">{c.definition}</p>
+          <div className="rounded-lg border border-slate-200/70 bg-white/90 px-3 py-2.5 shadow-sm">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Definition</div>
+            <p className="mt-2 text-sm text-slate-700 leading-relaxed">{c.definition}</p>
           </div>
-          <div className="text-xl font-bold text-emerald-700 tabular-nums">{c.value}</div>
+          <div className="text-2xl font-black text-blue-600 tabular-nums drop-shadow-sm">{c.value}</div>
           <ul className="space-y-2">
             {c.insights.map((insight, i) => (
-              <li key={i} className="flex gap-2 text-sm text-slate-700">
-                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+              <li key={i} className="flex gap-2 text-sm text-slate-700 bg-white/50 p-2 rounded-lg border border-blue-100/50">
+                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                 <span>{insight}</span>
               </li>
             ))}
@@ -135,7 +138,7 @@ function DrilldownPanel({
     const w = data as WacProductDrilldown;
     return (
       <PanelCard
-        className="border-sky-200/60 bg-sky-50/30 opacity-0 animate-fade-in-up"
+        className="border-blue-200/60 bg-blue-50/40 opacity-0 animate-fade-in-up"
         icon={ScatterChart}
         title={title}
         right={
@@ -145,24 +148,24 @@ function DrilldownPanel({
         }
       >
         <div className="space-y-4">
-          <div className="rounded-lg border border-slate-200/70 bg-white/80 px-3 py-2.5">
-            <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Definition</div>
-            <p className="mt-2 text-sm text-slate-700">{w.definition}</p>
+          <div className="rounded-lg border border-slate-200/70 bg-white/90 px-3 py-2.5 shadow-sm">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Definition</div>
+            <p className="mt-2 text-sm text-slate-700 leading-relaxed">{w.definition}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border border-slate-200/70 bg-white/80 px-3 py-2.5">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500"># of Loans</div>
-              <div className="mt-1 text-lg font-bold text-sky-600">{w.loans.toLocaleString()}</div>
+            <div className="rounded-lg border border-blue-100 bg-white/90 px-3 py-2.5 shadow-sm">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400"># of Loans</div>
+              <div className="mt-1 text-lg font-black text-blue-600">{w.loans.toLocaleString()}</div>
             </div>
-            <div className="rounded-lg border border-slate-200/70 bg-white/80 px-3 py-2.5">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">WAC</div>
-              <div className="mt-1 text-lg font-bold text-rose-600">{w.wac.toFixed(2)}</div>
+            <div className="rounded-lg border border-rose-100 bg-white/90 px-3 py-2.5 shadow-sm">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-rose-400">WAC</div>
+              <div className="mt-1 text-lg font-black text-rose-600 tabular-nums">{w.wac.toFixed(2)}</div>
             </div>
           </div>
           <ul className="space-y-2">
             {w.insights.map((insight, i) => (
-              <li key={i} className="flex gap-2 text-sm text-slate-700">
-                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-sky-500" />
+              <li key={i} className="flex gap-2 text-sm text-slate-700 bg-white/50 p-2 rounded-lg border border-blue-100/50">
+                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
                 <span>{insight}</span>
               </li>
             ))}
@@ -215,18 +218,17 @@ function Small({
   onClick?: () => void;
 }) {
   return (
-    <div
-      role={onClick ? "button" : undefined}
+      <div role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
       onKeyDown={onClick ? (e) => e.key === "Enter" && onClick() : undefined}
       className={cn(
-        "rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 transition-all hover:border-emerald-200/70 hover:bg-emerald-50/40",
+        "rounded-xl border border-blue-100 bg-white px-4 py-3 transition-all hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-sm",
         onClick && "cursor-pointer"
       )}
     >
-      <div className="text-xs font-medium text-slate-600">{label}</div>
-      <div className="mt-1 text-xl font-semibold tracking-tight text-emerald-700 tabular-nums [font-family:var(--font-display)]">
+      <div className="text-xs font-medium text-slate-500">{label}</div>
+      <div className="mt-1 text-xl font-semibold tracking-tight text-blue-600 tabular-nums [font-family:var(--font-display)]">
         {value}
       </div>
     </div>
