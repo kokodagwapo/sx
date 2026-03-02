@@ -36,8 +36,26 @@ export function SprinkleShell({
   children: ReactNode;
   className?: string;
 }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("sprinklex-sidebar-collapsed") ?? "false");
+    } catch {
+      return false;
+    }
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleSidebarToggle = () => {
+    setSidebarCollapsed((c: boolean) => {
+      const next = !c;
+      try {
+        localStorage.setItem("sprinklex-sidebar-collapsed", JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
   const location = useLocation();
   const step = steps.find((s) => s.id === stepId);
 
@@ -49,7 +67,7 @@ export function SprinkleShell({
     <div className={cn("min-h-screen bg-[#f8fafc]", className)}>
       <Sidebar
         collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed((c) => !c)}
+        onToggle={handleSidebarToggle}
       />
 
       {/* Main content area - offset by sidebar width on desktop */}

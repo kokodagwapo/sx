@@ -137,7 +137,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
         </div>
       )}
 
-      <div className="relative flex-1 min-h-[504px] overflow-hidden rounded-xl bg-[#e8f4fc] transition-all duration-300">
+      <div className="relative flex-1 min-h-[504px] overflow-hidden rounded-xl bg-[#e0f2fe] transition-all duration-300">
         {/* Map controls — top center, horizontal, minimalist (drag to pan) */}
         {(level === "us-county" || level === "state") && (
           <div className="absolute top-2 right-3 z-20 flex items-center rounded-lg bg-white/40 shadow-sm backdrop-blur-md">
@@ -175,7 +175,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
             <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{hoveredCounty.name}</div>
             <div className="mt-1 text-sm font-semibold text-slate-800">{hoveredCounty.count.toLocaleString()} loans</div>
             <div className="text-xs text-slate-600">UPB: {Intl.NumberFormat("en-US").format(hoveredCounty.upb)}</div>
-            <div className="mt-1 text-[10px] text-sky-600 font-medium">Click to drill down</div>
+            <div className="mt-1 text-[10px] text-teal-600 font-medium">Click to drill down</div>
           </div>
         )}
 
@@ -185,7 +185,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
             <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Available Loans</div>
             <div className="mt-1 flex items-center gap-1">
               <span className="text-[10px] text-slate-600">1</span>
-              <div className="h-2 w-24 rounded-full bg-gradient-to-r from-[#bae6fd] via-[#fecaca] to-[#fda4af]" />
+              <div className="h-2 w-24 rounded-full bg-gradient-to-r from-[#ccfbf1] via-[#5eead4] to-[#0d9488]" />
               <span className="text-[10px] text-slate-600">{maxAllCounty}</span>
             </div>
           </div>
@@ -261,7 +261,7 @@ function USCountyMap({
 }) {
   return (
     <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }}>
-      <Sphere fill="#dbeafe" stroke="none" />
+      <Sphere fill="#e0f2fe" stroke="none" />
       <ZoomableGroup center={center} zoom={zoom} onMoveEnd={onMoveEnd} minZoom={1} maxZoom={8}>
         <Geographies geography={COUNTIES_URL}>
           {({ geographies }: { geographies: Geo[] }) =>
@@ -276,13 +276,13 @@ function USCountyMap({
                   key={geo.rsmKey}
                   geography={geo}
                   fill={fill}
-                  stroke="rgba(255,255,255,0.8)"
+                  stroke="rgba(255,255,255,0.9)"
                   strokeWidth={0.3}
                   style={{
                     default: { outline: "none", cursor: hasData ? "pointer" : "default", transition: "fill 0.2s ease" },
                     hover: {
                       outline: "none",
-                      fill: hasData ? "#fde68a" : fill,
+                      fill: hasData ? "#99f6e4" : fill,
                       cursor: hasData ? "pointer" : "default",
                     },
                     pressed: { outline: "none" },
@@ -304,7 +304,7 @@ function USCountyMap({
               textAnchor="middle"
               fontSize={10}
               fontFamily="system-ui, sans-serif"
-              fill="rgba(71,85,105,0.5)"
+              fill="rgba(71,85,105,0.65)"
               fontWeight={600}
               style={{ pointerEvents: "none", userSelect: "none" }}
             >
@@ -330,7 +330,7 @@ function CountyMap({
 }) {
   return (
     <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }}>
-      <Sphere fill="#dbeafe" stroke="none" />
+      <Sphere fill="#e0f2fe" stroke="none" />
       <ZoomableGroup center={stateCenter(stateFips)} zoom={3}>
         <Geographies geography={COUNTIES_URL}>
           {({ geographies }: { geographies: Geo[] }) =>
@@ -349,7 +349,7 @@ function CountyMap({
                     strokeWidth={0.3}
                     style={{
                       default: { outline: "none", cursor: v > 0 ? "pointer" : "default", transition: "fill 0.2s ease" },
-                      hover: { outline: "none", fill: v > 0 ? "#fde68a" : fill, cursor: v > 0 ? "pointer" : "default" },
+                      hover: { outline: "none", fill: v > 0 ? "#99f6e4" : fill, cursor: v > 0 ? "pointer" : "default" },
                       pressed: { outline: "none" },
                     }}
                     onClick={() => v > 0 && onCountyClick(fips)}
@@ -437,8 +437,8 @@ function TractView({
                 <Marker key={t.tractFips} coordinates={[t.lon, t.lat]}>
                   <circle
                     r={Math.max(4, Math.min(14, t.loanCount / 2))}
-                    fill="#7dd3fc"
-                    fillOpacity={0.75}
+                    fill="#2dd4bf"
+                    fillOpacity={0.85}
                     stroke="#fff"
                     strokeWidth={1}
                     style={{ cursor: "pointer" }}
@@ -459,11 +459,12 @@ function stateCenter(fips: string): [number, number] {
   return STATE_CENTERS[fips] ?? [-98, 38];
 }
 
-/** Choropleth colors: pastel palette — light (no data) → soft blue → soft coral → soft rose (high) */
+/** Choropleth colors: single-hue teal (brand-aligned) — light → dark */
 function choroplethColorFor(t: number) {
   if (t <= 0) return "#f1f5f9";
-  if (t < 0.25) return "#bae6fd";
-  if (t < 0.5) return "#7dd3fc";
-  if (t < 0.75) return "#fecaca";
-  return "#fda4af";
+  if (t < 0.2) return "#ccfbf1";
+  if (t < 0.4) return "#99f6e4";
+  if (t < 0.6) return "#5eead4";
+  if (t < 0.8) return "#2dd4bf";
+  return "#0d9488";
 }
