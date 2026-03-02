@@ -544,7 +544,7 @@ export default function Step1Geography() {
               value={stateFilter}
               onChange={(e) => setStateFilter(e.target.value)}
               placeholder="e.g. CA, FL, TX"
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
+              className="w-full rounded-xl border border-white/50 bg-white/30 backdrop-blur-xl px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-400/60 focus:outline-none focus:ring-2 focus:ring-sky-400/20 shadow-sm"
             />
           </div>
 
@@ -608,8 +608,8 @@ export default function Step1Geography() {
 
       {/* Loans drilldown — full width */}
       {loansDrilldownOpen && (
-        <div className="mt-4 opacity-0 animate-fade-in-up rounded-xl border border-sky-200/60 bg-white shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 bg-sky-50/50">
+        <div className="mt-4 opacity-0 animate-fade-in-up rounded-xl border border-white/50 bg-white/30 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.08)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-white/40 px-4 py-3 bg-white/20">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/15 text-sky-600">
                 <LayoutList className="h-5 w-5" strokeWidth={2} />
@@ -670,8 +670,8 @@ export default function Step1Geography() {
             </div>
 
             {/* Loans table */}
-            <div className="rounded-xl border border-slate-200/70 bg-white overflow-hidden">
-              <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-2.5 bg-slate-50/60">
+            <div className="rounded-xl border border-white/50 bg-white/30 backdrop-blur-xl overflow-hidden">
+              <div className="flex items-center justify-between border-b border-white/40 px-4 py-2.5 bg-white/20">
                 <div className="flex items-center gap-2">
                   <Table2 className="h-4 w-4 text-sky-600" />
                   <span className="text-xs font-semibold text-slate-700">
@@ -745,8 +745,8 @@ export default function Step1Geography() {
 
       {/* Chart bar drilldown panel */}
       {chartBarDrilldown && (
-        <div className="mt-4 opacity-0 animate-fade-in-up rounded-xl border border-sky-200/60 bg-white shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3 bg-sky-50/50">
+        <div className="mt-4 opacity-0 animate-fade-in-up rounded-xl border border-white/50 bg-white/30 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.08)] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-white/40 px-4 py-3 bg-white/20">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/15 text-sky-600">
                 <BarChart2 className="h-5 w-5" strokeWidth={2} />
@@ -782,15 +782,15 @@ export default function Step1Geography() {
           <div className="p-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
               {chartBarDrilldown.details.map((d) => (
-                <div key={d.label} className="rounded-lg border border-slate-200/70 bg-slate-50/60 px-3 py-2.5">
+                <div key={d.label} className="rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-3 py-2.5">
                   <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">{d.label}</div>
                   <div className="mt-1 text-sm font-semibold text-slate-800">{d.value}</div>
                 </div>
               ))}
             </div>
             {"counties" in chartBarDrilldown && chartBarDrilldown.counties && chartBarDrilldown.counties.length > 0 && !drilldownExpandToLoans && (
-              <div className="rounded-lg border border-slate-200/70 bg-white overflow-hidden">
-                <div className="px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50/80 border-b border-slate-200/70">
+              <div className="rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm overflow-hidden">
+                <div className="px-3 py-2 text-xs font-semibold text-slate-600 bg-white/20 border-b border-white/40">
                   Top counties
                 </div>
                 <ul className="divide-y divide-slate-100">
@@ -806,8 +806,8 @@ export default function Step1Geography() {
               </div>
             )}
             {"tracts" in chartBarDrilldown && chartBarDrilldown.tracts && chartBarDrilldown.tracts.length > 0 && !drilldownExpandToLoans && (
-              <div className="rounded-lg border border-slate-200/70 bg-white overflow-hidden">
-                <div className="px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50/80 border-b border-slate-200/70">
+              <div className="rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm overflow-hidden">
+                <div className="px-3 py-2 text-xs font-semibold text-slate-600 bg-white/20 border-b border-white/40">
                   Top tracts
                 </div>
                 <ul className="divide-y divide-slate-100 max-h-48 overflow-y-auto">
@@ -825,8 +825,8 @@ export default function Step1Geography() {
 
             {/* Individual loans — drilldown with pin to compare */}
             {drilldownExpandToLoans && drilldownLoanRows.length > 0 && (
-              <div className="rounded-lg border border-slate-200/70 bg-white overflow-hidden">
-                <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50/80 border-b border-slate-200/70">
+              <div className="rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm overflow-hidden">
+                <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-600 bg-white/20 border-b border-white/40">
                   <span>Individual loans ({drilldownLoanRows.length})</span>
                   {pinnedLoans.size > 0 && (
                     <span className="text-sky-600 font-medium">{pinnedLoans.size} pinned to compare</span>
@@ -834,7 +834,7 @@ export default function Step1Geography() {
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-slate-50">
+                    <thead className="sticky top-0 bg-white/60 backdrop-blur-sm">
                       <tr>
                         <th className="px-3 py-2 text-left font-medium text-slate-600 w-8"></th>
                         <th className="px-3 py-2 text-left font-medium text-slate-600">TVMA</th>
