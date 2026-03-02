@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -9,28 +10,23 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { PASTEL_COLORS, BAR_VALUE_COLORS } from "@/styles/chartPalette";
+import { DONUT_REFERENCE_COLORS } from "@/styles/chartPalette";
 
 export type VerticalBarDatum = {
   name: string;
   value: number;
 };
 
-function getValueBasedColor(value: number, maxVal: number): string {
-  if (maxVal <= 0) return BAR_VALUE_COLORS[0];
-  const t = value / maxVal;
-  const idx = Math.min(
-    Math.floor(t * (BAR_VALUE_COLORS.length - 1)),
-    BAR_VALUE_COLORS.length - 1
-  );
-  return BAR_VALUE_COLORS[idx];
-}
+const VIVID_COLORS = [
+  "#6366f1", "#06b6d4", "#10b981", "#f59e0b",
+  "#ef4444", "#ec4899", "#8b5cf6", "#f97316",
+];
 
 export function VerticalBarChart({
   data,
-  color = PASTEL_COLORS[0],
+  color,
   valueBasedColors = false,
-  showLabels = false,
+  showLabels = true,
   onBarClick,
 }: {
   data: VerticalBarDatum[];
@@ -39,40 +35,90 @@ export function VerticalBarChart({
   showLabels?: boolean;
   onBarClick?: (name: string) => void;
 }) {
-  const maxVal = Math.max(0, ...data.map((d) => d.value));
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const maxVal = Math.max(1, ...data.map((d) => d.value));
+
+  const barColor = (i: number) => {
+    if (color) return color;
+    return VIVID_COLORS[i % VIVID_COLORS.length];
+  };
+
   return (
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148,163,184,0.35)" />
-          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-          <YAxis tick={{ fontSize: 11 }} width={36} />
+        <BarChart data={data} margin={{ top: 18, right: 16, bottom: 8, left: 0 }}>
+          <defs>
+            {data.map((_, i) => {
+              const c = barColor(i);
+              return (
+                <linearGradient key={i} id={`vbg-${i}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={c} stopOpacity={0.95} />
+                  <stop offset="100%" stopColor={c} stopOpacity={0.55} />
+                </linearGradient>
+              );
+            })}
+          </defs>
+          <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="rgba(148,163,184,0.18)" />
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 11, fill: "#64748b" }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            tick={{ fontSize: 11, fill: "#64748b" }}
+            width={38}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
+          />
           <Tooltip
-            cursor={{ fill: "rgba(148,163,184,0.15)" }}
-            contentStyle={{ fontSize: 12, borderRadius: 12 }}
+            cursor={{ fill: "rgba(99,102,241,0.06)" }}
+            contentStyle={{
+              fontSize: 12,
+              borderRadius: 10,
+              backgroundColor: "rgba(15,23,42,0.92)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "#f8fafc",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+              padding: "8px 12px",
+            }}
+            itemStyle={{ color: "#e2e8f0" }}
+            formatter={(v: number) => [v.toLocaleString(), "Loans"]}
           />
           <Bar
             dataKey="value"
-            fill={valueBasedColors ? undefined : color}
             radius={[6, 6, 0, 0]}
             isAnimationActive
-            animationDuration={800}
+            animationDuration={900}
+            animationBegin={80}
             animationEasing="ease-out"
-            cursor={onBarClick ? "pointer" : undefined}
+            cursor={onBarClick ? "pointer" : "default"}
             onClick={onBarClick ? (e) => onBarClick(e?.name ?? "") : undefined}
+            onMouseEnter={(_: unknown, idx: number) => setActiveIdx(idx)}
+            onMouseLeave={() => setActiveIdx(null)}
           >
-            {valueBasedColors &&
-              data.map((entry, i) => (
-                <Cell key={`${entry.name}-${i}`} fill={getValueBasedColor(entry.value, maxVal)} />
-              ))}
+            {data.map((_, i) => (
+              <Cell
+                key={i}
+                fill={`url(#vbg-${i})`}
+                opacity={activeIdx == null || activeIdx === i ? 1 : 0.45}
+                style={{
+                  transition: "opacity 0.15s ease, filter 0.15s ease",
+                  filter: activeIdx === i ? `drop-shadow(0 0 7px ${barColor(i)}99)` : "none",
+                }}
+              />
+            ))}
             {showLabels && (
               <LabelList
                 dataKey="value"
                 position="top"
-                formatter={(label) =>
-                  typeof label === "number" ? label.toLocaleString() : String(label ?? "")
+                formatter={(label: unknown) =>
+                  typeof label === "number"
+                    ? label >= 1000 ? `${(label / 1000).toFixed(1)}K` : label.toLocaleString()
+                    : String(label ?? "")
                 }
-                style={{ fontSize: 11, fill: "#475569", fontFamily: "var(--font-sans)" }}
+                style={{ fontSize: 10, fill: "#6366f1", fontWeight: 700, fontFamily: "var(--font-sans)" }}
               />
             )}
           </Bar>
@@ -81,4 +127,3 @@ export function VerticalBarChart({
     </div>
   );
 }
-

@@ -72,6 +72,97 @@ function aggregateDonut(loans: Step2Loan[], field: keyof Step2Loan): DonutDatum[
   return Object.entries(counts).map(([name, value]) => ({ name, value }));
 }
 
+const BREAKDOWN_COLORS = [
+  "#6366f1", "#06b6d4", "#10b981", "#f59e0b",
+  "#ef4444", "#ec4899", "#8b5cf6", "#f97316",
+];
+
+function BreakdownColumn({
+  title,
+  data,
+  total,
+  filterGroup,
+  onDrilldown,
+}: {
+  title: string;
+  data: DonutDatum[];
+  total: number;
+  filterGroup: string;
+  onDrilldown: (group: string, value: string) => void;
+}) {
+  return (
+    <div>
+      <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">{title}</div>
+      <div className="space-y-1.5">
+        {data.slice(0, 8).map((d, i) => {
+          const pct = total > 0 ? (d.value / total) * 100 : 0;
+          const color = d.color ?? BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length];
+          return (
+            <button
+              key={d.name}
+              type="button"
+              className="group w-full text-left"
+              onClick={() => onDrilldown(filterGroup, d.name)}
+            >
+              <div className="mb-0.5 flex items-center justify-between">
+                <span className="text-[11px] font-medium text-slate-700 group-hover:text-slate-900 transition-colors truncate max-w-[70%]">{d.name}</span>
+                <span className="text-[11px] tabular-nums font-bold" style={{ color }}>{pct.toFixed(1)}%</span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}cc, ${color})`, boxShadow: `0 0 6px ${color}66` }}
+                />
+              </div>
+              <div className="mt-0.5 text-[10px] text-slate-400">{d.value.toLocaleString()} loans</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function BreakdownDetails({
+  filteredLoans,
+  productDonut,
+  purposeDonut,
+  loanTypeDonut,
+  interestRateBars,
+  stateBars,
+  onDrilldown,
+}: {
+  filteredLoans: Step2Loan[];
+  productDonut: DonutDatum[];
+  purposeDonut: DonutDatum[];
+  loanTypeDonut: DonutDatum[];
+  interestRateBars: VerticalBarDatum[];
+  stateBars: VerticalBarDatum[];
+  onDrilldown: (group: string, value: string) => void;
+}) {
+  const total = filteredLoans.length;
+  const rateDonuts: DonutDatum[] = interestRateBars.map((b, i) => ({
+    name: b.name,
+    value: b.value,
+    color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length],
+  }));
+  const stateDonuts: DonutDatum[] = stateBars.slice(0, 8).map((b, i) => ({
+    name: b.name,
+    value: b.value,
+    color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length],
+  }));
+
+  return (
+    <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
+      <BreakdownColumn title="Product Type" data={productDonut} total={total} filterGroup="Product Type" onDrilldown={onDrilldown} />
+      <BreakdownColumn title="Purpose" data={purposeDonut} total={total} filterGroup="Purpose" onDrilldown={onDrilldown} />
+      <BreakdownColumn title="Loan Type" data={loanTypeDonut} total={total} filterGroup="Loan Type" onDrilldown={onDrilldown} />
+      <BreakdownColumn title="Interest Rate" data={rateDonuts} total={total} filterGroup="Interest Rate" onDrilldown={onDrilldown} />
+      <BreakdownColumn title="Top States" data={stateDonuts} total={total} filterGroup="State" onDrilldown={onDrilldown} />
+    </div>
+  );
+}
+
 export default function Step2SearchLoans() {
   const [filterState, setFilterState] = useState<FilterState>({});
 
@@ -189,7 +280,7 @@ export default function Step2SearchLoans() {
         </PanelCard>
 
         <PanelCard className="col-span-12 lg:col-span-4" icon={PieChart} title="Available Loans by Product Type">
-          <div className="h-[230px]">
+          <div className="h-[260px]">
             <DonutChart
               data={productDonut}
               onSegmentClick={(name) => drilldown("Product Type", name)}
@@ -197,7 +288,7 @@ export default function Step2SearchLoans() {
           </div>
         </PanelCard>
         <PanelCard className="col-span-12 lg:col-span-4" icon={Target} title="Available Loans by Purpose">
-          <div className="h-[230px]">
+          <div className="h-[260px]">
             <DonutChart
               data={purposeDonut}
               onSegmentClick={(name) => drilldown("Purpose", name)}
@@ -205,12 +296,24 @@ export default function Step2SearchLoans() {
           </div>
         </PanelCard>
         <PanelCard className="col-span-12 lg:col-span-4" icon={FileText} title="Available Loans by Loan Type">
-          <div className="h-[230px]">
+          <div className="h-[260px]">
             <DonutChart
               data={loanTypeDonut}
               onSegmentClick={(name) => drilldown("Loan Type", name)}
             />
           </div>
+        </PanelCard>
+
+        <PanelCard className="col-span-12" icon={LayoutList} title="Portfolio Breakdown Details" subtitle="Click a row to filter">
+          <BreakdownDetails
+            filteredLoans={filteredLoans}
+            productDonut={productDonut}
+            purposeDonut={purposeDonut}
+            loanTypeDonut={loanTypeDonut}
+            interestRateBars={interestRateBars}
+            stateBars={stateBars}
+            onDrilldown={drilldown}
+          />
         </PanelCard>
       </div>
 

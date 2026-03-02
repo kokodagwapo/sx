@@ -50,13 +50,13 @@ export function Sidebar({
       className={cn(
         "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r transition-all duration-300 shadow-none",
         !forceShow && "hidden lg:flex",
-        collapsed ? "w-[72px] bg-sky-600 border-sky-500" : "w-[260px] bg-white border-slate-100"
+        collapsed ? "w-[72px] bg-sky-600 border-sky-500" : "w-[260px] bg-sky-50 border-sky-100"
       )}
     >
       {/* Logo / Brand */}
       <div className={cn(
         "flex h-14 items-center justify-between border-b px-4",
-        collapsed ? "border-sky-500 justify-center" : "border-slate-100"
+        collapsed ? "border-sky-500 justify-center" : "border-sky-100"
       )}>
         {!collapsed && (
           <Link to="/" className="flex items-center justify-center -ml-1">
@@ -108,7 +108,7 @@ export function Sidebar({
                               : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
                             : isActive
                               ? "bg-sky-500/10 text-sky-700"
-                              : "text-sky-900/60 hover:bg-sky-500/[0.06] hover:text-sky-800"
+                              : "text-sky-900/60 hover:bg-sky-200/50 hover:text-sky-800"
                         )}
                       >
                         <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
