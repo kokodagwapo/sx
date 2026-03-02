@@ -489,7 +489,7 @@ export default function Step1Geography() {
         {/* Left column: metrics + controls + insights */}
         <div className="flex flex-col gap-4 order-2 lg:order-1">
           {/* KPI cards */}
-          <div className="grid grid-cols-2 gap-2 opacity-0 animate-fade-in-up">
+          <div className="grid grid-cols-1 gap-2 opacity-0 animate-fade-in-up">
             <button
               type="button"
               onClick={() => setLoansDrilldownOpen((o) => !o)}
