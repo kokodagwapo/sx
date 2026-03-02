@@ -18,7 +18,7 @@ export type VerticalBarDatum = {
 };
 
 const VIVID_COLORS = [
-  "#6366f1", "#06b6d4", "#10b981", "#f59e0b",
+  "#22c55e", "#06b6d4", "#10b981", "#f59e0b",
   "#ef4444", "#ec4899", "#8b5cf6", "#f97316",
 ];
 

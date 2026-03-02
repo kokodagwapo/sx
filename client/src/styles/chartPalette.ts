@@ -38,7 +38,7 @@ export const GEO_DISTRIBUTION_COLORS = [
 
 /** Vivid donut chart palette — high-energy, high-contrast */
 export const DONUT_REFERENCE_COLORS = [
-  '#6366f1', // electric indigo
+  '#22c55e', // vivid green
   '#06b6d4', // neon cyan
   '#10b981', // vivid emerald
   '#f59e0b', // solar amber

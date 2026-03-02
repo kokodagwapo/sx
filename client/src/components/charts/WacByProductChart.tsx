@@ -18,7 +18,7 @@ export type WacByProductDatum = {
   wac: number;
 };
 
-const BAR_COLORS = ["#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
+const BAR_COLORS = ["#22c55e", "#06b6d4", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
 const SCATTER_COLOR = "#f43f5e";
 
 export function WacByProductChart({
