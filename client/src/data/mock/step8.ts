@@ -1,33 +1,33 @@
 import type { DonutDatum } from "@/components/charts/DonutChart";
 
 export const step8ProductType: DonutDatum[] = [
-  { name: "30 FRM", value: 85.2, color: "#991b1b" },
-  { name: "15 FRM", value: 12.6, color: "#2563eb" },
-  { name: "7/1 ARM", value: 2.2, color: "#60a5fa" },
+  { name: "30 FRM", value: 85.2 },
+  { name: "15 FRM", value: 12.6 },
+  { name: "7/1 ARM", value: 2.2 },
 ];
 
 export const step8Occupancy: DonutDatum[] = [
-  { name: "Owner", value: 92.6, color: "#991b1b" },
-  { name: "Investment", value: 4.9, color: "#2563eb" },
-  { name: "Other", value: 2.5, color: "#60a5fa" },
+  { name: "Owner", value: 92.6 },
+  { name: "Investment", value: 4.9 },
+  { name: "Other", value: 2.5 },
 ];
 
 export const step8Purpose: DonutDatum[] = [
-  { name: "Purchase", value: 55.2, color: "#991b1b" },
-  { name: "Refinance", value: 44.8, color: "#2563eb" },
+  { name: "Purchase", value: 55.2 },
+  { name: "Refinance", value: 44.8 },
 ];
 
 export const step8States: DonutDatum[] = [
-  { name: "CA", value: 10.8, color: "#991b1b" },
-  { name: "FL", value: 10.1, color: "#b91c1c" },
-  { name: "GA", value: 9.6, color: "#dc2626" },
-  { name: "PA", value: 7.1, color: "#ea580c" },
-  { name: "NY", value: 4.5, color: "#2563eb" },
-  { name: "MD", value: 3.3, color: "#3b82f6" },
-  { name: "MA", value: 2.8, color: "#60a5fa" },
-  { name: "NJ", value: 2.4, color: "#7dd3fc" },
-  { name: "VA", value: 1.9, color: "#93c5fd" },
-  { name: "Other", value: 47.5, color: "#94a3b8" },
+  { name: "CA", value: 10.8 },
+  { name: "FL", value: 10.1 },
+  { name: "GA", value: 9.6 },
+  { name: "PA", value: 7.1 },
+  { name: "NY", value: 4.5 },
+  { name: "MD", value: 3.3 },
+  { name: "MA", value: 2.8 },
+  { name: "NJ", value: 2.4 },
+  { name: "VA", value: 1.9 },
+  { name: "Other", value: 47.5 },
 ];
 
 export type WacByProductDatum = {
