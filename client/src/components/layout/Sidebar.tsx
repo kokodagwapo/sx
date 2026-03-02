@@ -48,20 +48,20 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r border-slate-200 bg-white transition-all duration-300",
+        "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r border-sky-100 bg-gradient-to-b from-sky-50/90 to-sky-50/60 transition-all duration-300",
         !forceShow && "hidden lg:flex",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
       {/* Logo / Brand */}
-      <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4">
+      <div className="flex h-14 items-center justify-between border-b border-sky-100 px-4">
         <Link to="/" className={cn("flex items-center justify-center -ml-1", collapsed && "w-full")}>
           <SprinkleXLogo size={collapsed ? "sm" : "md"} showText={!collapsed} />
         </Link>
         <button
           type="button"
           onClick={onToggle}
-          className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+          className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-sky-100 hover:text-slate-700"
         >
           <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
@@ -93,8 +93,8 @@ export function Sidebar({
                         className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-[#4285F4]/10 text-[#4285F4]"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                          ? "bg-[#4285F4]/15 text-[#4285F4] shadow-sm"
+                          : "text-slate-600 hover:bg-sky-100/80 hover:text-slate-800"
                       )}
                     >
                       <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />

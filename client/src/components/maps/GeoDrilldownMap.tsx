@@ -271,18 +271,25 @@ function USCountyMap({
               const v = d?.count ?? 0;
               const fill = choroplethColorFor(v / maxVal);
               const hasData = v > 0;
+              const animDelay = `${(parseInt(fips, 10) % 17) * 0.6}s`;
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={fill}
+                  fill={hasData ? fill : undefined}
                   stroke="rgba(255,255,255,0.8)"
                   strokeWidth={0.3}
                   style={{
-                    default: { outline: "none", cursor: hasData ? "pointer" : "default", transition: "fill 0.2s ease" },
+                    default: {
+                      outline: "none",
+                      cursor: hasData ? "pointer" : "default",
+                      ...(hasData
+                        ? { transition: "fill 0.2s ease" }
+                        : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "#e0f2fe" }),
+                    },
                     hover: {
                       outline: "none",
-                      fill: hasData ? "#fde68a" : fill,
+                      fill: hasData ? "#fde68a" : "#dbeafe",
                       cursor: hasData ? "pointer" : "default",
                     },
                     pressed: { outline: "none" },
@@ -339,7 +346,9 @@ function CountyMap({
               .map((geo) => {
                 const fips = geo.id;
                 const v = countyData.get(fips)?.count ?? 0;
-                const fill = v > 0 ? choroplethColorFor(v / maxVal) : "#f1f5f9";
+                const hasData = v > 0;
+                const fill = hasData ? choroplethColorFor(v / maxVal) : undefined;
+                const animDelay = `${(parseInt(fips, 10) % 13) * 0.7}s`;
                 return (
                   <Geography
                     key={geo.rsmKey}
@@ -348,11 +357,17 @@ function CountyMap({
                     stroke="rgba(255,255,255,0.8)"
                     strokeWidth={0.3}
                     style={{
-                      default: { outline: "none", cursor: v > 0 ? "pointer" : "default", transition: "fill 0.2s ease" },
-                      hover: { outline: "none", fill: v > 0 ? "#fde68a" : fill, cursor: v > 0 ? "pointer" : "default" },
+                      default: {
+                        outline: "none",
+                        cursor: hasData ? "pointer" : "default",
+                        ...(hasData
+                          ? { transition: "fill 0.2s ease" }
+                          : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "#e0f2fe" }),
+                      },
+                      hover: { outline: "none", fill: hasData ? "#fde68a" : "#dbeafe", cursor: hasData ? "pointer" : "default" },
                       pressed: { outline: "none" },
                     }}
-                    onClick={() => v > 0 && onCountyClick(fips)}
+                    onClick={() => hasData && onCountyClick(fips)}
                   />
                 );
               })
