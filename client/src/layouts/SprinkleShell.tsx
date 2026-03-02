@@ -36,7 +36,7 @@ export function SprinkleShell({
   children: ReactNode;
   className?: string;
 }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const step = steps.find((s) => s.id === stepId);
