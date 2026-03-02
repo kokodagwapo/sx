@@ -118,9 +118,9 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
   }, []);
 
   return (
-    <div className={cn("flex flex-col", className)}>
+    <div className={cn("flex flex-col h-full w-full p-0 m-0", className)}>
       {(level === "state" || level === "tract") && (
-        <div className="mb-2 flex items-center gap-2">
+        <div className="absolute top-2 left-2 z-30 flex items-center gap-2 px-2 py-1 bg-white/80 backdrop-blur-sm rounded-md shadow-sm border border-slate-200">
           <button
             type="button"
             onClick={handleBack}
@@ -129,7 +129,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
             <ChevronLeft className="h-3.5 w-3.5" />
             Back to {level === "state" ? "US" : "Counties"}
           </button>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-500 font-medium">
             {level === "state" && selectedState != null && stateNameByFips.get(selectedState)}
             {level === "tract" && selectedState != null && selectedCounty != null &&
               `${stateNameByFips.get(selectedState) ?? ""} → ${countyNameByFips.get(selectedCounty) ?? ""}`}
@@ -137,7 +137,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
         </div>
       )}
 
-      <div className="relative flex-1 min-h-[504px] overflow-hidden rounded-xl bg-[#e8f4fc] transition-all duration-300">
+      <div className="relative flex-1 overflow-hidden bg-white transition-all duration-300 border-0 shadow-none p-0 m-0 outline-none rounded-none flex flex-col">
         {/* Map controls — top center, horizontal, minimalist (drag to pan) */}
         {(level === "us-county" || level === "state") && (
           <div className="absolute top-2 right-3 z-20 flex items-center rounded-lg bg-white/40 shadow-sm backdrop-blur-md">
@@ -260,10 +260,9 @@ function USCountyMap({
   onCountyHover: (info: { fips: string; name: string; count: number; upb: number } | null) => void;
 }) {
   return (
-    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }}>
-      <Sphere fill="#dbeafe" stroke="none" />
-      <ZoomableGroup center={center} zoom={zoom} onMoveEnd={onMoveEnd} minZoom={1} maxZoom={8}>
-        <Geographies geography={COUNTIES_URL}>
+    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }} style={{ width: "100%", height: "100%", outline: "none", border: "none", background: "white", padding: 0, margin: 0, display: "block" }}>
+      <ZoomableGroup center={center} zoom={zoom} onMoveEnd={onMoveEnd} minZoom={1} maxZoom={8} filter="none" style={{ outline: "none" }}>
+        <Geographies geography={COUNTIES_URL} stroke="none" style={{ outline: "none", border: "none", padding: 0, margin: 0, display: "block" }}>
           {({ geographies }: { geographies: Geo[] }) =>
             geographies.map((geo) => {
               const fips = geo.id;
@@ -277,22 +276,26 @@ function USCountyMap({
                   key={geo.rsmKey}
                   geography={geo}
                   fill={hasData ? fill : undefined}
-                  stroke="rgba(255,255,255,0.8)"
-                  strokeWidth={0.3}
+                  stroke="none"
+                  strokeWidth={0}
                   style={{
                     default: {
                       outline: "none",
+                      border: "none",
+                      boxShadow: "none",
                       cursor: hasData ? "pointer" : "default",
                       ...(hasData
                         ? { transition: "fill 0.2s ease" }
-                        : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "#e0f2fe" }),
+                        : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "white" }),
                     },
                     hover: {
                       outline: "none",
+                      border: "none",
+                      boxShadow: "none",
                       fill: hasData ? "#fde68a" : "#dbeafe",
                       cursor: hasData ? "pointer" : "default",
                     },
-                    pressed: { outline: "none" },
+                    pressed: { outline: "none", border: "none", boxShadow: "none" },
                   }}
                   onClick={() => hasData && onCountyClick(fips)}
                   onMouseEnter={() =>
@@ -336,10 +339,9 @@ function CountyMap({
   onCountyClick: (fips: string) => void;
 }) {
   return (
-    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }}>
-      <Sphere fill="#dbeafe" stroke="none" />
-      <ZoomableGroup center={stateCenter(stateFips)} zoom={3}>
-        <Geographies geography={COUNTIES_URL}>
+    <ComposableMap projection="geoAlbersUsa" className="h-full w-full" projectionConfig={{ scale: 1000 }} style={{ width: "100%", height: "100%", outline: "none", border: "none", background: "white", padding: 0, margin: 0, display: "block" }}>
+      <ZoomableGroup center={stateCenter(stateFips)} zoom={3} filter="none" style={{ outline: "none" }}>
+        <Geographies geography={COUNTIES_URL} stroke="none" style={{ outline: "none", border: "none", padding: 0, margin: 0, display: "block" }}>
           {({ geographies }: { geographies: Geo[] }) =>
             geographies
               .filter((g) => g.id.startsWith(stateFips))
@@ -354,18 +356,20 @@ function CountyMap({
                     key={geo.rsmKey}
                     geography={geo}
                     fill={fill}
-                    stroke="rgba(255,255,255,0.8)"
-                    strokeWidth={0.3}
+                    stroke="none"
+                    strokeWidth={0}
                     style={{
                       default: {
                         outline: "none",
+                        border: "none",
+                        boxShadow: "none",
                         cursor: hasData ? "pointer" : "default",
                         ...(hasData
                           ? { transition: "fill 0.2s ease" }
-                          : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "#e0f2fe" }),
+                          : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "white" }),
                       },
-                      hover: { outline: "none", fill: hasData ? "#fde68a" : "#dbeafe", cursor: hasData ? "pointer" : "default" },
-                      pressed: { outline: "none" },
+                      hover: { outline: "none", border: "none", boxShadow: "none", fill: hasData ? "#fde68a" : "#dbeafe", cursor: hasData ? "pointer" : "default" },
+                      pressed: { outline: "none", border: "none", boxShadow: "none" },
                     }}
                     onClick={() => hasData && onCountyClick(fips)}
                   />
@@ -440,10 +444,10 @@ function TractView({
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill="#f8fafc"
-                      stroke="rgba(15,23,42,0.15)"
-                      strokeWidth={0.5}
-                      style={{ default: { outline: "none" }, hover: { outline: "none" }, pressed: { outline: "none" } }}
+                      fill="white"
+                      stroke="none"
+                      strokeWidth={0}
+                      style={{ default: { outline: "none", border: "none", boxShadow: "none" }, hover: { outline: "none", border: "none", boxShadow: "none" }, pressed: { outline: "none", border: "none", boxShadow: "none" } }}
                     />
                   ))
                 }
@@ -476,7 +480,7 @@ function stateCenter(fips: string): [number, number] {
 
 /** Choropleth colors: pastel palette — light (no data) → soft blue → soft coral → soft rose (high) */
 function choroplethColorFor(t: number) {
-  if (t <= 0) return "#f1f5f9";
+  if (t <= 0) return "white";
   if (t < 0.25) return "#bae6fd";
   if (t < 0.5) return "#7dd3fc";
   if (t < 0.75) return "#fecaca";
