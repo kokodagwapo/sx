@@ -34,12 +34,12 @@ import { buildLlpaWaterfall, type LlpaInputLoan } from "@/data/mock/llpaTables";
 import { cn } from "@/lib/utils";
 
 const STEP4_KPIS: KpiItem[] = [
-  { label: "Total UPB",           value: "$1.53B",  icon: Banknote },
-  { label: "Total Loans",         value: "6,293",   icon: LayoutList },
-  { label: "Wtd Avg Coupon",      value: "4.13%",   icon: Percent },
-  { label: "Bond Equiv Yield*",   value: "3.73%",   icon: TrendingUp },
-  { label: "Wtd Avg Duration*",   value: "7.51 yrs",icon: Clock },
-  { label: "Wtd Price Indication**", value: "103.05", icon: Scale },
+  { label: "Total UPB",           value: "$1.86B",  icon: Banknote },
+  { label: "Total Loans",         value: "7,050",   icon: LayoutList },
+  { label: "Wtd Avg Coupon",      value: "3.50%",   icon: Percent },
+  { label: "Bond Equiv Yield*",   value: "3.17%",   icon: TrendingUp },
+  { label: "Wtd Avg Duration*",   value: "6.80 yrs",icon: Clock },
+  { label: "Wtd Price Indication**", value: "100.71", icon: Scale },
 ];
 
 const PRICING_COLUMNS = [

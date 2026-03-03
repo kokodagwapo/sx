@@ -43,12 +43,12 @@ import { loanToScheduleRow } from "@/data/converters";
 import type { LoanRecord } from "@/data/types/loanRecord";
 import type { KpiItem } from "@/components/step/KpiStrip";
 const STEP7_KPIS: KpiItem[] = [
-  { id: "upb", label: "Total Unpaid Principal Balance (UPB)", value: "1,534,248,974", icon: Banknote },
-  { id: "loans", label: "Total Loans Meeting Criteria", value: "6,293", icon: LayoutList },
-  { id: "coupon", label: "Weighted Average Coupon*", value: "4.13", icon: Percent },
-  { id: "bey", label: "Bond Equivalent Yield*", value: "3.73", icon: TrendingUp },
-  { id: "duration", label: "Weighted Average Duration*", value: "7.51", icon: Clock },
-  { id: "price", label: "Weighted Price Indication**", value: "103.05", icon: Scale },
+  { id: "upb", label: "Total Unpaid Principal Balance (UPB)", value: "1,860,760,635", icon: Banknote },
+  { id: "loans", label: "Total Loans Meeting Criteria", value: "7,050", icon: LayoutList },
+  { id: "coupon", label: "Weighted Average Coupon*", value: "3.50", icon: Percent },
+  { id: "bey", label: "Bond Equivalent Yield*", value: "3.17", icon: TrendingUp },
+  { id: "duration", label: "Weighted Average Duration*", value: "6.80", icon: Clock },
+  { id: "price", label: "Weighted Price Indication**", value: "100.71", icon: Scale },
 ];
 
 type DrilldownType = "kpi" | "loan" | null;

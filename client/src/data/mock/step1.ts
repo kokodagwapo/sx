@@ -10,28 +10,28 @@ export type { LoanGeoRecord };
 /** All loans for map drilldown - State → County → Census Tract */
 export const step1LoansByGeo = buildStep1LoansByGeo();
 
-/** Reference: Geographic Distribution by State — exact data from design */
+/** Reference: Geographic Distribution by State — real data from Excel (7,050 loans) */
 export const GEO_DISTRIBUTION_REFERENCE: HorizontalBarDatum[] = [
-  { name: "CA", value: 680 },
-  { name: "FL", value: 638 },
-  { name: "GA", value: 605 },
-  { name: "NY", value: 449 },
-  { name: "PA", value: 370 },
-  { name: "NC", value: 285 },
-  { name: "OH", value: 262 },
-  { name: "TX", value: 215 },
-  { name: "DE", value: 214 },
-  { name: "SC", value: 209 },
-  { name: "MD", value: 187 },
-  { name: "TN", value: 176 },
-  { name: "MA", value: 174 },
-  { name: "NJ", value: 170 },
-  { name: "VA", value: 168 },
-  { name: "WA", value: 152 },
-  { name: "OR", value: 131 },
-  { name: "AZ", value: 127 },
-  { name: "MI", value: 120 },
-  { name: "IN", value: 118 },
+  { name: "CA", value: 1449 },
+  { name: "FL", value: 422 },
+  { name: "GA", value: 392 },
+  { name: "TX", value: 355 },
+  { name: "PA", value: 378 },
+  { name: "NY", value: 276 },
+  { name: "NC", value: 234 },
+  { name: "IL", value: 226 },
+  { name: "MD", value: 226 },
+  { name: "OH", value: 194 },
+  { name: "DE", value: 190 },
+  { name: "VA", value: 186 },
+  { name: "AZ", value: 186 },
+  { name: "NJ", value: 250 },
+  { name: "WA", value: 224 },
+  { name: "CO", value: 213 },
+  { name: "UT", value: 207 },
+  { name: "SC", value: 157 },
+  { name: "MA", value: 122 },
+  { name: "TN", value: 122 },
 ];
 
 /** State-level bar chart data — use reference when at state level, else aggregated from loans */

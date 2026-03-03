@@ -16,19 +16,19 @@ import { Banknote, LayoutList, TrendingUp, Clock, Scale } from "lucide-react";
 import type { KpiItem } from "@/components/step/KpiStrip";
 
 const STEP3_KPIS: KpiItem[] = [
-  { label: "Total Unpaid Principal Balance (UPB)", value: "1,534,248,974", icon: Banknote },
-  { label: "Total Loans Meeting Criteria", value: "6,293", icon: LayoutList },
-  { label: "Weighted Average Coupon", value: "4.13", icon: Percent },
-  { label: "Bond Equivalent Yield*", value: "3.73", icon: TrendingUp },
-  { label: "Weighted Average Duration*", value: "7.51", icon: Clock },
-  { label: "Weighted Price Indication**", value: "103.05", icon: Scale },
+  { label: "Total Unpaid Principal Balance (UPB)", value: "1,860,760,635", icon: Banknote },
+  { label: "Total Loans Meeting Criteria", value: "7,050", icon: LayoutList },
+  { label: "Weighted Average Coupon", value: "3.50", icon: Percent },
+  { label: "Bond Equivalent Yield*", value: "3.17", icon: TrendingUp },
+  { label: "Weighted Average Duration*", value: "6.80", icon: Clock },
+  { label: "Weighted Price Indication**", value: "100.71", icon: Scale },
 ];
 
 const FOOTER_METRICS = [
-  { label: "Average Loan Size", value: "243,802" },
-  { label: "Weighted Average LTV", value: "80.33%" },
-  { label: "Weighted Average FICO", value: "720" },
-  { label: "Weighted Average DTI", value: "37.74%" },
+  { label: "Average Loan Size", value: "264,000" },
+  { label: "Weighted Average LTV", value: "71.42%" },
+  { label: "Weighted Average FICO", value: "744" },
+  { label: "Weighted Average DTI", value: "35.57%" },
 ];
 
 export default function Step3CreditMetrics() {

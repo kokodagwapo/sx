@@ -1,5 +1,6 @@
-/** Granular loan records for Step 2 filtering and drilldown */
+/** Granular loan records for Step 2 filtering and drilldown — real data from Excel */
 import type { LoanStatus } from "@/data/types/loanRecord";
+import realLoansRaw from "@/data/real/realLoans.json";
 
 export type Step2Loan = {
   id: string;
@@ -21,116 +22,87 @@ export type Step2Loan = {
   fico: number;
 };
 
-const interestRates = ["2–2.5", "2.5–3", "3–3.5", "3.5–4", "4–4.5", "4.5–5", "5–5.5", "5.5–6"];
-const occupancies = ["Owner", "Investment", "Second home"];
-const propertyTypes = ["Single-family", "Condo", "Townhouse"];
-const STATUSES: LoanStatus[] = ["Available", "Allocated", "Committed", "Sold"];
-const BUYER_IDS = ["BNK-001", "BNK-002", "BNK-003", "CU-001", "INS-001"];
-
-const irCounts: Record<string, number> = {
-  "2–2.5": 2, "2.5–3": 26, "3–3.5": 428, "3.5–4": 1609,
-  "4–4.5": 2685, "4.5–5": 1185, "5–5.5": 251, "5.5–6": 29,
+type RealLoan = {
+  tvm: string;
+  source: string;
+  loanAmount: number;
+  upb: number;
+  rate: number;
+  firstPaymentDate: string;
+  purpose: string;
+  fico: number;
+  ltv: number;
+  cltv: number;
+  dti: number;
+  occupancy: string;
+  propertyAddress: string;
+  city: string;
+  county: string;
+  state: string;
+  zip: string;
+  propertyType: string;
+  units: number;
+  productType: string;
+  term: number;
+  lienPosition: string;
+  status: string;
+  basePrice: number;
+  ltvFicoAdj: number;
+  priceAdj: number;
+  otherLlpas: number;
+  finalPrice: number;
+  estimatedIncome: number;
+  buyerId?: string;
 };
-const stateCounts: Record<string, number> = {
-  CA: 600, FL: 512, GA: 465, NY: 443, PA: 270, NC: 285, OH: 262, TX: 235,
-  DE: 234, SC: 214, MD: 209, TN: 198, MA: 185, NJ: 150, VA: 190, WA: 178,
-  OR: 142, AZ: 160, MI: 132, IN: 118, CO: 120, IL: 95, UT: 88,
-};
 
-function seededRandom(seed: number) {
-  return () => {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed / 233280;
-  };
+function getRateBucket(rate: number): string {
+  if (rate < 3) return "< 3";
+  if (rate < 3.5) return "3–3.5";
+  if (rate < 4) return "3.5–4";
+  if (rate < 4.5) return "4–4.5";
+  if (rate < 5) return "4.5–5";
+  if (rate < 5.5) return "5–5.5";
+  return "5.5+";
 }
 
-function pick<T>(arr: T[], rng: () => number): T {
-  return arr[Math.floor(rng() * arr.length)];
+function getLoanType(productType: string): string {
+  if (productType === "5/1 ARM" || productType === "7/1 ARM") return "ARM";
+  return "Conventional";
 }
 
-function pickWeighted<T>(items: [T, number][], rng: () => number): T {
-  const total = items.reduce((s, [, w]) => s + w, 0);
-  let r = rng() * total;
-  for (const [item, w] of items) {
-    r -= w;
-    if (r <= 0) return item;
-  }
-  return items[items.length - 1][0];
+function estimateDuration(term: number, rate: number): number {
+  const years = term / 12;
+  if (years <= 15) return Math.round((4 + rate * 0.3 + Math.random() * 0.5) * 100) / 100;
+  return Math.round((6 + rate * 0.4 + Math.random() * 1.5) * 100) / 100;
 }
+
+function normalizeOccupancy(occ: string): string {
+  if (occ === "Second Home") return "Second home";
+  return occ;
+}
+
+const loans = (realLoansRaw as RealLoan[]).map((r, i) => ({
+  id: r.tvm,
+  product: r.productType,
+  interestRate: getRateBucket(r.rate),
+  occupancy: normalizeOccupancy(r.occupancy),
+  purpose: r.purpose,
+  propertyType: r.propertyType,
+  loanType: getLoanType(r.productType),
+  state: r.state,
+  upb: r.upb,
+  coupon: r.rate,
+  duration: estimateDuration(r.term, r.rate),
+  status: r.status as LoanStatus,
+  buyerId: r.buyerId,
+  units: r.units,
+  dti: r.dti,
+  ltv: r.ltv,
+  fico: r.fico,
+}));
 
 export function generateStep2Loans(): Step2Loan[] {
-  const rng = seededRandom(12345);
-  const loans: Step2Loan[] = [];
-  let id = 0;
-
-  for (const ir of interestRates) {
-    const count = irCounts[ir] ?? 0;
-    for (let i = 0; i < count; i++) {
-      const prod = pickWeighted([
-        ["30 FRM", 87], ["15 FRM", 13], ["7/1 ARM", 5], ["5/1 ARM", 3],
-      ], rng);
-      const purp = pickWeighted([["Purchase", 52], ["Refinance", 48]], rng);
-      const lt = pickWeighted([
-        ["Conventional", 59], ["Government", 41], ["Jumbo", 9],
-      ], rng);
-      const st = pickWeighted(
-        Object.entries(stateCounts).map(([s, c]) => [s, c] as [string, number]),
-        rng,
-      );
-      const occ = pick(occupancies, rng);
-      const pt = pick(propertyTypes, rng);
-
-      const irNum = parseFloat(ir.split("–")[0]);
-      const baseUpb = 180000 + rng() * 420000;
-      const coupon = irNum + rng() * 0.8;
-      const duration = 5 + rng() * 18;
-
-      const statusRoll = rng();
-      const status: LoanStatus =
-        statusRoll < 0.55 ? "Available" :
-        statusRoll < 0.75 ? "Allocated" :
-        statusRoll < 0.88 ? "Committed" : "Sold";
-
-      const buyerId =
-        status === "Allocated" || status === "Committed" || status === "Sold"
-          ? pick(BUYER_IDS, rng)
-          : undefined;
-
-      const unitsRoll = rng();
-      const units = unitsRoll < 0.80 ? 1 : unitsRoll < 0.92 ? 2 : unitsRoll < 0.97 ? 3 : 4;
-      // DTI: typical range 18–50%, Gaussian-ish using two rng() calls
-      const dtiRaw = 18 + (rng() + rng()) * 16;
-      const dti = Math.round(dtiRaw * 10) / 10;
-      // LTV: bell-shaped 50–97, centred around 78
-      const ltvRaw = 50 + (rng() + rng() + rng()) * 15.67;
-      const ltv = Math.round(Math.min(97, Math.max(50, ltvRaw)) * 10) / 10;
-      // FICO: bell-shaped 620–820, centred around 730
-      const ficoRaw = 620 + (rng() + rng() + rng()) * 66.67;
-      const fico = Math.round(Math.min(820, Math.max(620, ficoRaw)) / 5) * 5;
-
-      loans.push({
-        id: `loan-${++id}`,
-        product: prod,
-        interestRate: ir,
-        occupancy: occ,
-        purpose: purp,
-        propertyType: pt,
-        loanType: lt,
-        state: st,
-        upb: Math.round(baseUpb),
-        coupon: Math.round(coupon * 100) / 100,
-        duration: Math.round(duration * 100) / 100,
-        status,
-        buyerId,
-        units,
-        dti,
-        ltv,
-        fico,
-      });
-    }
-  }
-
   return loans;
 }
 
-export const step2Loans = generateStep2Loans();
+export const step2Loans: Step2Loan[] = loans;

@@ -1,33 +1,34 @@
 import type { DonutDatum } from "@/components/charts/DonutChart";
 
 export const step8ProductType: DonutDatum[] = [
-  { name: "30 FRM", value: 85.2 },
-  { name: "15 FRM", value: 12.6 },
-  { name: "7/1 ARM", value: 2.2 },
+  { name: "30 FRM", value: 78.1 },
+  { name: "15 FRM", value: 20.6 },
+  { name: "5/1 ARM", value: 0.7 },
+  { name: "7/1 ARM", value: 0.6 },
 ];
 
 export const step8Occupancy: DonutDatum[] = [
-  { name: "Owner", value: 92.6 },
-  { name: "Investment", value: 4.9 },
-  { name: "Other", value: 2.5 },
+  { name: "Owner", value: 92.8 },
+  { name: "Investment", value: 5.7 },
+  { name: "Second Home", value: 1.5 },
 ];
 
 export const step8Purpose: DonutDatum[] = [
-  { name: "Purchase", value: 55.2 },
-  { name: "Refinance", value: 44.8 },
+  { name: "Refinance", value: 64.6 },
+  { name: "Purchase", value: 35.4 },
 ];
 
 export const step8States: DonutDatum[] = [
-  { name: "CA", value: 10.8 },
-  { name: "FL", value: 10.1 },
-  { name: "GA", value: 9.6 },
-  { name: "PA", value: 7.1 },
-  { name: "NY", value: 4.5 },
-  { name: "MD", value: 3.3 },
-  { name: "MA", value: 2.8 },
-  { name: "NJ", value: 2.4 },
-  { name: "VA", value: 1.9 },
-  { name: "Other", value: 47.5 },
+  { name: "CA", value: 20.6 },
+  { name: "FL", value: 5.1 },
+  { name: "GA", value: 4.6 },
+  { name: "PA", value: 4.7 },
+  { name: "NY", value: 4.9 },
+  { name: "TX", value: 4.4 },
+  { name: "NJ", value: 4.0 },
+  { name: "WA", value: 3.7 },
+  { name: "MD", value: 3.5 },
+  { name: "Other", value: 44.5 },
 ];
 
 export type WacByProductDatum = {
@@ -37,11 +38,10 @@ export type WacByProductDatum = {
 };
 
 export const step8WacByProduct: WacByProductDatum[] = [
-  { name: "5/1 ARM", loans: 420, wac: 3.25 },
-  { name: "7/1 ARM", loans: 890, wac: 3.55 },
-  { name: "10/1 ARM", loans: 650, wac: 3.72 },
-  { name: "15 FRM", loans: 792, wac: 3.85 },
-  { name: "30 FRM", loans: 5361, wac: 4.28 },
+  { name: "5/1 ARM", loans: 51, wac: 3.08 },
+  { name: "7/1 ARM", loans: 44, wac: 3.22 },
+  { name: "15 FRM", loans: 1450, wac: 2.92 },
+  { name: "30 FRM", loans: 5506, wac: 3.67 },
 ];
 
 export type LoanTermRow = {
@@ -52,18 +52,11 @@ export type LoanTermRow = {
 };
 
 export const step8LoanTerms: LoanTermRow[] = [
-  { term: "ARM", loans: 81, totalAmount: 26_148_927, wpi: 100.65 },
-  { term: "120", loans: 126, totalAmount: 21_672_858, wpi: 101.61 },
-  { term: "144", loans: 2, totalAmount: 1_672_858, wpi: 101.10 },
-  { term: "156", loans: 1, totalAmount: 175_700, wpi: 102.25 },
-  { term: "180", loans: 667, totalAmount: 139_033_977, wpi: 104.52 },
-  { term: "204", loans: 1, totalAmount: 260_000, wpi: 101.80 },
-  { term: "216", loans: 3, totalAmount: 730_905, wpi: 102.12 },
-  { term: "228", loans: 3, totalAmount: 260_000, wpi: 101.00 },
-  { term: "240", loans: 218, totalAmount: 39_661_355, wpi: 101.72 },
-  { term: "252", loans: 3, totalAmount: 351_472, wpi: 103.40 },
-  { term: "264", loans: 3, totalAmount: 628_866, wpi: 103.41 },
-  { term: "276", loans: 3, totalAmount: 551_652, wpi: 104.20 },
+  { term: "ARM", loans: 95, totalAmount: 26_850_000, wpi: 100.45 },
+  { term: "180", loans: 1450, totalAmount: 376_200_000, wpi: 101.82 },
+  { term: "240", loans: 48, totalAmount: 11_200_000, wpi: 101.10 },
+  { term: "300", loans: 5, totalAmount: 1_150_000, wpi: 100.80 },
+  { term: "360", loans: 5452, totalAmount: 1_447_000_000, wpi: 100.75 },
 ];
 
 export type CompositionDrilldown = {
@@ -78,61 +71,73 @@ export const step8CompositionDrilldown: Record<string, Record<string, Compositio
     "30 FRM": {
       segment: "30 FRM",
       definition: "30-year fixed-rate mortgage.",
-      pct: 85.2,
-      insights: ["Dominant product; drives portfolio WAC.", "Highest volume in loan term table."],
+      pct: 78.1,
+      insights: ["Dominant product at 78.1%; drives portfolio WAC.", "5,506 loans totalling ~$1.45B UPB."],
     },
     "15 FRM": {
       segment: "15 FRM",
       definition: "15-year fixed-rate mortgage.",
-      pct: 12.6,
-      insights: ["Shorter tenure; typically lower LTV.", "Higher WAC than ARMs."],
+      pct: 20.6,
+      insights: ["Second largest segment at 20.6%; 1,450 loans.", "Lower duration and WAC than 30 FRM."],
+    },
+    "5/1 ARM": {
+      segment: "5/1 ARM",
+      definition: "5-year adjustable-rate mortgage.",
+      pct: 0.7,
+      insights: ["Small share at 51 loans; rate-sensitive exposure."],
     },
     "7/1 ARM": {
       segment: "7/1 ARM",
       definition: "7-year adjustable-rate mortgage.",
-      pct: 2.2,
-      insights: ["Smaller share; rate-sensitive."],
+      pct: 0.6,
+      insights: ["44 loans; minimal rate risk contribution."],
     },
   },
   occupancy: {
     Owner: {
       segment: "Owner",
       definition: "Owner-occupied property.",
-      pct: 92.6,
-      insights: ["Primary residence; typically stronger credit."],
+      pct: 92.8,
+      insights: ["Primary residence at 92.8%; 6,539 loans.", "Strongest credit quality segment."],
     },
     Investment: {
       segment: "Investment",
       definition: "Investment property.",
-      pct: 4.9,
-      insights: ["Non-owner; may have different risk profile."],
+      pct: 5.7,
+      insights: ["402 investment loans; LLPA-adjusted pricing.", "Higher DTI tolerance in this segment."],
+    },
+    "Second Home": {
+      segment: "Second Home",
+      definition: "Second home or vacation property.",
+      pct: 1.5,
+      insights: ["109 second-home loans; moderate risk profile."],
     },
   },
   purpose: {
+    Refinance: {
+      segment: "Refinance",
+      definition: "Loan for refinancing existing mortgage.",
+      pct: 64.6,
+      insights: ["Refinance-heavy pool at 64.6%; 4,551 loans.", "Rate-sensitive; reflects 2016 low-rate environment."],
+    },
     Purchase: {
       segment: "Purchase",
       definition: "Loan for home purchase.",
-      pct: 55.2,
-      insights: ["Slightly over half of portfolio."],
-    },
-    Refinance: {
-      segment: "Refinance",
-      definition: "Loan for refinancing.",
-      pct: 44.8,
-      insights: ["Rate-sensitive segment."],
+      pct: 35.4,
+      insights: ["2,499 purchase loans; typically stronger underwriting.", "Balanced by geographic diversification."],
     },
   },
   states: {
-    CA: { segment: "CA", definition: "California.", pct: 10.8, insights: ["Largest state exposure."] },
-    FL: { segment: "FL", definition: "Florida.", pct: 10.1, insights: ["Second largest."] },
-    GA: { segment: "GA", definition: "Georgia.", pct: 9.6, insights: ["Strong presence."] },
-    PA: { segment: "PA", definition: "Pennsylvania.", pct: 7.1, insights: [] },
-    NY: { segment: "NY", definition: "New York.", pct: 4.5, insights: [] },
-    MD: { segment: "MD", definition: "Maryland.", pct: 3.3, insights: [] },
-    MA: { segment: "MA", definition: "Massachusetts.", pct: 2.8, insights: [] },
-    NJ: { segment: "NJ", definition: "New Jersey.", pct: 2.4, insights: [] },
-    VA: { segment: "VA", definition: "Virginia.", pct: 1.9, insights: [] },
-    Other: { segment: "Other", definition: "All other states combined.", pct: 47.5, insights: ["Diversified exposure."] },
+    CA: { segment: "CA", definition: "California.", pct: 20.6, insights: ["Largest state by UPB at $523.8M; 1,449 loans."] },
+    FL: { segment: "FL", definition: "Florida.", pct: 5.1, insights: ["422 loans; $94.9M UPB."] },
+    NY: { segment: "NY", definition: "New York.", pct: 4.9, insights: ["276 loans; $90.3M UPB."] },
+    PA: { segment: "PA", definition: "Pennsylvania.", pct: 4.7, insights: ["378 loans; $87.7M UPB."] },
+    GA: { segment: "GA", definition: "Georgia.", pct: 4.6, insights: ["392 loans; $85.7M UPB."] },
+    TX: { segment: "TX", definition: "Texas.", pct: 4.4, insights: ["355 loans; $82.0M UPB."] },
+    NJ: { segment: "NJ", definition: "New Jersey.", pct: 4.0, insights: ["250 loans; $74.7M UPB."] },
+    WA: { segment: "WA", definition: "Washington.", pct: 3.7, insights: ["224 loans; $68.6M UPB."] },
+    MD: { segment: "MD", definition: "Maryland.", pct: 3.5, insights: ["226 loans; $65.3M UPB."] },
+    Other: { segment: "Other", definition: "All other states combined.", pct: 44.5, insights: ["Broad geographic diversification across 40+ states."] },
   },
 };
 
@@ -147,38 +152,31 @@ export type WacProductDrilldown = {
 export const step8WacDrilldown: Record<string, WacProductDrilldown> = {
   "5/1 ARM": {
     name: "5/1 ARM",
-    loans: 420,
-    wac: 3.25,
+    loans: 51,
+    wac: 3.08,
     definition: "5-year fixed, then adjusts annually.",
-    insights: ["Lowest WAC; rate-sensitive.", "Smaller share of portfolio."],
+    insights: ["51 loans; rate-sensitive with near-term repricing.", "Small pool contribution."],
   },
   "7/1 ARM": {
     name: "7/1 ARM",
-    loans: 890,
-    wac: 3.55,
+    loans: 44,
+    wac: 3.22,
     definition: "7-year fixed, then adjusts annually.",
-    insights: ["Moderate WAC.", "Growing segment."],
-  },
-  "10/1 ARM": {
-    name: "10/1 ARM",
-    loans: 650,
-    wac: 3.72,
-    definition: "10-year fixed, then adjusts annually.",
-    insights: ["Between ARM and FRM pricing."],
+    insights: ["44 loans; minimal rate risk contribution.", "Moderate WAC versus fixed products."],
   },
   "15 FRM": {
     name: "15 FRM",
-    loans: 792,
-    wac: 3.85,
+    loans: 1450,
+    wac: 2.92,
     definition: "15-year fixed-rate mortgage.",
-    insights: ["Shorter tenure; typically stronger credit."],
+    insights: ["1,450 loans; lowest WAC in portfolio.", "Shorter duration reduces rate risk significantly."],
   },
   "30 FRM": {
     name: "30 FRM",
-    loans: 5361,
-    wac: 4.28,
+    loans: 5506,
+    wac: 3.67,
     definition: "30-year fixed-rate mortgage.",
-    insights: ["Highest WAC; dominant product.", "85% of portfolio."],
+    insights: ["5,506 loans; dominant product at 78.1% of pool.", "Highest WAC and longest duration."],
   },
 };
 
@@ -199,72 +197,71 @@ export type KpiDrilldown = {
 export const step8KpiDrilldown: Record<string, KpiDrilldown> = {
   upb: {
     label: "Total Unpaid Principal Balance (UPB)",
-    value: "1,534,248,974",
+    value: "1,860,760,635",
     definition: "Sum of outstanding principal across all selected loans.",
-    insights: ["Key portfolio size metric."],
+    insights: ["$1.861B across 7,050 loans from three lenders.", "Key portfolio size metric for pricing and risk."],
   },
   loans: {
     label: "Total Loans Meeting Criteria",
-    value: "6,293",
+    value: "7,050",
     definition: "Count of loans in the selected portfolio.",
-    insights: ["Portfolio granularity."],
+    insights: ["Provident 2,450 | Stonegate 963 | New Penn Financial 3,637.", "Strong diversification across lenders."],
   },
   coupon: {
     label: "Weighted Average Coupon*",
-    value: "4.13",
-    definition: "Interest rate weighted by principal.",
-    insights: ["*Selected Loans."],
+    value: "3.50",
+    definition: "Interest rate weighted by principal balance across selected loans.",
+    insights: ["*Selected Loans. Reflects contractual yield.", "Low-rate vintage: originated primarily in 2016."],
   },
   bey: {
     label: "Bond Equivalent Yield*",
-    value: "3.73",
-    definition: "Annualized yield on bond-equivalent basis.",
-    insights: ["*Selected Loans."],
+    value: "3.17",
+    definition: "Annualized yield on bond-equivalent basis for selected loans.",
+    insights: ["*Selected Loans. Standardized for fixed-income comparison.", "Calculated as WAC − 0.33% servicing spread."],
   },
   duration: {
     label: "Weighted Average Duration*",
-    value: "7.51",
-    definition: "Years to repricing.",
-    insights: ["*Selected Loans."],
+    value: "6.80",
+    definition: "Interest-rate sensitivity; years to repricing.",
+    insights: ["*Selected Loans. Driven by 78% 30 FRM product mix.", "20.6% 15 FRM allocation reduces portfolio duration."],
   },
   price: {
     label: "Weighted Price Indication**",
-    value: "103.05",
-    definition: "Indicative market price as % of par.",
-    insights: ["**Teraverde Indicative Pricing."],
+    value: "100.71",
+    definition: "Indicative market price as % of par for selected pool.",
+    insights: ["**Teraverde Indicative Pricing. For valuation reference.", "Near-par pricing reflects current rate environment."],
   },
 };
 
 export const step8CreditDrilldown: Record<string, CreditMetricDrilldown> = {
   avgLoanSize: {
     label: "Average Loan Size",
-    value: "243,802",
+    value: "264,000",
     definition: "Mean loan size across selected loans.",
-    insights: ["Key for portfolio sizing."],
+    insights: ["$264K average balance; above conforming threshold for many products."],
   },
   wavgLtv: {
     label: "Weighted Average LTV",
-    value: "80.33%",
+    value: "71.42%",
     definition: "Loan-to-value weighted by principal.",
-    insights: ["Credit risk indicator."],
+    insights: ["71.42% WA LTV; well within conforming risk guidelines."],
   },
   wavgFico: {
     label: "Weighted Average FICO",
-    value: "720",
+    value: "744",
     definition: "FICO score weighted by principal.",
-    insights: ["Credit quality indicator."],
+    insights: ["744 WA FICO; strong credit quality pool.", "31% of loans have FICO 780+."],
   },
   wavgDti: {
     label: "Weighted Average DTI",
-    value: "37.74%",
+    value: "35.57%",
     definition: "Debt-to-income weighted by principal.",
-    insights: ["Affordability indicator."],
+    insights: ["35.57% WA DTI; within QM guidelines.", "60% of loans in the 35–39% bucket."],
   },
   wavgMaturity: {
     label: "Weighted Average Maturity",
-    value: "28",
+    value: "27",
     definition: "Years to maturity weighted by principal.",
-    insights: ["Duration indicator."],
+    insights: ["Driven by 78% 30-year product dominance."],
   },
 };
-

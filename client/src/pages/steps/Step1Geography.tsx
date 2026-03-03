@@ -152,7 +152,7 @@ export default function Step1Geography() {
     () => displayLoans.reduce((s, l) => s + l.upb, 0),
     [displayLoans]
   );
-  const weightedAvgCoupon = "4.13";
+  const weightedAvgCoupon = "3.50";
 
   const narrativeBullets = useMemo(() => {
     const top3 = barData.slice(0, 3);

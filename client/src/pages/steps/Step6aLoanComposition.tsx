@@ -9,19 +9,19 @@ import { Banknote, LayoutList, Percent, TrendingUp as TrendIcon, Clock, Scale } 
 import type { KpiItem } from "@/components/step/KpiStrip";
 
 const STEP6A_KPIS: KpiItem[] = [
-  { label: "Total Unpaid Principal Balance (UPB)", value: "1,534,248,974", icon: Banknote },
-  { label: "Total Loans Meeting Criteria", value: "6,293", icon: LayoutList },
-  { label: "Weighted Average Coupon*", value: "4.13", icon: Percent },
-  { label: "Bond Equivalent Yield*", value: "3.73", icon: TrendIcon },
-  { label: "Weighted Average Duration*", value: "7.51", icon: Clock },
-  { label: "Weighted Price Indication**", value: "103.05", icon: Scale },
+  { label: "Total Unpaid Principal Balance (UPB)", value: "1,860,760,635", icon: Banknote },
+  { label: "Total Loans Meeting Criteria", value: "7,050", icon: LayoutList },
+  { label: "Weighted Average Coupon*", value: "3.50", icon: Percent },
+  { label: "Bond Equivalent Yield*", value: "3.17", icon: TrendIcon },
+  { label: "Weighted Average Duration*", value: "6.80", icon: Clock },
+  { label: "Weighted Price Indication**", value: "100.71", icon: Scale },
 ];
 
 const NARRATIVE_BULLETS = [
   "This chart measures As of Last Quarter and Projected with Selected Loans by loan type.",
   "On average, Projected with Selected Loans increases by 6 for each additional unit of As of Last Quarter across all loan types.",
   "Projected with Selected Loans has a higher degree of concentration among the top loan types.",
-  "Total Real Estate Loans stands out with the highest values for both As of Last Quarter (558,489) and Projected with Selected Loans (2.9M).",
+  "Total Real Estate Loans leads with $523.8M in CA alone; pool spans 49 states.",
 ];
 
 const AS_OF_LAST_QUARTER = [
@@ -33,7 +33,7 @@ const AS_OF_LAST_QUARTER = [
 
 const PROJECTED = [
   "Total Projected with Selected Loans is 5M across all nine loan types.",
-  "Driven by Total Real Estate Loans (2.9M), Total 1-4 Family Loans (1.7M), and Comm RE(Nonfarm/NonRes) (320,511).",
+  "Driven by CA ($523.8M), FL ($94.9M), NY ($90.3M), and PA ($87.7M) in the real portfolio.",
   "Concentrated: just 2 of 9 types (22%) represent 82% of the total.",
   "Total Real Estate Loans represents 46% of pro-forma—more than 4× the average.",
 ];
