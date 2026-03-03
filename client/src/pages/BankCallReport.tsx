@@ -22,10 +22,27 @@ type FdicResp = { data?: FdicRow[]; meta?: { total?: number } };
 
 // ─── Quick-search presets ─────────────────────────────────────────────────────
 
-const QUICK_BANKS = [
-  "JPMorgan", "Wells Fargo", "Bank of America", "Citibank",
-  "US Bank", "PNC Bank", "Truist", "Regions Bank",
+type QuickBank = { label: string; query: string; initial: string; color: "sky" | "indigo" | "violet" | "emerald" | "amber" | "rose"; type: string };
+
+const QUICK_BANKS: QuickBank[] = [
+  { label: "JPMorgan",        query: "JPMorgan Chase",    initial: "JP", color: "sky",     type: "FDIC-Insured Bank" },
+  { label: "Bank of America", query: "Bank of America",   initial: "BA", color: "indigo",  type: "FDIC-Insured Bank" },
+  { label: "Wells Fargo",     query: "Wells Fargo",       initial: "WF", color: "violet",  type: "FDIC-Insured Bank" },
+  { label: "Citibank",        query: "Citibank",          initial: "C",  color: "emerald", type: "FDIC-Insured Bank" },
+  { label: "US Bank",         query: "US Bank",           initial: "US", color: "amber",   type: "FDIC-Insured Bank" },
+  { label: "PNC Bank",        query: "PNC Bank",          initial: "PN", color: "rose",    type: "FDIC-Insured Bank" },
+  { label: "Truist",          query: "Truist Bank",       initial: "T",  color: "sky",     type: "FDIC-Insured Bank" },
+  { label: "Regions Bank",    query: "Regions Bank",      initial: "R",  color: "rose",    type: "FDIC-Insured Bank" },
 ];
+
+const QUICK_BANK_COLORS: Record<QuickBank["color"], { badge: string; ring: string }> = {
+  sky:     { badge: "bg-sky-500",     ring: "ring-sky-300"     },
+  indigo:  { badge: "bg-indigo-500",  ring: "ring-indigo-300"  },
+  violet:  { badge: "bg-violet-500",  ring: "ring-violet-300"  },
+  emerald: { badge: "bg-emerald-500", ring: "ring-emerald-300" },
+  amber:   { badge: "bg-amber-500",   ring: "ring-amber-300"   },
+  rose:    { badge: "bg-rose-500",    ring: "ring-rose-300"    },
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -334,9 +351,9 @@ export default function BankCallReport() {
 
   const handleClear = () => { setInput(""); setQuery(""); setExpanded(null); inputRef.current?.focus(); };
 
-  const handleQuick = (name: string) => {
-    setInput(name);
-    setQuery(name);
+  const handleQuick = (bank: QuickBank) => {
+    setInput(bank.query);
+    setQuery(bank.query);
     setExpanded(null);
   };
 
@@ -377,22 +394,32 @@ export default function BankCallReport() {
         {/* Fixed bottom strip — quick banks + search bar */}
         <div className="flex-shrink-0 flex flex-col items-center px-4 pb-8 pt-3">
 
-          {/* Quick-search chips */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-3 max-w-2xl w-full">
-            {QUICK_BANKS.map((name) => (
-              <button
-                key={name}
-                onClick={() => handleQuick(name)}
-                className={cn(
-                  "rounded-full border text-xs font-medium px-3.5 py-1.5 transition-all flex items-center gap-1.5",
-                  query === name
-                    ? "bg-slate-800 border-slate-800 text-white shadow-sm"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 shadow-sm",
-                )}
-              >
-                <Building2 className="h-3 w-3" /> {name}
-              </button>
-            ))}
+          {/* Quick-search buyer cards */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-4 max-w-2xl w-full">
+            {QUICK_BANKS.map((bank) => {
+              const colors = QUICK_BANK_COLORS[bank.color];
+              const isActive = query === bank.query;
+              return (
+                <button
+                  key={bank.query}
+                  onClick={() => handleQuick(bank)}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-xl px-3 py-2 text-left transition-all duration-200 border shadow-sm hover:shadow-md",
+                    isActive
+                      ? "bg-white border-slate-300 shadow-md ring-2 " + colors.ring
+                      : "bg-white/70 border-white/60 backdrop-blur-sm hover:bg-white hover:border-slate-200",
+                  )}
+                >
+                  <div className={cn("h-8 w-8 shrink-0 rounded-lg flex items-center justify-center text-white text-[10px] font-black tracking-tight shadow-sm", colors.badge)}>
+                    {bank.initial}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-slate-800 whitespace-nowrap">{bank.label}</div>
+                    <div className="text-[10px] text-slate-400 whitespace-nowrap">{bank.type}</div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           {/* Search bar */}
