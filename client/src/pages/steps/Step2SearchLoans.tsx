@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
-import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
+import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, UploadCloud } from "lucide-react";
 import { ExportButton } from "@/components/importExport/ExportButton";
+import { UploadModal } from "@/components/importExport/UploadModal";
 import { exportLoansToCSV } from "@/data/csv/csvExporter";
 import { exportLoansToExcel } from "@/data/excel/excelExporter";
 import { step2LoanToLoanRecord, loanRecordToStep2Loan } from "@/data/converters";
@@ -520,7 +521,8 @@ export default function Step2SearchLoans() {
   const [filterState, setFilterState] = useState<FilterState>({});
   const [sliderState, setSliderState] = useState<SliderState>(SLIDER_DEFAULTS);
   const [selectedStatus, setSelectedStatus] = useState<LoanStatus | null>(null);
-  const { importedLoans } = useLoanContext();
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const { importedLoans, setImportedLoans } = useLoanContext();
 
   const toggleStatus = useCallback((s: LoanStatus) => {
     setSelectedStatus(prev => prev === s ? null : s);
@@ -640,12 +642,27 @@ export default function Step2SearchLoans() {
             onStatusClick={toggleStatus}
           />
         </div>
-        <ExportButton
-          data={filteredLoans.map(step2LoanToLoanRecord)}
-          filename="loans_search"
-          exportCSV={(data: LoanRecord[]) => exportLoansToCSV(data)}
-          exportExcel={(data: LoanRecord[]) => exportLoansToExcel(data)}
-        />
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setUploadOpen(true)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors",
+              importedLoans
+                ? "border-sky-300/80 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                : "border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+            )}
+          >
+            <UploadCloud className="h-3.5 w-3.5" strokeWidth={2} />
+            {importedLoans ? `${importedLoans.length.toLocaleString()} Loaded` : "Import"}
+          </button>
+          <ExportButton
+            data={filteredLoans.map(step2LoanToLoanRecord)}
+            filename="loans_search"
+            exportCSV={(data: LoanRecord[]) => exportLoansToCSV(data)}
+            exportExcel={(data: LoanRecord[]) => exportLoansToExcel(data)}
+          />
+        </div>
       </div>
 
       {selectedStatus && (
@@ -750,6 +767,12 @@ export default function Step2SearchLoans() {
         <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
         <p className="mt-1">Teraverde Financial LLC. 2026. All rights reserved.</p>
       </footer>
+
+      <UploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onImport={(loans) => { setImportedLoans(loans); setUploadOpen(false); }}
+      />
     </SprinkleShell>
   );
 }
