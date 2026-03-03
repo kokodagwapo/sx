@@ -207,13 +207,16 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className, riskLayer
 
         {/* Legend — bottom left when on us-county */}
         {level === "us-county" && !hoveredCounty && !riskLayer && (
-          <div className="absolute bottom-3 left-3 z-10 rounded-lg px-3 py-2">
-            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Available Loans</div>
-            <div className="mt-1 flex items-center gap-1">
-              <span className="text-[10px] text-slate-600">1</span>
-              <div className="h-2 w-24 rounded-full bg-gradient-to-r from-[#a78bfa] via-[#4ade80] to-[#f472b6]" />
-              <span className="text-[10px] text-slate-600">{maxAllCounty}</span>
+          <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-white/80 backdrop-blur-sm px-3 py-2 shadow-sm border border-white/50">
+            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500 mb-1.5">Loan Concentration</div>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] text-slate-400">Low</span>
+              {["#bfdbfe","#60a5fa","#3b82f6","#1d4ed8","#1e3a8a"].map((c) => (
+                <div key={c} className="h-2.5 w-5 rounded-sm" style={{ background: c }} />
+              ))}
+              <span className="text-[10px] text-slate-400">High</span>
             </div>
+            <div className="mt-1 text-[9px] text-slate-400">Gray = no loans in this county</div>
           </div>
         )}
         {level === "us-county" && !hoveredCounty && riskLayer && (
@@ -335,39 +338,41 @@ function USCountyMap({
               const d = allCountyData.get(fips);
               const v = d?.count ?? 0;
               const stateFips = fips.slice(0, 2);
-              const fill = riskLayer
+              const hasData = v > 0;
+              const dataFill = riskLayer
                 ? riskFillForFips(stateFips, riskLayer)
                 : choroplethColorFor(v / maxVal);
-              const hasData = riskLayer ? true : v > 0;
-              const animDelay = `${(parseInt(fips, 10) % 17) * 0.6}s`;
+              // No-data counties: flat muted slate so data counties stand out
+              const fill = (!riskLayer && !hasData) ? "#d1dae6" : dataFill;
+              const fillOpacity = (!riskLayer && !hasData) ? 0.45 : 1;
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
                   fill={fill}
-                  stroke="rgba(255,255,255,0.15)"
-                  strokeWidth={riskLayer ? 0.3 : 0}
+                  fillOpacity={fillOpacity}
+                  stroke={hasData ? "rgba(255,255,255,0.55)" : "rgba(180,194,213,0.4)"}
+                  strokeWidth={hasData ? 0.6 : 0.3}
                   style={{
                     default: {
                       outline: "none",
                       border: "none",
                       boxShadow: "none",
-                      cursor: v > 0 ? "pointer" : "default",
-                      transition: "fill 0.3s ease",
-                      ...(!riskLayer && !hasData
-                        ? { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "white" }
-                        : {}),
+                      cursor: hasData ? "pointer" : "default",
+                      transition: "fill 0.25s ease, fill-opacity 0.25s ease",
+                      filter: hasData ? "drop-shadow(0 0 2px rgba(30,58,138,0.18))" : "none",
                     },
                     hover: {
                       outline: "none",
                       border: "none",
                       boxShadow: "none",
-                      fill: v > 0 ? "#facc15" : (riskLayer ? fill : "#e9d5ff"),
-                      cursor: v > 0 ? "pointer" : "default",
+                      fill: hasData ? "#facc15" : "#cdd6e2",
+                      fillOpacity: hasData ? 1 : 0.55,
+                      cursor: hasData ? "pointer" : "default",
                     },
                     pressed: { outline: "none", border: "none", boxShadow: "none" },
                   }}
-                  onClick={() => v > 0 && onCountyClick(fips)}
+                  onClick={() => hasData && onCountyClick(fips)}
                   onMouseEnter={() =>
                     d && onCountyHover({ fips, name: `${d.countyName}, ${d.stateName}`, count: d.count, upb: d.upb })
                   }
@@ -548,12 +553,21 @@ function stateCenter(fips: string): [number, number] {
   return STATE_CENTERS[fips] ?? [-98, 38];
 }
 
-/** Choropleth colors: pastel palette — low → high using the app palette */
+/** Choropleth colors: blue intensity gradient — low → high, data counties only */
 function choroplethColorFor(t: number) {
-  if (t <= 0) return "white";
-  if (t < 0.2) return "#a78bfa"; // soft violet — low
-  if (t < 0.4) return "#38bdf8"; // sky blue
-  if (t < 0.6) return "#4ade80"; // mint green
-  if (t < 0.8) return "#fb923c"; // peach-orange
-  return "#f472b6";              // pink — high
+  if (t <= 0) return "transparent";
+  if (t < 0.15) return "#bfdbfe"; // blue-200 — very low
+  if (t < 0.35) return "#60a5fa"; // blue-400 — low-mid
+  if (t < 0.55) return "#3b82f6"; // blue-500 — mid
+  if (t < 0.75) return "#1d4ed8"; // blue-700 — mid-high
+  return "#1e3a8a";               // blue-900 — high
 }
+
+/** The 5 legend stops for the choropleth */
+export const CHOROPLETH_LEGEND = [
+  { fill: "#bfdbfe", label: "Low" },
+  { fill: "#60a5fa", label: "" },
+  { fill: "#3b82f6", label: "Mid" },
+  { fill: "#1d4ed8", label: "" },
+  { fill: "#1e3a8a", label: "High" },
+];

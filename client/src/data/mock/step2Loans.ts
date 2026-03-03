@@ -16,6 +16,7 @@ export type Step2Loan = {
   status: LoanStatus;
   buyerId?: string;
   units: number;
+  dti: number;
 };
 
 const interestRates = ["2–2.5", "2.5–3", "3–3.5", "3.5–4", "4–4.5", "4.5–5", "5–5.5", "5.5–6"];
@@ -95,6 +96,9 @@ export function generateStep2Loans(): Step2Loan[] {
 
       const unitsRoll = rng();
       const units = unitsRoll < 0.80 ? 1 : unitsRoll < 0.92 ? 2 : unitsRoll < 0.97 ? 3 : 4;
+      // DTI: typical range 18–50%, Gaussian-ish using two rng() calls
+      const dtiRaw = 18 + (rng() + rng()) * 16;
+      const dti = Math.round(dtiRaw * 10) / 10;
 
       loans.push({
         id: `loan-${++id}`,
@@ -111,6 +115,7 @@ export function generateStep2Loans(): Step2Loan[] {
         status,
         buyerId,
         units,
+        dti,
       });
     }
   }

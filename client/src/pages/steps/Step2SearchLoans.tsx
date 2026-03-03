@@ -11,7 +11,7 @@ import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { VerticalBarChart } from "@/components/charts/VerticalBarChart";
 import { DonutChart } from "@/components/charts/DonutChart";
 import type { KpiItem } from "@/components/step/KpiStrip";
-import type { FilterState } from "@/components/filters/FilterRail";
+import type { FilterState, SliderState, SliderGroup } from "@/components/filters/FilterRail";
 import type { VerticalBarDatum } from "@/components/charts/VerticalBarChart";
 import type { DonutDatum } from "@/components/charts/DonutChart";
 import { step2Loans, type Step2Loan } from "@/data/mock/step2Loans";
@@ -27,7 +27,6 @@ const STATUS_CONFIG: Record<LoanStatus, { label: string; badge: string; icon: ty
 
 const FILTER_GROUPS = [
   { section: "Product", title: "Product Type", options: ["30 FRM", "15 FRM", "7/1 ARM", "5/1 ARM"] },
-  { section: "Product", title: "Interest Rate", options: ["2–2.5", "2.5–3", "3–3.5", "3.5–4", "4–4.5", "4.5–5", "5–5.5", "5.5–6"] },
   { section: "Product", title: "Occupancy", options: ["Owner", "Investment", "Second home"] },
   { section: "Product", title: "Purpose", options: ["Purchase", "Refinance"] },
   { section: "Product", title: "Property Type", options: ["Single-family", "Condo", "Townhouse"] },
@@ -35,15 +34,54 @@ const FILTER_GROUPS = [
   { section: "Product", title: "Status", options: ["Available", "Allocated", "Committed", "Sold"] },
   { section: "Credit", title: "LTV", options: ["<60", "60–70", "70–80", "80–90", ">90"] },
   { section: "Credit", title: "FICO", options: ["<680", "680–720", "720–760", ">760"] },
-  { section: "Credit", title: "DTI", options: ["<36", "36–43", ">43"] },
-  { section: "Credit", title: "Loan Amount", options: ["<250k", "250k–500k", "500k–750k", ">750k"] },
   { section: "Product", title: "State", options: ["CA", "FL", "GA", "NY", "PA", "TX", "VA", "WA", "AZ", "NJ", "CO", "IL", "OH", "NC", "MI", "DE", "SC", "MD", "TN", "MA", "IN", "UT", "OR"] },
 ];
 
-function filterLoansByField(loans: Step2Loan[], state: FilterState): Step2Loan[] {
+const fmt$ = (v: number) =>
+  v >= 1_000_000
+    ? `$${(v / 1_000_000).toFixed(2)}M`
+    : `$${(v / 1_000).toFixed(0)}K`;
+
+const SLIDER_GROUPS: SliderGroup[] = [
+  {
+    field: "coupon",
+    label: "Interest Rate",
+    min: 2,
+    max: 7,
+    step: 0.25,
+    format: (v) => `${v.toFixed(2)}%`,
+  },
+  {
+    field: "upb",
+    label: "Loan Amount (UPB)",
+    min: 50_000,
+    max: 2_000_000,
+    step: 25_000,
+    format: fmt$,
+  },
+  {
+    field: "dti",
+    label: "Debt-to-Income (DTI)",
+    min: 10,
+    max: 55,
+    step: 1,
+    format: (v) => `${v.toFixed(0)}%`,
+  },
+];
+
+const SLIDER_DEFAULTS: SliderState = {
+  coupon: [2, 7],
+  upb: [50_000, 2_000_000],
+  dti: [10, 55],
+};
+
+function filterLoansByField(
+  loans: Step2Loan[],
+  state: FilterState,
+  sliderState: SliderState,
+): Step2Loan[] {
   const fieldMap: Record<string, keyof Step2Loan> = {
     "Product Type": "product",
-    "Interest Rate": "interestRate",
     State: "state",
     Occupancy: "occupancy",
     Purpose: "purpose",
@@ -52,6 +90,7 @@ function filterLoansByField(loans: Step2Loan[], state: FilterState): Step2Loan[]
     Status: "status",
   };
   return loans.filter((loan) => {
+    // Chip-based filters
     for (const [group, selected] of Object.entries(state)) {
       if (!selected?.length) continue;
       const key = fieldMap[group];
@@ -59,6 +98,16 @@ function filterLoansByField(loans: Step2Loan[], state: FilterState): Step2Loan[]
       const value = loan[key];
       if (typeof value !== "string" || !selected.includes(value)) return false;
     }
+    // Range slider filters
+    const couponRange = sliderState["coupon"] ?? SLIDER_DEFAULTS["coupon"];
+    if (loan.coupon < couponRange[0] || loan.coupon > couponRange[1]) return false;
+
+    const upbRange = sliderState["upb"] ?? SLIDER_DEFAULTS["upb"];
+    if (loan.upb < upbRange[0] || loan.upb > upbRange[1]) return false;
+
+    const dtiRange = sliderState["dti"] ?? SLIDER_DEFAULTS["dti"];
+    if (loan.dti < dtiRange[0] || loan.dti > dtiRange[1]) return false;
+
     return true;
   });
 }
@@ -196,10 +245,11 @@ function BreakdownDetails({
 
 export default function Step2SearchLoans() {
   const [filterState, setFilterState] = useState<FilterState>({});
+  const [sliderState, setSliderState] = useState<SliderState>(SLIDER_DEFAULTS);
 
   const filteredLoans = useMemo(
-    () => filterLoansByField(step2Loans, filterState),
-    [filterState],
+    () => filterLoansByField(step2Loans, filterState, sliderState),
+    [filterState, sliderState],
   );
 
   const handleFilterChange = useCallback((group: string, value: string, checked: boolean) => {
@@ -212,6 +262,15 @@ export default function Step2SearchLoans() {
       }
       return { ...prev, [group]: next };
     });
+  }, []);
+
+  const handleSliderChange = useCallback((field: string, range: [number, number]) => {
+    setSliderState((prev) => ({ ...prev, [field]: range }));
+  }, []);
+
+  const handleClearAll = useCallback(() => {
+    setFilterState({});
+    setSliderState(SLIDER_DEFAULTS);
   }, []);
 
   const drilldown = useCallback((group: string, value: string) => {
@@ -279,7 +338,10 @@ export default function Step2SearchLoans() {
       filters={FILTER_GROUPS}
       filterState={filterState}
       onFilterChange={handleFilterChange}
-      onClearFilters={() => setFilterState({})}
+      onClearFilters={handleClearAll}
+      sliders={SLIDER_GROUPS}
+      sliderState={sliderState}
+      onSliderChange={handleSliderChange}
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">

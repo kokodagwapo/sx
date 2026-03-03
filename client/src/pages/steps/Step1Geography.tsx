@@ -607,9 +607,9 @@ export default function Step1Geography() {
 
         {/* Right column: Map — primary visual, top right */}
         <div className="order-1 lg:order-2 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1">
-          {/* Risk Layer toggle */}
-          <div className="mb-3 flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Risk Layer:</span>
+          {/* Risk Layer toggle + inline legend */}
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">Map Layer:</span>
             {(["loans", "flood", "wildfire"] as RiskLayer[]).map((layer) => {
               const labels: Record<RiskLayer, string> = { loans: "Loans", flood: "Flood Risk", wildfire: "Wildfire Risk" };
               const icons: Record<RiskLayer, typeof Globe> = { loans: Globe, flood: Droplets, wildfire: Flame };
@@ -636,6 +636,33 @@ export default function Step1Geography() {
                 </button>
               );
             })}
+            {/* Inline color legend — updates with active layer */}
+            <div className="ml-2 flex items-center gap-2 rounded-lg border border-white/60 bg-white/60 backdrop-blur-sm px-3 py-1.5 shadow-sm">
+              {riskLayer === "loans" && (
+                <>
+                  <span className="text-[10px] font-medium text-slate-400 mr-0.5">Low</span>
+                  {["#bfdbfe","#60a5fa","#3b82f6","#1d4ed8","#1e3a8a"].map((c) => (
+                    <div key={c} className="h-3 w-4 rounded-[3px]" style={{ background: c }} />
+                  ))}
+                  <span className="text-[10px] font-medium text-slate-400 ml-0.5">High</span>
+                  <span className="ml-1.5 text-[10px] text-slate-300">|</span>
+                  <div className="h-3 w-4 rounded-[3px] opacity-45" style={{ background: "#d1dae6" }} />
+                  <span className="text-[10px] text-slate-400">No data</span>
+                </>
+              )}
+              {riskLayer === "flood" && (["High","Moderate","Low"] as RiskLevel[]).map((lvl) => (
+                <span key={lvl} className="flex items-center gap-1 text-[10px] text-slate-600 font-medium">
+                  <span className="h-3 w-3 rounded-[3px] shrink-0" style={{ background: RISK_COLORS[lvl].fill }} />
+                  {lvl}
+                </span>
+              ))}
+              {riskLayer === "wildfire" && (["High","Moderate","Low"] as RiskLevel[]).map((lvl) => (
+                <span key={lvl} className="flex items-center gap-1 text-[10px] text-slate-600 font-medium">
+                  <span className="h-3 w-3 rounded-[3px] shrink-0" style={{ background: WILDFIRE_COLORS[lvl].fill }} />
+                  {lvl}
+                </span>
+              ))}
+            </div>
           </div>
 
           <PanelCard

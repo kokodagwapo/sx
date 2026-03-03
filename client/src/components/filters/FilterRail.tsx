@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { SlidersHorizontal, ChevronDown, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
@@ -9,7 +9,202 @@ export type FilterGroup = {
   section?: string;
 };
 
+export type SliderGroup = {
+  /** Unique key — used as the key in sliderState */
+  field: string;
+  /** Display label shown above the slider */
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  /** Format a raw number for display (e.g. "$350,000" or "3.75%") */
+  format: (v: number) => string;
+  /** Optional unit shown beside the value */
+  unit?: string;
+};
+
+export type SliderState = Record<string, [number, number]>;
+
 export type FilterState = Record<string, string[]>;
+
+// ─── Dual-handle range slider ────────────────────────────────────────────────
+
+function RangeSlider({
+  min,
+  max,
+  step,
+  value,
+  format,
+  onChange,
+}: {
+  min: number;
+  max: number;
+  step: number;
+  value: [number, number];
+  format: (v: number) => string;
+  onChange: (v: [number, number]) => void;
+}) {
+  const [lo, hi] = value;
+  const range = max - min;
+
+  const loRef = useRef<HTMLInputElement>(null);
+  const hiRef = useRef<HTMLInputElement>(null);
+
+  const loPercent = range > 0 ? ((lo - min) / range) * 100 : 0;
+  const hiPercent = range > 0 ? ((hi - min) / range) * 100 : 100;
+
+  const handleLo = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = Math.min(Number(e.target.value), hi - step);
+      onChange([v, hi]);
+    },
+    [hi, step, onChange],
+  );
+
+  const handleHi = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = Math.max(Number(e.target.value), lo + step);
+      onChange([lo, v]);
+    },
+    [lo, step, onChange],
+  );
+
+  return (
+    <div className="select-none">
+      {/* Value display */}
+      <div className="mb-2 flex items-center justify-between">
+        <span className="rounded-md bg-sky-50 border border-sky-200/60 px-2 py-0.5 text-[11px] font-semibold text-sky-700 tabular-nums">
+          {format(lo)}
+        </span>
+        <span className="text-[10px] text-slate-400">to</span>
+        <span className="rounded-md bg-sky-50 border border-sky-200/60 px-2 py-0.5 text-[11px] font-semibold text-sky-700 tabular-nums">
+          {format(hi)}
+        </span>
+      </div>
+
+      {/* Track + thumbs */}
+      <div className="relative h-5 flex items-center">
+        {/* Base track */}
+        <div className="absolute inset-x-0 h-1.5 rounded-full bg-slate-200" />
+        {/* Active fill */}
+        <div
+          className="absolute h-1.5 rounded-full bg-sky-400"
+          style={{ left: `${loPercent}%`, right: `${100 - hiPercent}%` }}
+        />
+        {/* Lo thumb */}
+        <input
+          ref={loRef}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={lo}
+          onChange={handleLo}
+          className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-sky-500 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-sky-500 pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
+          style={{ zIndex: lo > max - (max - min) * 0.1 ? 5 : 3 }}
+        />
+        {/* Hi thumb */}
+        <input
+          ref={hiRef}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={hi}
+          onChange={handleHi}
+          className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-sky-500 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-sky-500 pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
+          style={{ zIndex: 4 }}
+        />
+      </div>
+
+      {/* Min/max hints */}
+      <div className="mt-1 flex justify-between">
+        <span className="text-[9px] text-slate-400">{format(min)}</span>
+        <span className="text-[9px] text-slate-400">{format(max)}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Slider section (collapsible) ────────────────────────────────────────────
+
+function SliderSection({
+  sliders,
+  sliderState,
+  onSliderChange,
+  defaultOpen = true,
+}: {
+  sliders: SliderGroup[];
+  sliderState: SliderState;
+  onSliderChange: (field: string, range: [number, number]) => void;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  const activeCount = sliders.filter((s) => {
+    const v = sliderState[s.field];
+    return v && (v[0] !== s.min || v[1] !== s.max);
+  }).length;
+
+  return (
+    <div className="border-b border-white/30 last:border-b-0">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-white/30"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Range Filters</span>
+          {activeCount > 0 && (
+            <span className="rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-bold text-sky-700">{activeCount}</span>
+          )}
+        </div>
+        {open ? (
+          <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+        )}
+      </button>
+      {open && (
+        <div className="space-y-4 px-3 pb-4">
+          {sliders.map((s) => {
+            const current = sliderState[s.field] ?? [s.min, s.max];
+            const isActive = current[0] !== s.min || current[1] !== s.max;
+            return (
+              <div key={s.field}>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className={cn("text-[11px] font-semibold", isActive ? "text-sky-700" : "text-slate-600")}>
+                    {s.label}
+                  </span>
+                  {isActive && (
+                    <button
+                      type="button"
+                      onClick={() => onSliderChange(s.field, [s.min, s.max])}
+                      className="flex items-center gap-0.5 text-[9px] text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <RangeSlider
+                  min={s.min}
+                  max={s.max}
+                  step={s.step}
+                  value={current}
+                  format={s.format}
+                  onChange={(v) => onSliderChange(s.field, v)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Chip-based filter ────────────────────────────────────────────────────────
 
 function FilterChip({
   label,
@@ -153,18 +348,30 @@ function StateFilterSection({
   );
 }
 
+// ─── FilterBody ───────────────────────────────────────────────────────────────
+
 function FilterBody({
   groups,
   selected,
   onFilterChange,
   onClearAll,
+  sliders,
+  sliderState,
+  onSliderChange,
 }: {
   groups: FilterGroup[];
   selected: FilterState;
   onFilterChange?: (group: string, value: string, checked: boolean) => void;
   onClearAll?: () => void;
+  sliders?: SliderGroup[];
+  sliderState?: SliderState;
+  onSliderChange?: (field: string, range: [number, number]) => void;
 }) {
   const hasFilters = Object.keys(selected).length > 0;
+  const hasSliderFilters = sliders?.some((s) => {
+    const v = sliderState?.[s.field];
+    return v && (v[0] !== s.min || v[1] !== s.max);
+  });
   const bySection = useMemo(() => {
     const acc: Record<string, FilterGroup[]> = {};
     for (const g of groups) {
@@ -178,7 +385,12 @@ function FilterBody({
   const stateGroup = groups.find((g) => g.title === "State");
   const productGroups = (bySection["Product"] ?? []).filter((g) => g.title !== "State");
   const creditGroups = bySection["Credit"] ?? [];
-  const activeCount = Object.values(selected).flat().length;
+  const activeChipCount = Object.values(selected).flat().length;
+  const activeSliderCount = sliders?.filter((s) => {
+    const v = sliderState?.[s.field];
+    return v && (v[0] !== s.min || v[1] !== s.max);
+  }).length ?? 0;
+  const activeCount = activeChipCount + activeSliderCount;
 
   return (
     <div className="rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.07)]">
@@ -186,13 +398,13 @@ function FilterBody({
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-slate-500" strokeWidth={1.5} />
           <span className="text-sm font-medium text-slate-800">Filters</span>
-          {hasFilters && (
+          {activeCount > 0 && (
             <span className="rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold text-sky-700">
               {activeCount}
             </span>
           )}
         </div>
-        {hasFilters && onClearAll && (
+        {(hasFilters || hasSliderFilters) && onClearAll && (
           <button
             type="button"
             onClick={onClearAll}
@@ -205,10 +417,19 @@ function FilterBody({
       </div>
       {onFilterChange && (
         <div className="border-b border-white/40 px-3 py-1.5">
-          <p className="text-[11px] text-slate-500">Click charts or filters to drill down</p>
+          <p className="text-[11px] text-slate-500">Click charts or filters to narrow results</p>
         </div>
       )}
       <div className="max-h-[calc(100vh-220px)] overflow-y-auto">
+        {/* Range sliders first — most banker-friendly */}
+        {sliders && sliders.length > 0 && sliderState && onSliderChange && (
+          <SliderSection
+            sliders={sliders}
+            sliderState={sliderState}
+            onSliderChange={onSliderChange}
+            defaultOpen
+          />
+        )}
         {productGroups.length > 0 && (
           <FilterSection
             title="Product"
@@ -239,6 +460,8 @@ function FilterBody({
   );
 }
 
+// ─── Public FilterRail ────────────────────────────────────────────────────────
+
 export function FilterRail({
   groups,
   selected = {},
@@ -247,6 +470,9 @@ export function FilterRail({
   mobileOpen = false,
   onMobileClose,
   className,
+  sliders,
+  sliderState,
+  onSliderChange,
 }: {
   groups: FilterGroup[];
   selected?: FilterState;
@@ -255,8 +481,16 @@ export function FilterRail({
   mobileOpen?: boolean;
   onMobileClose?: () => void;
   className?: string;
+  sliders?: SliderGroup[];
+  sliderState?: SliderState;
+  onSliderChange?: (field: string, range: [number, number]) => void;
 }) {
-  const activeCount = Object.values(selected).flat().length;
+  const activeChipCount = Object.values(selected).flat().length;
+  const activeSliderCount = sliders?.filter((s) => {
+    const v = sliderState?.[s.field];
+    return v && (v[0] !== s.min || v[1] !== s.max);
+  }).length ?? 0;
+  const activeCount = activeChipCount + activeSliderCount;
 
   return (
     <>
@@ -268,6 +502,9 @@ export function FilterRail({
             selected={selected}
             onFilterChange={onFilterChange}
             onClearAll={onClearAll}
+            sliders={sliders}
+            sliderState={sliderState}
+            onSliderChange={onSliderChange}
           />
         </div>
       </aside>
@@ -315,6 +552,9 @@ export function FilterRail({
                 selected={selected}
                 onFilterChange={onFilterChange}
                 onClearAll={onClearAll}
+                sliders={sliders}
+                sliderState={sliderState}
+                onSliderChange={onSliderChange}
               />
             </div>
             <div className="border-t border-slate-100 px-4 py-3">

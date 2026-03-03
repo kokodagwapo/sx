@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { TopNav } from "@/components/layout/TopNav";
 import { KpiStrip, type KpiItem } from "@/components/step/KpiStrip";
 import { type StepId, steps } from "@/app/steps";
-import { FilterRail, type FilterGroup, type FilterState } from "@/components/filters/FilterRail";
+import { FilterRail, type FilterGroup, type FilterState, type SliderGroup, type SliderState } from "@/components/filters/FilterRail";
 import { cn } from "@/lib/utils";
 
 export function SprinkleShell({
@@ -21,6 +21,9 @@ export function SprinkleShell({
   kpiCompact = false,
   children,
   className,
+  sliders,
+  sliderState,
+  onSliderChange,
 }: {
   stepId: StepId;
   title?: string;
@@ -31,10 +34,12 @@ export function SprinkleShell({
   onClearFilters?: () => void;
   animateKpis?: boolean;
   onKpiClick?: (item: KpiItem, index: number) => void;
-  /** Compact single-row KPI layout with abbreviated labels */
   kpiCompact?: boolean;
   children: ReactNode;
   className?: string;
+  sliders?: SliderGroup[];
+  sliderState?: SliderState;
+  onSliderChange?: (field: string, range: [number, number]) => void;
 }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -45,6 +50,8 @@ export function SprinkleShell({
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  const hasFilters = (filters?.length ?? 0) > 0 || (sliders?.length ?? 0) > 0;
+
   return (
     <div className={cn("min-h-screen bg-[#e8f2ff] transition-colors duration-300", className)}>
       <Sidebar
@@ -52,7 +59,6 @@ export function SprinkleShell({
         onToggle={() => setSidebarCollapsed((c) => !c)}
       />
 
-      {/* Main content area - offset by sidebar width on desktop */}
       <div
         className={cn(
           "min-h-screen transition-all duration-300",
@@ -71,15 +77,18 @@ export function SprinkleShell({
             <div
               className={cn(
                 "grid gap-4",
-                filters?.length ? "lg:grid-cols-[240px_1fr]" : "grid-cols-1",
+                hasFilters ? "lg:grid-cols-[240px_1fr]" : "grid-cols-1",
               )}
             >
-              {filters?.length ? (
+              {hasFilters ? (
                 <FilterRail
-                  groups={filters}
+                  groups={filters ?? []}
                   selected={filterState}
                   onFilterChange={onFilterChange}
                   onClearAll={onClearFilters}
+                  sliders={sliders}
+                  sliderState={sliderState}
+                  onSliderChange={onSliderChange}
                 />
               ) : null}
               <main className="min-w-0">{children}</main>
@@ -88,7 +97,6 @@ export function SprinkleShell({
         </div>
       </div>
 
-      {/* Mobile overlay when menu open */}
       {mobileMenuOpen && (
         <>
           <div
