@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, UploadCloud, GitCompare, Plus, Building2 } from "lucide-react";
-import { BuyerChip, BuyerInfoCard } from "@/components/buyers/BuyerInfoCard";
+import { BuyerChip, BuyerInfoCard, type BuyerLoan } from "@/components/buyers/BuyerInfoCard";
 import { ExportButton } from "@/components/importExport/ExportButton";
 import { UploadModal } from "@/components/importExport/UploadModal";
 import { TourBubble } from "@/components/onboarding/TourBubble";
@@ -544,14 +544,23 @@ function StatusDrilldownPanel({
   );
 }
 
+function toBuyerLoan(l: Step2Loan): BuyerLoan {
+  return {
+    id: l.id, state: l.state, product: l.product,
+    upb: l.upb, coupon: l.coupon, status: l.status,
+    purpose: l.purpose, fico: l.fico, ltv: l.ltv,
+  };
+}
+
 function CounterpartyPanel({ loans }: { loans: Step2Loan[] }) {
   const buyerMap = useMemo(() => {
-    const m: Record<string, { count: number; upb: number }> = {};
+    const m: Record<string, { count: number; upb: number; loans: BuyerLoan[] }> = {};
     for (const l of loans) {
       if (!l.buyerId) continue;
-      if (!m[l.buyerId]) m[l.buyerId] = { count: 0, upb: 0 };
+      if (!m[l.buyerId]) m[l.buyerId] = { count: 0, upb: 0, loans: [] };
       m[l.buyerId].count++;
       m[l.buyerId].upb += l.upb;
+      m[l.buyerId].loans.push(toBuyerLoan(l));
     }
     return m;
   }, [loans]);
@@ -568,8 +577,8 @@ function CounterpartyPanel({ loans }: { loans: Step2Loan[] }) {
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-      {entries.map(([id, { count, upb }]) => (
-        <BuyerInfoCard key={id} buyerId={id} loanCount={count} totalUpb={upb} />
+      {entries.map(([id, { count, upb, loans: buyerLoans }]) => (
+        <BuyerInfoCard key={id} buyerId={id} loanCount={count} totalUpb={upb} loans={buyerLoans} />
       ))}
     </div>
   );
