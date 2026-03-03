@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Search, Building2, ShieldCheck, AlertCircle, Loader2,
   TrendingUp, DollarSign, BarChart2, Users, Landmark,
-  ChevronDown, ChevronUp, X, ArrowRight,
+  ChevronDown, ChevronUp, X, ArrowRight, Trophy, MapPin, Zap,
 } from "lucide-react";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,82 @@ const QUICK_BANK_COLORS: Record<QuickBank["color"], { badge: string; ring: strin
   amber:   { badge: "bg-amber-500",   ring: "ring-amber-300"   },
   rose:    { badge: "bg-rose-500",    ring: "ring-rose-300"    },
 };
+
+// ─── Buyer Insight Cards ──────────────────────────────────────────────────────
+
+type InsightColor = "sky" | "emerald" | "amber" | "violet";
+
+type BuyerInsight = {
+  id: string;
+  title: string;
+  subtitle: string;
+  tag: string;
+  icon: React.ElementType;
+  color: InsightColor;
+  banks: QuickBank[];
+};
+
+const INSIGHT_PALETTE: Record<InsightColor, { card: string; icon: string; iconBg: string; tag: string; chip: string }> = {
+  sky:     { card: "border-sky-100/60 bg-sky-50/60",     icon: "text-sky-600",     iconBg: "bg-sky-100",     tag: "bg-sky-100 text-sky-700",     chip: "bg-sky-100 hover:bg-sky-200 text-sky-800"     },
+  emerald: { card: "border-emerald-100/60 bg-emerald-50/60", icon: "text-emerald-600", iconBg: "bg-emerald-100", tag: "bg-emerald-100 text-emerald-700", chip: "bg-emerald-100 hover:bg-emerald-200 text-emerald-800" },
+  amber:   { card: "border-amber-100/60 bg-amber-50/60",   icon: "text-amber-600",   iconBg: "bg-amber-100",   tag: "bg-amber-100 text-amber-700",   chip: "bg-amber-100 hover:bg-amber-200 text-amber-800"   },
+  violet:  { card: "border-violet-100/60 bg-violet-50/60", icon: "text-violet-600",  iconBg: "bg-violet-100",  tag: "bg-violet-100 text-violet-700",  chip: "bg-violet-100 hover:bg-violet-200 text-violet-800"  },
+};
+
+const BUYER_INSIGHTS: BuyerInsight[] = [
+  {
+    id: "top-buyers",
+    title: "Top Buyers",
+    subtitle: "Highest-volume mortgage acquirers with proven execution and deep capital markets.",
+    tag: "Most Active",
+    icon: Trophy,
+    color: "sky",
+    banks: [
+      { label: "JPMorgan",        query: "JPMorgan Chase",  initial: "JP", color: "sky",    type: "FDIC-Insured Bank" },
+      { label: "Bank of America", query: "Bank of America", initial: "BA", color: "indigo", type: "FDIC-Insured Bank" },
+      { label: "Wells Fargo",     query: "Wells Fargo",     initial: "WF", color: "violet", type: "FDIC-Insured Bank" },
+    ],
+  },
+  {
+    id: "low-risk",
+    title: "Low Risk",
+    subtitle: "Best-in-class capital ratios, regulatory standing, and credit quality scores.",
+    tag: "AAA-Rated",
+    icon: ShieldCheck,
+    color: "emerald",
+    banks: [
+      { label: "Goldman Sachs",   query: "Goldman Sachs Bank",  initial: "GS", color: "emerald", type: "FDIC-Insured Bank" },
+      { label: "US Bank",         query: "US Bank",             initial: "US", color: "amber",   type: "FDIC-Insured Bank" },
+      { label: "Citibank",        query: "Citibank",            initial: "C",  color: "sky",     type: "FDIC-Insured Bank" },
+    ],
+  },
+  {
+    id: "high-capacity",
+    title: "High Capacity",
+    subtitle: "Largest balance sheets and deposit bases — able to absorb bulk pool acquisitions.",
+    tag: "Bulk Ready",
+    icon: Zap,
+    color: "amber",
+    banks: [
+      { label: "PNC Bank",        query: "PNC Bank",            initial: "PN", color: "rose",    type: "FDIC-Insured Bank" },
+      { label: "Truist",          query: "Truist Bank",         initial: "T",  color: "sky",     type: "FDIC-Insured Bank" },
+      { label: "TD Bank",         query: "TD Bank",             initial: "TD", color: "emerald", type: "FDIC-Insured Bank" },
+    ],
+  },
+  {
+    id: "regional-focus",
+    title: "Regional Focus",
+    subtitle: "Community and regional lenders with geographic expertise in key mortgage markets.",
+    tag: "Community",
+    icon: MapPin,
+    color: "violet",
+    banks: [
+      { label: "Regions Bank",    query: "Regions Bank",        initial: "R",  color: "rose",    type: "FDIC-Insured Bank" },
+      { label: "Fifth Third",     query: "Fifth Third Bank",    initial: "5T", color: "sky",     type: "FDIC-Insured Bank" },
+      { label: "KeyBank",         query: "KeyBank",             initial: "K",  color: "indigo",  type: "FDIC-Insured Bank" },
+    ],
+  },
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -370,14 +446,53 @@ export default function BankCallReport() {
           className="flex-1 overflow-y-auto scrollbar-none flex flex-col justify-end items-center px-4 min-h-0"
         >
           {!query && (
-            <div className="max-w-2xl w-full mb-3 text-center py-16">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/15 mx-auto mb-4">
-                <Landmark className="h-7 w-7 text-sky-600" strokeWidth={1.5} />
-              </div>
-              <p className="text-sm font-semibold text-slate-600 mb-1">Search FDIC-Insured Institutions</p>
-              <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                Enter any bank name below to retrieve live call report data — assets, deposits, income, and regulatory status from the FDIC BankFind Suite.
+            <div className="max-w-2xl w-full mb-4 pt-6">
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 text-center mb-3">
+                Buyer Intelligence
               </p>
+              <div className="grid grid-cols-2 gap-3">
+                {BUYER_INSIGHTS.map((insight) => {
+                  const p = INSIGHT_PALETTE[insight.color];
+                  const Icon = insight.icon;
+                  return (
+                    <div
+                      key={insight.id}
+                      className={cn(
+                        "rounded-2xl border backdrop-blur-sm p-4 flex flex-col gap-3",
+                        p.card
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", p.iconBg)}>
+                            <Icon className={cn("h-4.5 w-4.5", p.icon)} strokeWidth={2} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-800 leading-tight">{insight.title}</p>
+                            <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", p.tag)}>{insight.tag}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-relaxed">{insight.subtitle}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {insight.banks.map((bank) => (
+                          <button
+                            key={bank.query}
+                            onClick={() => handleQuick(bank)}
+                            className={cn(
+                              "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all",
+                              p.chip
+                            )}
+                          >
+                            <Building2 className="h-3 w-3" />
+                            {bank.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
