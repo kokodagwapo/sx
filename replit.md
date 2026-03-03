@@ -48,6 +48,24 @@ Preferred communication style: Simple, everyday language.
 - Expanded: `bg-white/30 backdrop-blur-xl border-white/50` (glassmorphic)
 - Active nav item: `bg-white/80 ring-1 ring-sky-200/80`, icon color `text-yellow-400`
 
+## Real Data Pipeline
+
+- **Source**: `attached_assets/ConvertedData_1772557931230.xlsx` — 7,052 real loans from Provident (2,452), Stonegate (963), New Penn Financial (3,637)
+- **Parser**: `scripts/parseExcel.cjs` — converts Excel → JSON; run with `node scripts/parseExcel.cjs`
+- **Output files** in `client/src/data/real/`:
+  - `realLoans.json` — 7,052 loan objects with all fields (tvm, source, rate, ltv, fico, dti, pricing, etc.)
+  - `realStats.json` — pre-computed portfolio stats (WA metrics, distributions, by-state/product/source)
+  - `step7Sample.json` — 200 representative loans for the Schedule view
+  - `step4Sample.json` — 50 loans with pricing data for the Pricing Sheet
+- **Key metrics**: Total UPB $1.861B | WA Rate 3.50% | WA FICO 744 | WA LTV 71.42% | WA DTI 35.56%
+
+## Counterparty Intelligence
+
+- **BuyerRegistry** (`client/src/data/mock/buyerRegistry.ts`): 5 buyers mapped to real institution data (FDIC certs)
+- **BuyerInfoCard** / **BuyerDetailModal** (`client/src/components/buyers/`): Compact card + full modal with FDIC Call Report data, loan portfolio KPIs, state/product breakdown, top-12 loans table
+- **LenderDrilldownModal** (`client/src/components/buyers/LenderDrilldownModal.tsx`): Per-lender modal showing KPIs, status breakdown, top states, product mix, WA metrics, and top-12 loans — triggered via the ↗ icon next to each lender pill in the filter rail
+- **FDIC API**: Proxied at `/api/fdic/institution/:cert` with 24-hour server-side cache; correct endpoint: `api.fdic.gov/banks/institutions?filters=CERT:{cert}&...`
+
 ## Application Structure
 
 ### 8-Step Workflow

@@ -47,11 +47,11 @@ type RealLoan = {
   term: number;
   lienPosition: string;
   status: string;
-  basePrice: number;
-  ltvFicoAdj: number;
-  priceAdj: number;
+  basePrice: number | null;
+  ltvFicoAdj: number | null;
+  priceAdj: number | null;
   otherLlpas: number;
-  finalPrice: number;
+  finalPrice: number | null;
   estimatedIncome: number;
   buyerId?: string;
 };

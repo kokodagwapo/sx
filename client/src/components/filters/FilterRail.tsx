@@ -1,9 +1,10 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { SlidersHorizontal, ChevronDown, ChevronRight, X, TrendingUp, TrendingDown, Minus, ExternalLink, Check } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, ChevronRight, X, TrendingUp, TrendingDown, Minus, ExternalLink, Check, ArrowUpRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
 import { RateModal, type RatesData } from "@/components/rates/RateModal";
+import { LenderDrilldownModal } from "@/components/buyers/LenderDrilldownModal";
 
 export type FilterGroup = {
   title: string;
@@ -493,11 +494,12 @@ const LENDER_COLORS: Record<string, { bg: string; activeBg: string; activeBorder
 };
 
 function LenderSection({
-  options, selected, onFilterChange,
+  options, selected, onFilterChange, onOpenModal,
 }: {
   options: string[];
   selected: string[];
   onFilterChange?: (group: string, value: string, checked: boolean) => void;
+  onOpenModal?: (lender: string) => void;
 }) {
   return (
     <div className="border-b border-slate-100 px-3 py-2.5">
@@ -507,19 +509,28 @@ function LenderSection({
           const active = selected.includes(name);
           const c = LENDER_COLORS[name] ?? { bg: "bg-white", activeBg: "bg-slate-700", activeBorder: "border-slate-700", text: "text-slate-600 border-slate-200", activeText: "text-white" };
           return (
-            <button
-              key={name}
-              type="button"
-              onClick={() => onFilterChange?.("Lender", name, !active)}
-              className={cn(
-                "rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all",
-                active
-                  ? `${c.activeBg} ${c.activeBorder} ${c.activeText} shadow-sm`
-                  : `${c.bg} ${c.text} hover:border-slate-300 hover:bg-slate-50`,
-              )}
-            >
-              {name}
-            </button>
+            <div key={name} className="flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => onFilterChange?.("Lender", name, !active)}
+                className={cn(
+                  "rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all",
+                  active
+                    ? `${c.activeBg} ${c.activeBorder} ${c.activeText} shadow-sm`
+                    : `${c.bg} ${c.text} hover:border-slate-300 hover:bg-slate-50`,
+                )}
+              >
+                {name}
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenModal?.(name)}
+                title={`View ${name} drilldown`}
+                className="flex h-4 w-4 items-center justify-center rounded-full text-slate-300 hover:bg-slate-100 hover:text-slate-500 transition-colors"
+              >
+                <ArrowUpRight className="h-2.5 w-2.5" />
+              </button>
+            </div>
           );
         })}
       </div>
@@ -561,6 +572,8 @@ function FilterBody({
     return () => clearTimeout(t);
   }, []);
 
+  const [lenderModal, setLenderModal] = useState<string | null>(null);
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       {/* Market rates */}
@@ -572,7 +585,13 @@ function FilterBody({
           options={lenderGroup.options}
           selected={selected["Lender"] ?? []}
           onFilterChange={onFilterChange}
+          onOpenModal={(name) => setLenderModal(name)}
         />
+      )}
+
+      {/* Lender drilldown modal */}
+      {lenderModal && (
+        <LenderDrilldownModal lender={lenderModal} onClose={() => setLenderModal(null)} />
       )}
 
       <div key={autoExpanded ? "expanded" : "collapsed"}>

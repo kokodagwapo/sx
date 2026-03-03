@@ -43,7 +43,7 @@ import type { KpiItem } from "@/components/step/KpiStrip";
 import { cn } from "@/lib/utils";
 
 const STEP8_KPIS: KpiItem[] = [
-  { id: "upb", label: "Total Unpaid Principal Balance (UPB)", value: "1,860,760,635", icon: Banknote },
+  { id: "upb", label: "Total Unpaid Principal Balance (UPB)", value: "1,861,333,635", icon: Banknote },
   { id: "loans", label: "Total Loans Meeting Criteria", value: "7,050", icon: FileText },
   { id: "coupon", label: "Weighted Average Coupon*", value: "3.50", icon: Percent },
   { id: "bey", label: "Bond Equivalent Yield*", value: "3.17", icon: Target },

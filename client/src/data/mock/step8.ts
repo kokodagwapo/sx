@@ -197,7 +197,7 @@ export type KpiDrilldown = {
 export const step8KpiDrilldown: Record<string, KpiDrilldown> = {
   upb: {
     label: "Total Unpaid Principal Balance (UPB)",
-    value: "1,860,760,635",
+    value: "1,861,333,635",
     definition: "Sum of outstanding principal across all selected loans.",
     insights: ["$1.861B across 7,050 loans from three lenders.", "Key portfolio size metric for pricing and risk."],
   },

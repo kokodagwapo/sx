@@ -7,7 +7,7 @@ import { step5ByProduct, step5ByRate } from "@/data/mock/step5";
 import type { KpiItem } from "@/components/step/KpiStrip";
 
 const STEP5_KPIS: KpiItem[] = [
-  { label: "Total Unpaid Principal Balance (UPB)", value: "1,860,760,635", icon: Banknote },
+  { label: "Total Unpaid Principal Balance (UPB)", value: "1,861,333,635", icon: Banknote },
   { label: "Total Loans Meeting Criteria", value: "7,050", icon: LayoutList },
   { label: "Weighted Average Coupon", value: "3.50", icon: Percent },
   { label: "Bond Equivalent Yield*", value: "3.17", icon: TrendingUp },
@@ -16,7 +16,7 @@ const STEP5_KPIS: KpiItem[] = [
 ];
 
 const BALANCE_SHEET = [
-  { label: "Total Unpaid Principal Balance (UPB)", value: "1,860,760,635" },
+  { label: "Total Unpaid Principal Balance (UPB)", value: "1,861,333,635" },
   { label: "Premium (Discount)", value: "13,263,000" },
   { label: "Total Purchase Price", value: "1,874,023,635" },
   { label: "Weighted Avg Maturity", value: "28" },

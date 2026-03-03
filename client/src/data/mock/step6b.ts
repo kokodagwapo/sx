@@ -87,7 +87,7 @@ export const step6bQuarterDrilldown: Record<string, QuarterDrilldown> = {
   "3/31/2017": {
     quarter: "Q1 2017",
     yield: 3.50,
-    totalLoans: "1,860,760,635",
+    totalLoans: "1,861,333,635",
     avgLoanSize: "264,000",
     loanTypeBreakdown: [
       { type: "30 FRM", pct: 78 },
@@ -113,7 +113,7 @@ export type MetricDrilldown = {
 export const step6bKpiDrilldown: Record<string, MetricDrilldown> = {
   upb: {
     label: "Total Unpaid Principal Balance (UPB)",
-    value: "1,860,760,635",
+    value: "1,861,333,635",
     definition: "Sum of outstanding principal across all loans meeting selection criteria.",
     components: ["Provident: $710.8M (2,450 loans)", "Stonegate: $209.1M (963 loans)", "New Penn Financial: $940.9M (3,637 loans)"],
     insights: ["$1.861B total across three seller tapes.", "Drives interest income projections and pool valuation."],

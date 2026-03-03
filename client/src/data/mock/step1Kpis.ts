@@ -2,7 +2,7 @@ import { Banknote, Clock, TrendingUp, TrendingDown, Scale, Gauge } from "lucide-
 import type { KpiItem } from "@/components/step/KpiStrip";
 
 export const step1Kpis: KpiItem[] = [
-  { label: "UPB", value: "1,860,760,635", icon: Banknote, tooltip: "Total Unpaid Principal Balance (UPB)" },
+  { label: "UPB", value: "1,861,333,635", icon: Banknote, tooltip: "Total Unpaid Principal Balance (UPB)" },
   { label: "Wtd Avg Duration*", value: "6.80", icon: Clock, tooltip: "Weighted Average Duration*" },
   { label: "Retained BEY*", value: "3.17", icon: TrendingUp, tooltip: "Retained Bond Equivalent Yield*" },
   { label: "Released BEY*", value: "2.44", icon: TrendingDown, tooltip: "Released Bond Equivalent Yield*" },

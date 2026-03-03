@@ -16,7 +16,7 @@ import { Banknote, LayoutList, TrendingUp, Clock, Scale } from "lucide-react";
 import type { KpiItem } from "@/components/step/KpiStrip";
 
 const STEP3_KPIS: KpiItem[] = [
-  { label: "Total Unpaid Principal Balance (UPB)", value: "1,860,760,635", icon: Banknote },
+  { label: "Total Unpaid Principal Balance (UPB)", value: "1,861,333,635", icon: Banknote },
   { label: "Total Loans Meeting Criteria", value: "7,050", icon: LayoutList },
   { label: "Weighted Average Coupon", value: "3.50", icon: Percent },
   { label: "Bond Equivalent Yield*", value: "3.17", icon: TrendingUp },
