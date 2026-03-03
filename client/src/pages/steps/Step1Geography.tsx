@@ -18,6 +18,8 @@ import {
   Flame,
   Droplets,
   AlertTriangle,
+  UploadCloud,
+  FileDown,
 } from "lucide-react";
 import { step1Kpis } from "@/data/mock/step1Kpis";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
@@ -33,6 +35,8 @@ import {
 import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS, STATE_RISK, type RiskLevel } from "@/data/mock/femaRisk";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { UploadModal } from "@/components/importExport/UploadModal";
+import { useLoanContext } from "@/context/LoanContext";
 
 type RiskLayer = "loans" | "flood" | "wildfire";
 
@@ -78,6 +82,8 @@ export default function Step1Geography() {
   const [drilldownExpandToLoans, setDrilldownExpandToLoans] = useState(false);
   const [pinnedLoans, setPinnedLoans] = useState<Set<string>>(new Set());
   const [riskLayer, setRiskLayer] = useState<RiskLayer>("loans");
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const { setImportedLoans, importedLoans } = useLoanContext();
 
   /** Loans for map: filter by state input when set */
   const mapLoans = useMemo(() => {
@@ -508,6 +514,39 @@ export default function Step1Geography() {
       animateKpis
       kpiCompact
     >
+      {/* Import / Export toolbar */}
+      <div className="mb-3 flex items-center gap-2 justify-end">
+        <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded — click to re-import` : "Upload loan tape CSV or Excel to populate the map & all sections"} side="bottom">
+          <button
+            type="button"
+            onClick={() => setUploadOpen(true)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all shadow-sm",
+              importedLoans
+                ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600"
+                : "bg-white/70 text-slate-600 border-white/60 hover:bg-white hover:text-sky-600 backdrop-blur-sm"
+            )}
+          >
+            <UploadCloud className="h-3.5 w-3.5" strokeWidth={2} />
+            {importedLoans ? `${importedLoans.length.toLocaleString()} Loans Loaded` : "Import Tape"}
+          </button>
+        </Tooltip>
+        <Tooltip content="Download current portfolio as CSV" side="bottom">
+          <a
+            href={`data:text/csv;charset=utf-8,${encodeURIComponent(
+              ["State,County,Tract,Loans,UPB", ...step1LoansByGeo.map(l =>
+                `${l.stateName},${l.countyName},${l.tractName},${l.loanCount},${l.upb}`
+              )].join("\n")
+            )}`}
+            download="portfolio_geography.csv"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-slate-800"
+          >
+            <FileDown className="h-3.5 w-3.5" strokeWidth={2} />
+            Export CSV
+          </a>
+        </Tooltip>
+      </div>
+
       {/* Top: Left = KPIs + filter + narrative | Right = Map (prominent) */}
       <div className="grid gap-4 lg:grid-cols-[minmax(0,356px)_1fr] lg:items-start">
         {/* Left column: metrics + controls + insights */}
@@ -1042,6 +1081,12 @@ export default function Step1Geography() {
         <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
         <p className="mt-1">Teraverde Financial LLC. 2026. All rights reserved.</p>
       </footer>
+
+      <UploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onImport={(loans) => { setImportedLoans(loans); setUploadOpen(false); }}
+      />
     </SprinkleShell>
   );
 }

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag } from "lucide-react";
+import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { ExportButton } from "@/components/importExport/ExportButton";
 import { exportLoansToCSV } from "@/data/csv/csvExporter";
 import { exportLoansToExcel } from "@/data/excel/excelExporter";
@@ -148,7 +148,15 @@ function StatusBadge({ status }: { status: LoanStatus }) {
   );
 }
 
-function StatusSummaryBar({ loans }: { loans: Step2Loan[] }) {
+function StatusSummaryBar({
+  loans,
+  selectedStatus,
+  onStatusClick,
+}: {
+  loans: Step2Loan[];
+  selectedStatus: LoanStatus | null;
+  onStatusClick: (s: LoanStatus) => void;
+}) {
   const total = loans.length;
   const byStatus = useMemo(() => {
     const counts = { Available: 0, Allocated: 0, Committed: 0, Sold: 0 };
@@ -157,21 +165,33 @@ function StatusSummaryBar({ loans }: { loans: Step2Loan[] }) {
   }, [loans]);
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2">
       {(["Available", "Allocated", "Committed", "Sold"] as LoanStatus[]).map((s) => {
         const cfg = STATUS_CONFIG[s];
         const count = byStatus[s] ?? 0;
         const pct = total > 0 ? (count / total) * 100 : 0;
         const Icon = cfg.icon;
+        const isSelected = selectedStatus === s;
         return (
-          <div key={s} className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-sm", cfg.badge)}>
+          <button
+            key={s}
+            type="button"
+            onClick={() => onStatusClick(s)}
+            className={cn(
+              "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-all duration-150 hover:scale-[1.02] hover:shadow-sm",
+              cfg.badge,
+              isSelected ? "ring-2 ring-offset-1 ring-current shadow-sm" : "opacity-80 hover:opacity-100"
+            )}
+          >
             <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
             <span className="font-semibold">{count.toLocaleString()}</span>
             <span className="font-medium opacity-80">{s}</span>
             <span className="text-xs opacity-60">({pct.toFixed(0)}%)</span>
-          </div>
+            {isSelected && <span className="text-[10px] font-bold opacity-70">▼</span>}
+          </button>
         );
       })}
+      <span className="self-center text-[10px] text-slate-400 ml-1">Click to drill down</span>
     </div>
   );
 }
@@ -244,10 +264,267 @@ function BreakdownDetails({
   );
 }
 
+const PAGE_SIZE = 15;
+
+type SortKey = keyof Step2Loan;
+
+const STATUS_BORDER: Record<LoanStatus, string> = {
+  Available: "border-t-emerald-400",
+  Allocated: "border-t-amber-400",
+  Committed: "border-t-sky-400",
+  Sold:      "border-t-slate-400",
+};
+
+function StatusDrilldownPanel({
+  status, loans, onClose,
+}: {
+  status: LoanStatus;
+  loans: Step2Loan[];
+  onClose: () => void;
+}) {
+  const [sortKey, setSortKey] = useState<SortKey>("upb");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(0);
+  const cfg = STATUS_CONFIG[status];
+  const Icon = cfg.icon;
+
+  const totalUpb = loans.reduce((s, l) => s + l.upb, 0);
+  const avgBalance = loans.length > 0 ? totalUpb / loans.length : 0;
+  const wac = loans.length > 0
+    ? loans.reduce((s, l) => s + l.coupon * l.upb, 0) / (totalUpb || 1)
+    : 0;
+  const topState = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const l of loans) counts[l.state] = (counts[l.state] ?? 0) + 1;
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
+  }, [loans]);
+
+  const productBars = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const l of loans) c[l.product] = (c[l.product] ?? 0) + 1;
+    return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  }, [loans]);
+
+  const purposeBars = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const l of loans) c[l.purpose] = (c[l.purpose] ?? 0) + 1;
+    return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  }, [loans]);
+
+  const stateBars = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const l of loans) c[l.state] = (c[l.state] ?? 0) + 1;
+    return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  }, [loans]);
+
+  const sorted = useMemo(() => {
+    return [...loans].sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (typeof av === "number" && typeof bv === "number")
+        return sortDir === "asc" ? av - bv : bv - av;
+      return sortDir === "asc"
+        ? String(av ?? "").localeCompare(String(bv ?? ""))
+        : String(bv ?? "").localeCompare(String(av ?? ""));
+    });
+  }, [loans, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const pageRows = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  const toggleSort = (key: SortKey) => {
+    if (key === sortKey) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortKey(key); setSortDir("desc"); }
+    setPage(0);
+  };
+
+  const SortIcon = ({ k }: { k: SortKey }) => {
+    if (k !== sortKey) return <ArrowUpDown className="h-3 w-3 opacity-30" />;
+    return sortDir === "asc" ? <ArrowUp className="h-3 w-3 text-sky-500" /> : <ArrowDown className="h-3 w-3 text-sky-500" />;
+  };
+
+  const showBuyer = status === "Allocated" || status === "Committed";
+
+  return (
+    <div className={cn("mt-4 rounded-xl border-t-4 border border-slate-200/60 bg-white/80 backdrop-blur-xl shadow-lg overflow-hidden animate-fade-in-up", STATUS_BORDER[status])}>
+      {/* Header */}
+      <div className={cn("flex items-center justify-between px-5 py-3.5 border-b border-slate-100", cfg.badge)}>
+        <div className="flex items-center gap-2.5">
+          <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
+          <span className="font-semibold text-sm">{status} Loans</span>
+          <span className="rounded-full bg-white/60 px-2 py-0.5 text-xs font-bold tabular-nums">
+            {loans.length.toLocaleString()}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg p-1.5 hover:bg-black/5 transition-colors"
+        >
+          <X className="h-4 w-4" strokeWidth={2} />
+        </button>
+      </div>
+
+      <div className="p-5 space-y-5">
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {[
+            { label: "Loan Count",      value: loans.length.toLocaleString() },
+            { label: "Total UPB",       value: `$${(totalUpb / 1_000_000).toFixed(2)}M` },
+            { label: "Avg Balance",     value: `$${(avgBalance / 1_000).toFixed(0)}K` },
+            { label: "Wtd Avg Coupon",  value: `${wac.toFixed(2)}%` },
+            { label: "Top State",       value: topState },
+          ].map(({ label, value }) => (
+            <div key={label} className="rounded-lg border border-slate-100 bg-slate-50/70 px-3 py-2.5">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</div>
+              <div className="mt-0.5 text-sm font-bold text-slate-800 tabular-nums">{value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Breakdown bars */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {[
+            { title: "Product Mix", bars: productBars },
+            { title: "Purpose",     bars: purposeBars },
+            { title: "Top States",  bars: stateBars },
+          ].map(({ title, bars }) => {
+            const max = bars[0]?.[1] ?? 1;
+            return (
+              <div key={title}>
+                <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">{title}</div>
+                <div className="space-y-1.5">
+                  {bars.map(([name, count]) => (
+                    <div key={name} className="flex items-center gap-2">
+                      <span className="w-16 shrink-0 truncate text-[11px] text-slate-600 font-medium">{name}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className={cn("h-full rounded-full", cfg.dot)}
+                          style={{ width: `${(count / max) * 100}%`, opacity: 0.75 }}
+                        />
+                      </div>
+                      <span className="w-8 text-right text-[10px] text-slate-400 tabular-nums">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Loan table */}
+        <div className="rounded-xl border border-slate-200/60 overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-2">
+            <span className="text-xs font-semibold text-slate-600">All {status} Loans</span>
+            <span className="text-[11px] text-slate-400">Page {page + 1} of {totalPages} · {sorted.length} total</span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/60">
+                  <th className="px-3 py-2 text-left font-semibold text-slate-500 w-8">#</th>
+                  {([
+                    ["id",          "Loan ID"],
+                    ["product",     "Product"],
+                    ["state",       "State"],
+                    ["upb",         "UPB"],
+                    ["coupon",      "Coupon"],
+                    ["purpose",     "Purpose"],
+                    ["occupancy",   "Occupancy"],
+                    ["dti",         "DTI"],
+                    ["units",       "Units"],
+                  ] as [SortKey, string][]).map(([key, label]) => (
+                    <th key={key} className="px-3 py-2 text-left font-semibold text-slate-500">
+                      <button
+                        type="button"
+                        onClick={() => toggleSort(key)}
+                        className="inline-flex items-center gap-1 hover:text-slate-800 transition-colors"
+                      >
+                        {label}
+                        <SortIcon k={key} />
+                      </button>
+                    </th>
+                  ))}
+                  {showBuyer && <th className="px-3 py-2 text-left font-semibold text-slate-500">Buyer ID</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {pageRows.map((loan, i) => (
+                  <tr
+                    key={loan.id}
+                    className={cn("border-b border-slate-50 transition-colors hover:bg-slate-50/60", i % 2 === 0 ? "bg-white" : "bg-slate-50/30")}
+                  >
+                    <td className="px-3 py-2 text-slate-400 tabular-nums">{page * PAGE_SIZE + i + 1}</td>
+                    <td className="px-3 py-2 font-mono text-slate-700">{loan.id}</td>
+                    <td className="px-3 py-2 text-slate-700">{loan.product}</td>
+                    <td className="px-3 py-2 font-semibold text-slate-700">{loan.state}</td>
+                    <td className="px-3 py-2 tabular-nums text-slate-700">${(loan.upb / 1_000).toFixed(0)}K</td>
+                    <td className="px-3 py-2 tabular-nums text-slate-700">{loan.coupon.toFixed(3)}%</td>
+                    <td className="px-3 py-2 text-slate-600">{loan.purpose}</td>
+                    <td className="px-3 py-2 text-slate-600">{loan.occupancy}</td>
+                    <td className="px-3 py-2 tabular-nums text-slate-600">{loan.dti.toFixed(0)}%</td>
+                    <td className="px-3 py-2 tabular-nums text-slate-600">{loan.units}</td>
+                    {showBuyer && <td className="px-3 py-2 font-mono text-sky-600">{loan.buyerId ?? "—"}</td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/60 px-4 py-2">
+              <button
+                type="button"
+                disabled={page === 0}
+                onClick={() => setPage(p => p - 1)}
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> Prev
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                  const p = totalPages <= 7 ? i : Math.max(0, Math.min(page - 3 + i, totalPages - 7 + i));
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPage(p)}
+                      className={cn(
+                        "h-6 w-6 rounded text-[11px] font-medium transition-colors",
+                        p === page ? "bg-sky-500 text-white" : "text-slate-500 hover:bg-slate-100"
+                      )}
+                    >
+                      {p + 1}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                disabled={page >= totalPages - 1}
+                onClick={() => setPage(p => p + 1)}
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                Next <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Step2SearchLoans() {
   const [filterState, setFilterState] = useState<FilterState>({});
   const [sliderState, setSliderState] = useState<SliderState>(SLIDER_DEFAULTS);
+  const [selectedStatus, setSelectedStatus] = useState<LoanStatus | null>(null);
   const { importedLoans } = useLoanContext();
+
+  const toggleStatus = useCallback((s: LoanStatus) => {
+    setSelectedStatus(prev => prev === s ? null : s);
+  }, []);
 
   const allLoans = useMemo(
     () => importedLoans ? importedLoans.map(loanRecordToStep2Loan) : step2Loans,
@@ -257,6 +534,11 @@ export default function Step2SearchLoans() {
   const filteredLoans = useMemo(
     () => filterLoansByField(allLoans, filterState, sliderState),
     [allLoans, filterState, sliderState],
+  );
+
+  const drilldownLoans = useMemo(
+    () => selectedStatus ? filteredLoans.filter(l => l.status === selectedStatus) : [],
+    [filteredLoans, selectedStatus],
   );
 
   const handleFilterChange = useCallback((group: string, value: string, checked: boolean) => {
@@ -350,9 +632,13 @@ export default function Step2SearchLoans() {
       sliderState={sliderState}
       onSliderChange={handleSliderChange}
     >
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <StatusSummaryBar loans={filteredLoans} />
+          <StatusSummaryBar
+            loans={filteredLoans}
+            selectedStatus={selectedStatus}
+            onStatusClick={toggleStatus}
+          />
         </div>
         <ExportButton
           data={filteredLoans.map(step2LoanToLoanRecord)}
@@ -361,6 +647,14 @@ export default function Step2SearchLoans() {
           exportExcel={(data: LoanRecord[]) => exportLoansToExcel(data)}
         />
       </div>
+
+      {selectedStatus && (
+        <StatusDrilldownPanel
+          status={selectedStatus}
+          loans={drilldownLoans}
+          onClose={() => setSelectedStatus(null)}
+        />
+      )}
 
       <div className="grid grid-cols-12 gap-4">
         <PanelCard className="col-span-12 lg:col-span-6" icon={Percent} title="Available Loans by Interest Rate">
@@ -413,7 +707,7 @@ export default function Step2SearchLoans() {
         </PanelCard>
 
         {/* Status breakdown card */}
-        <PanelCard className="col-span-12" icon={Scale} title="Loan Status Breakdown" subtitle="Transaction lifecycle tracking">
+        <PanelCard className="col-span-12" icon={Scale} title="Loan Status Breakdown" subtitle="Click any card to view all loans for that status">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {(["Available", "Allocated", "Committed", "Sold"] as LoanStatus[]).map((s) => {
               const cfg = STATUS_CONFIG[s];
@@ -421,20 +715,24 @@ export default function Step2SearchLoans() {
               const upb = filteredLoans.filter(l => l.status === s).reduce((sum, l) => sum + l.upb, 0);
               const pct = filteredLoans.length > 0 ? (count / filteredLoans.length) * 100 : 0;
               const Icon = cfg.icon;
+              const isSelected = selectedStatus === s;
               return (
                 <button
                   key={s}
                   type="button"
-                  onClick={() => drilldown("Status", s)}
+                  onClick={() => toggleStatus(s)}
                   className={cn(
                     "rounded-xl border p-3 text-left transition-all duration-150 hover:scale-[1.02]",
                     cfg.badge,
-                    (filterState["Status"] ?? []).includes(s) ? "ring-2 ring-offset-1 ring-current" : ""
+                    isSelected ? "ring-2 ring-offset-1 ring-current shadow-md scale-[1.01]" : ""
                   )}
                 >
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icon className="h-4 w-4" strokeWidth={2} />
-                    <span className="font-semibold text-sm">{s}</span>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" strokeWidth={2} />
+                      <span className="font-semibold text-sm">{s}</span>
+                    </div>
+                    {isSelected && <span className="text-[10px] font-bold opacity-60">▼ open</span>}
                   </div>
                   <div className="text-xl font-bold tabular-nums">{count.toLocaleString()}</div>
                   <div className="text-[11px] opacity-70 mt-0.5">${(upb / 1_000_000).toFixed(1)}M UPB · {pct.toFixed(0)}%</div>
