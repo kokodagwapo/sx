@@ -1,7 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, UploadCloud } from "lucide-react";
+import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, UploadCloud, GitCompare, Plus } from "lucide-react";
 import { ExportButton } from "@/components/importExport/ExportButton";
 import { UploadModal } from "@/components/importExport/UploadModal";
+import { TourBubble } from "@/components/onboarding/TourBubble";
+import { useCompare } from "@/context/CompareContext";
 import { exportLoansToCSV } from "@/data/csv/csvExporter";
 import { exportLoansToExcel } from "@/data/excel/excelExporter";
 import { step2LoanToLoanRecord, loanRecordToStep2Loan } from "@/data/converters";
@@ -287,6 +289,7 @@ function StatusDrilldownPanel({
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(0);
   const cfg = STATUS_CONFIG[status];
+  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const Icon = cfg.icon;
 
   const totalUpb = loans.reduce((s, l) => s + l.upb, 0);
@@ -447,27 +450,48 @@ function StatusDrilldownPanel({
                     </th>
                   ))}
                   {showBuyer && <th className="px-3 py-2 text-left font-semibold text-slate-500">Buyer ID</th>}
+                  <th className="px-3 py-2 text-center font-semibold text-slate-400 w-10">
+                    <GitCompare className="h-3.5 w-3.5 mx-auto" strokeWidth={2} />
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {pageRows.map((loan, i) => (
-                  <tr
-                    key={loan.id}
-                    className={cn("border-b border-slate-50 transition-colors hover:bg-slate-50/60", i % 2 === 0 ? "bg-white" : "bg-slate-50/30")}
-                  >
-                    <td className="px-3 py-2 text-slate-400 tabular-nums">{page * PAGE_SIZE + i + 1}</td>
-                    <td className="px-3 py-2 font-mono text-slate-700">{loan.id}</td>
-                    <td className="px-3 py-2 text-slate-700">{loan.product}</td>
-                    <td className="px-3 py-2 font-semibold text-slate-700">{loan.state}</td>
-                    <td className="px-3 py-2 tabular-nums text-slate-700">${(loan.upb / 1_000).toFixed(0)}K</td>
-                    <td className="px-3 py-2 tabular-nums text-slate-700">{loan.coupon.toFixed(3)}%</td>
-                    <td className="px-3 py-2 text-slate-600">{loan.purpose}</td>
-                    <td className="px-3 py-2 text-slate-600">{loan.occupancy}</td>
-                    <td className="px-3 py-2 tabular-nums text-slate-600">{loan.dti.toFixed(0)}%</td>
-                    <td className="px-3 py-2 tabular-nums text-slate-600">{loan.units}</td>
-                    {showBuyer && <td className="px-3 py-2 font-mono text-sky-600">{loan.buyerId ?? "—"}</td>}
-                  </tr>
-                ))}
+                {pageRows.map((loan, i) => {
+                  const inCompare = isInCompare(loan.id);
+                  return (
+                    <tr
+                      key={loan.id}
+                      className={cn("border-b border-slate-50 transition-colors hover:bg-slate-50/60", i % 2 === 0 ? "bg-white" : "bg-slate-50/30")}
+                    >
+                      <td className="px-3 py-2 text-slate-400 tabular-nums">{page * PAGE_SIZE + i + 1}</td>
+                      <td className="px-3 py-2 font-mono text-slate-700">{loan.id}</td>
+                      <td className="px-3 py-2 text-slate-700">{loan.product}</td>
+                      <td className="px-3 py-2 font-semibold text-slate-700">{loan.state}</td>
+                      <td className="px-3 py-2 tabular-nums text-slate-700">${(loan.upb / 1_000).toFixed(0)}K</td>
+                      <td className="px-3 py-2 tabular-nums text-slate-700">{loan.coupon.toFixed(3)}%</td>
+                      <td className="px-3 py-2 text-slate-600">{loan.purpose}</td>
+                      <td className="px-3 py-2 text-slate-600">{loan.occupancy}</td>
+                      <td className="px-3 py-2 tabular-nums text-slate-600">{loan.dti.toFixed(0)}%</td>
+                      <td className="px-3 py-2 tabular-nums text-slate-600">{loan.units}</td>
+                      {showBuyer && <td className="px-3 py-2 font-mono text-sky-600">{loan.buyerId ?? "—"}</td>}
+                      <td className="px-3 py-2 text-center">
+                        <button
+                          type="button"
+                          title={inCompare ? "Remove from compare" : "Add to compare (max 5)"}
+                          onClick={() => inCompare ? removeFromCompare(loan.id) : addToCompare(loan)}
+                          className={cn(
+                            "inline-flex h-6 w-6 items-center justify-center rounded-md transition-colors",
+                            inCompare
+                              ? "bg-sky-500 text-white hover:bg-red-500"
+                              : "bg-slate-100 text-slate-400 hover:bg-sky-100 hover:text-sky-600"
+                          )}
+                        >
+                          {inCompare ? <X className="h-3 w-3" strokeWidth={2.5} /> : <Plus className="h-3 w-3" strokeWidth={2.5} />}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -772,6 +796,26 @@ export default function Step2SearchLoans() {
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
         onImport={(loans) => { setImportedLoans(loans); setUploadOpen(false); }}
+      />
+
+      <TourBubble
+        stepKey="step2"
+        steps={[
+          {
+            title: "Filter & Explore Loans",
+            body: "Use the filters on the left to narrow by product, state, occupancy and more. Range sliders let you dial in exact LTV and FICO windows.",
+          },
+          {
+            title: "Click a Status to Drill Down",
+            body: "Click any status pill (Available, Allocated, Committed, Sold) to open a detailed breakdown panel with a sortable loan table.",
+          },
+          {
+            title: "Compare Loans Side-by-Side",
+            body: "In the drilldown table, hit the + button on any row to add that loan to your compare tray. Select up to 5, then click Compare.",
+            cta: "Got it",
+          },
+        ]}
+        position="bottom-right"
       />
     </SprinkleShell>
   );

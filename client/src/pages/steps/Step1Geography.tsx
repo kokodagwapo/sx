@@ -21,6 +21,7 @@ import {
   UploadCloud,
   FileDown,
 } from "lucide-react";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { step1Kpis } from "@/data/mock/step1Kpis";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { PanelCard } from "@/components/cards/PanelCard";
@@ -1083,6 +1084,22 @@ export default function Step1Geography() {
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
         onImport={(loans) => { setImportedLoans(loans); setUploadOpen(false); }}
+      />
+
+      <TourBubble
+        stepKey="step1"
+        steps={[
+          {
+            title: "Geographic Portfolio View",
+            body: "This map shows your loan concentration by county. Click any shaded county to drill down to individual tracts. Toggle the Map Layer pills to overlay FEMA flood or wildfire risk.",
+          },
+          {
+            title: "Import Your Loan Tape",
+            body: "Hit the upload icon inside the legend bar to import a CSV or Excel tape — the map and all downstream steps will update instantly.",
+            cta: "Got it",
+          },
+        ]}
+        position="bottom-right"
       />
     </SprinkleShell>
   );
