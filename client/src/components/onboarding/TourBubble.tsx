@@ -149,7 +149,7 @@ export function CohiTourPanel() {
   const hasTarget = !!currentStop.target;
   const style: React.CSSProperties = hasTarget && pos
     ? { position: "fixed", top: pos.top, left: pos.left }
-    : { position: "fixed", bottom: 24, right: 24 };
+    : { position: "fixed", bottom: 216, right: 24 };
 
   const halfWin  = (typeof window !== "undefined" ? window.innerWidth : 1200) / 2;
   const dotStart = Math.max(0, Math.min(stopIndex - Math.floor(DOT_WINDOW / 2), totalStops - DOT_WINDOW));
