@@ -659,12 +659,12 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
     <div className="max-w-2xl w-full mb-3 animate-fade-in-up">
       <div className={cn(
         "rounded-2xl overflow-hidden",
-        isDark ? "bg-white/[0.06] backdrop-blur-xl" : "bg-white shadow-xl border border-slate-100",
+        isDark ? "bg-white/[0.02] backdrop-blur-sm" : "bg-white/[0.25] backdrop-blur-sm",
       )}>
         {/* Header */}
         <div className={cn(
           "flex items-center justify-between px-4 py-2.5 border-b",
-          isDark ? "bg-white/[0.04] border-white/[0.08]" : "bg-slate-50/50 border-slate-100",
+          isDark ? "bg-transparent border-white/[0.06]" : "bg-transparent border-black/[0.05]",
         )}>
           <span className={cn("text-xs font-medium", isDark ? "text-white/50" : "text-slate-500")}>
             {isLoading ? "Searching…" : filtered.length === 0 ? "No results" : `Showing ${rangeStart}–${rangeEnd} of ${filtered.length} institution${filtered.length !== 1 ? "s" : ""}`}
@@ -691,7 +691,7 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
         </div>
 
         {/* Filter chips */}
-        <div className={cn("flex gap-1.5 px-3 py-2 overflow-x-auto border-b scrollbar-none", isDark ? "border-white/[0.06]" : "border-slate-100")}>
+        <div className={cn("flex gap-1.5 px-3 py-2 overflow-x-auto border-b scrollbar-none", isDark ? "border-white/[0.04]" : "border-black/[0.04]")}>
           {FILTER_CHIPS.map(({ id, label }) => {
             const count = counts[id];
             const isActive = activeFilter === id;
