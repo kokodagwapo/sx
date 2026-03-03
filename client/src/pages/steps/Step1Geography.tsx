@@ -610,7 +610,7 @@ export default function Step1Geography() {
           {/* Risk Layer toggle + inline legend */}
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">Map Layer:</span>
-            {(["loans", "flood", "wildfire"] as RiskLayer[]).map((layer) => {
+            {(["loans", "flood", "wildfire"] as RiskLayer[]).map((layer, idx) => {
               const labels: Record<RiskLayer, string> = { loans: "Loans", flood: "Flood Risk", wildfire: "Wildfire Risk" };
               const icons: Record<RiskLayer, typeof Globe> = { loans: Globe, flood: Droplets, wildfire: Flame };
               const active: Record<RiskLayer, string> = {
@@ -624,8 +624,9 @@ export default function Step1Geography() {
                   key={layer}
                   type="button"
                   onClick={() => setRiskLayer(layer)}
+                  style={{ animationDelay: `${idx * 0.7}s` }}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all shadow-sm",
+                    "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors animate-layer-pulse",
                     riskLayer === layer
                       ? active[layer]
                       : "bg-white/50 text-slate-600 border-white/50 hover:bg-slate-50"
