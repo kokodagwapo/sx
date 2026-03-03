@@ -270,6 +270,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ answer: cohiFallback(query) });
   });
 
+  // ─── Cohi TTS (text-to-speech) ────────────────────────────────────────────
+  app.post("/api/cohi/tts", async (req, res) => {
+    const { text } = req.body as { text?: string };
+    if (!text || typeof text !== "string") return res.status(400).json({ error: "text is required" });
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return res.status(503).json({ error: "TTS unavailable — OPENAI_API_KEY not set" });
+    try {
+      const { default: OpenAI } = await import("openai");
+      const openai = new OpenAI({ apiKey });
+      const response = await openai.audio.speech.create({
+        model: "tts-1",
+        voice: "nova",
+        input: text,
+        speed: 1.1,
+      });
+      const buffer = Buffer.from(await response.arrayBuffer());
+      res.set("Content-Type", "audio/mpeg");
+      res.set("Content-Length", String(buffer.length));
+      res.set("Cache-Control", "public, max-age=86400");
+      res.send(buffer);
+    } catch (err) {
+      console.error("Cohi TTS error:", err);
+      res.status(500).json({ error: "TTS generation failed" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

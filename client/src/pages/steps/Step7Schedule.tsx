@@ -353,6 +353,7 @@ export default function Step7Schedule() {
       onKpiClick={(item) => item.id && handleKpiClick(item)}
     >
       <PanelCard
+        data-tour="schedule-table"
         className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-1"
         icon={List}
         title="Loan Detail"
@@ -394,10 +395,11 @@ export default function Step7Schedule() {
         </div>
       )}
 
-      <footer className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500">
+      <footer data-tour="schedule-cashflow" className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500">
         <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
         <p className="mt-1">Teraverde Financial LLC. 2026. All rights reserved.</p>
       </footer>
+      <div data-tour="schedule-maturity" className="hidden" />
     </SprinkleShell>
   );
 }

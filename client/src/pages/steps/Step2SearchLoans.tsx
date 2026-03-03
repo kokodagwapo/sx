@@ -778,7 +778,7 @@ export default function Step2SearchLoans() {
           </div>
         </PanelCard>
 
-        <PanelCard className="col-span-12" icon={LayoutList} title="Portfolio Breakdown Details" subtitle="Click a row to filter">
+        <PanelCard data-tour="loan-search-table" className="col-span-12" icon={LayoutList} title="Portfolio Breakdown Details" subtitle="Click a row to filter">
           <BreakdownDetails
             filteredLoans={filteredLoans}
             productDonut={productDonut}
@@ -791,7 +791,7 @@ export default function Step2SearchLoans() {
         </PanelCard>
 
         {/* Status breakdown card */}
-        <PanelCard className="col-span-12" icon={Scale} title="Loan Status Breakdown" subtitle="Click any card to view all loans for that status">
+        <PanelCard data-tour="loan-detail-panel" className="col-span-12" icon={Scale} title="Loan Status Breakdown" subtitle="Click any card to view all loans for that status">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {(["Available", "Allocated", "Committed", "Sold"] as LoanStatus[]).map((s) => {
               const cfg = STATUS_CONFIG[s];

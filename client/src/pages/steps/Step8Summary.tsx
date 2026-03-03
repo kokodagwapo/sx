@@ -331,7 +331,7 @@ export default function Step8Summary() {
 
   return (
     <SprinkleShell stepId="8" kpis={STEP8_KPIS} animateKpis onKpiClick={(item) => item.id && handleKpiClick(item)}>
-      <div className="grid grid-cols-12 gap-4">
+      <div data-tour="summary-header" className="grid grid-cols-12 gap-4">
         <PanelCard
           className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1 lg:col-span-3"
           icon={PieChart}
@@ -417,6 +417,7 @@ export default function Step8Summary() {
           </div>
         </PanelCard>
         <PanelCard
+          data-tour="summary-table"
           className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-6 lg:col-span-4"
           icon={Table2}
           title="Loan Term"
@@ -484,7 +485,7 @@ export default function Step8Summary() {
         </div>
       )}
 
-      <footer className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500">
+      <footer data-tour="summary-footer" className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500">
         <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
         <p className="mt-1">Teraverde Financial LLC, 2016–2017. All rights reserved.</p>
       </footer>

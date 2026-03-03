@@ -266,6 +266,7 @@ export default function Step4PricingSheet() {
     <SprinkleShell stepId="4" kpis={STEP4_KPIS} animateKpis>
       <div className="space-y-4">
         <PanelCard
+          data-tour="pricing-header"
           className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-1"
           icon={Table2}
           title="Detail of Pricing for Selected Loans"
@@ -282,14 +283,14 @@ export default function Step4PricingSheet() {
             </div>
           }
         >
-          <div className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-2">
+          <div data-tour="pricing-table" className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-2">
             <DataTable data={rows} columns={PRICING_COLUMNS} height={480} animateRows />
           </div>
         </PanelCard>
 
         <LlpaCalculator rows={rows} />
 
-        <footer className="border-t border-slate-200/70 pt-4 text-xs text-slate-500">
+        <footer data-tour="pricing-summary" className="border-t border-slate-200/70 pt-4 text-xs text-slate-500">
           <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
           <p className="mt-1">LLPA values reference Fannie Mae standard adjustment matrix. Teraverde Financial LLC. 2026. All rights reserved.</p>
         </footer>

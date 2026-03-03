@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, Bell, User, ChevronDown, Menu, ChevronLeft, ChevronRight, FileUp, AlertTriangle, Info, TrendingUp, CheckCircle2, X, HelpCircle } from "lucide-react";
+import { Search, Bell, User, ChevronDown, Menu, ChevronLeft, ChevronRight, FileUp, AlertTriangle, Info, TrendingUp, CheckCircle2, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { search, type SearchResult } from "@/app/searchIndex";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
@@ -10,7 +10,7 @@ import { steps, getPrevNext, type StepId } from "@/app/steps";
 import { UploadModal } from "@/components/importExport/UploadModal";
 import { useLoanContext } from "@/context/LoanContext";
 import { useTour } from "@/context/TourContext";
-import { TourBubble } from "@/components/onboarding/TourBubble";
+
 
 type Notif = {
   id: string;
@@ -121,7 +121,7 @@ export function TopNav({
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const notifRef = useRef<HTMLDivElement>(null);
   const { setImportedLoans, importedLoans } = useLoanContext();
-  const { restartTour } = useTour();
+  const { startTour } = useTour();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const unreadCount = NOTIFICATIONS.filter((n) => !readIds.has(n.id)).length;
@@ -326,13 +326,14 @@ export function TopNav({
               )}
             </button>
           </Tooltip>
-          <Tooltip content="Restart guided tour" side="bottom">
+          <Tooltip content="Start guided Cohi tour" side="bottom">
             <button
               type="button"
-              onClick={restartTour}
-              className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/30 hover:text-sky-500"
+              onClick={startTour}
+              className="relative inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-sky-50 hover:text-sky-600"
             >
-              <HelpCircle className="h-5 w-5" strokeWidth={2} />
+              <Sparkles className="h-4 w-4" strokeWidth={2} />
+              <span className="hidden sm:inline">Cohi Tour</span>
             </button>
           </Tooltip>
           <div data-tour="notif-bell" className="relative" ref={notifRef}>
@@ -477,44 +478,6 @@ export function TopNav({
         onImport={(loans) => { setImportedLoans(loans); setUploadOpen(false); }}
       />
 
-      <TourBubble
-        stepKey="layout"
-        delay={600}
-        position="top-left"
-        steps={[
-          {
-            title: "Welcome to SprinkleX",
-            body: "This is your loan analytics workspace. The left sidebar is your main navigation — let's take a quick tour so you know where everything lives.",
-            icon: "lightbulb",
-            target: "sidebar-main-menu",
-          },
-          {
-            title: "Main Menu — 9 Analysis Steps",
-            body: "The sidebar's Main Menu lists Steps 1–9, each covering a different lens: geography, loan search, credit, pricing, performance, cohorts, and more. Click the section header to collapse or expand it.",
-            icon: "list",
-            target: "sidebar-main-menu",
-          },
-          {
-            title: "Admin Section",
-            body: "Below Main Menu is the Admin section. Use Tape Import here to upload and map seller CSV tapes. The Admin header also collapses independently.",
-            icon: "upload",
-            target: "sidebar-admin",
-          },
-          {
-            title: "Quick-Jump Step Pills",
-            body: "The numbered pills in the top bar (1–9) let you jump between steps instantly without opening the sidebar. The active step is highlighted in blue.",
-            icon: "chart",
-            target: "step-pills",
-          },
-          {
-            title: "Alerts & Portfolio Health",
-            body: "The bell icon in the top-right shows live portfolio alerts — flood-risk concentration, rate moves, expiring commitments, and more. Click it any time to review.",
-            icon: "bell",
-            target: "notif-bell",
-            cta: "Let's go",
-          },
-        ]}
-      />
     </header>
   );
 }

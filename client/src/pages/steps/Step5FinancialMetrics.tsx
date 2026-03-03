@@ -44,7 +44,7 @@ function BigNumber({ label, value }: { label: string; value: string }) {
 export default function Step5FinancialMetrics() {
   return (
     <SprinkleShell stepId="5" kpis={STEP5_KPIS} animateKpis>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <div data-tour="financial-kpis" className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         {/* Left: Balance Sheet Considerations */}
         <PanelCard
           className="col-span-1 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1 lg:col-span-4"
@@ -59,7 +59,7 @@ export default function Step5FinancialMetrics() {
         </PanelCard>
 
         {/* Middle: Bar charts */}
-        <div className="col-span-1 space-y-4 lg:col-span-4">
+        <div data-tour="financial-charts" className="col-span-1 space-y-4 lg:col-span-4">
           <PanelCard
             className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-2"
             icon={BarChart3}
@@ -96,7 +96,7 @@ export default function Step5FinancialMetrics() {
         </PanelCard>
       </div>
 
-      <footer className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500">
+      <footer data-tour="financial-footer" className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500">
         <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
         <p className="mt-1">Teraverde Financial LLC. 2026. All rights reserved.</p>
       </footer>

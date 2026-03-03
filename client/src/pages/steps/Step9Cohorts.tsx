@@ -68,6 +68,7 @@ export default function Step9Cohorts() {
       <div className="space-y-4">
         {/* Dimension selector */}
         <PanelCard
+          data-tour="cohort-selector"
           className="opacity-0 animate-fade-in-up"
           icon={Layers}
           title="Cohort Analysis"
@@ -99,6 +100,7 @@ export default function Step9Cohorts() {
         {/* Charts */}
         <div className="grid grid-cols-12 gap-4">
           <PanelCard
+            data-tour="cohort-bar-chart"
             className="col-span-12 lg:col-span-7 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1"
             icon={BarChart2}
             title="Total UPB by Cohort ($M)"
@@ -127,6 +129,7 @@ export default function Step9Cohorts() {
 
         {/* Metrics table */}
         <PanelCard
+          data-tour="cohort-table"
           className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-2"
           icon={Scale}
           title="Cohort Metrics Comparison"

@@ -1,63 +1,157 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { COHI_TOUR_STOPS, type CohiStop } from "@/data/cohiTour";
 
-const STORAGE_KEY = "sprinklex_tour_dismissed";
+const SESSION_KEY = "cohi_tour_v2_idx";
+const ACTIVE_KEY  = "cohi_tour_v2_active";
 
-export function clearTourStorage() {
-  localStorage.removeItem(STORAGE_KEY);
-}
-
-export function dismissTourStep(stepKey: string) {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const set = new Set<string>(raw ? JSON.parse(raw) : []);
-    set.add(stepKey);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(set)));
-  } catch {}
-}
-
-export function dismissAllTours() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(["__all__"]));
-}
-
-export function isTourStepDismissed(stepKey: string): boolean {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const set = new Set<string>(raw ? JSON.parse(raw) : []);
-    return set.has("__all__") || set.has(stepKey);
-  } catch {
-    return false;
-  }
-}
-
-type TourContextValue = {
+export type CohiTourContextValue = {
+  isActive: boolean;
+  stopIndex: number;
+  totalStops: number;
+  currentStop: CohiStop | null;
+  startTour: () => void;
+  endTour: () => void;
+  goNext: () => void;
+  goPrev: () => void;
+  isSpeaking: boolean;
+  speakCurrent: () => void;
+  stopSpeaking: () => void;
   tourVersion: number;
   tourActive: boolean;
   restartTour: () => void;
 };
 
-const TourContext = createContext<TourContextValue>({
-  tourVersion: 0,
-  tourActive: false,
-  restartTour: () => {},
+const CohiTourCtx = createContext<CohiTourContextValue>({
+  isActive: false, stopIndex: -1, totalStops: COHI_TOUR_STOPS.length,
+  currentStop: null,
+  startTour: () => {}, endTour: () => {}, goNext: () => {}, goPrev: () => {},
+  isSpeaking: false, speakCurrent: () => {}, stopSpeaking: () => {},
+  tourVersion: 0, tourActive: false, restartTour: () => {},
 });
 
-export function TourProvider({ children }: { children: React.ReactNode }) {
-  const [tourVersion, setTourVersion] = useState(0);
-  const [tourActive, setTourActive] = useState(false);
+function TourProviderInner({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
 
-  const restartTour = useCallback(() => {
-    clearTourStorage();
-    setTourActive(true);
-    setTourVersion((v) => v + 1);
+  const [stopIndex, setStopIndex] = useState<number>(() => {
+    try { return parseInt(sessionStorage.getItem(SESSION_KEY) ?? "-1", 10); } catch { return -1; }
+  });
+  const [isActive, setIsActive] = useState<boolean>(() => {
+    try { return sessionStorage.getItem(ACTIVE_KEY) === "1"; } catch { return false; }
+  });
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [tourVersion, setTourVersion] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const persist = useCallback((idx: number, active: boolean) => {
+    try {
+      sessionStorage.setItem(SESSION_KEY, String(idx));
+      sessionStorage.setItem(ACTIVE_KEY, active ? "1" : "0");
+    } catch {}
   }, []);
 
+  const stopSpeaking = useCallback(() => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    setIsSpeaking(false);
+  }, []);
+
+  const speakCurrent = useCallback(async () => {
+    if (stopIndex < 0 || stopIndex >= COHI_TOUR_STOPS.length) return;
+    stopSpeaking();
+    const stop = COHI_TOUR_STOPS[stopIndex];
+    try {
+      const res = await fetch("/api/cohi/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: stop.script }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      setIsSpeaking(true);
+      audio.onended = () => { setIsSpeaking(false); URL.revokeObjectURL(url); };
+      audio.onerror = () => { setIsSpeaking(false); URL.revokeObjectURL(url); };
+      audio.play().catch(() => setIsSpeaking(false));
+    } catch { setIsSpeaking(false); }
+  }, [stopIndex, stopSpeaking]);
+
+  const navigateToStop = useCallback((idx: number) => {
+    const stop = COHI_TOUR_STOPS[idx];
+    if (stop) navigate(stop.route);
+  }, [navigate]);
+
+  const startTour = useCallback(() => {
+    stopSpeaking();
+    setStopIndex(0);
+    setIsActive(true);
+    setTourVersion(v => v + 1);
+    persist(0, true);
+    navigate(COHI_TOUR_STOPS[0].route);
+  }, [navigate, persist, stopSpeaking]);
+
+  const endTour = useCallback(() => {
+    stopSpeaking();
+    setIsActive(false);
+    setStopIndex(-1);
+    persist(-1, false);
+  }, [persist, stopSpeaking]);
+
+  const goNext = useCallback(() => {
+    stopSpeaking();
+    setStopIndex(prev => {
+      const next = prev + 1;
+      if (next >= COHI_TOUR_STOPS.length) {
+        setIsActive(false);
+        persist(-1, false);
+        return -1;
+      }
+      persist(next, true);
+      navigateToStop(next);
+      return next;
+    });
+  }, [navigateToStop, persist, stopSpeaking]);
+
+  const goPrev = useCallback(() => {
+    stopSpeaking();
+    setStopIndex(prev => {
+      const next = Math.max(0, prev - 1);
+      persist(next, true);
+      navigateToStop(next);
+      return next;
+    });
+  }, [navigateToStop, persist, stopSpeaking]);
+
+  useEffect(() => {
+    return () => { stopSpeaking(); };
+  }, [stopSpeaking]);
+
+  const currentStop = (isActive && stopIndex >= 0 && stopIndex < COHI_TOUR_STOPS.length)
+    ? COHI_TOUR_STOPS[stopIndex]
+    : null;
+
   return (
-    <TourContext.Provider value={{ tourVersion, tourActive, restartTour }}>
+    <CohiTourCtx.Provider value={{
+      isActive, stopIndex, totalStops: COHI_TOUR_STOPS.length,
+      currentStop, startTour, endTour, goNext, goPrev,
+      isSpeaking, speakCurrent, stopSpeaking,
+      tourVersion, tourActive: isActive, restartTour: startTour,
+    }}>
       {children}
-    </TourContext.Provider>
+    </CohiTourCtx.Provider>
   );
 }
 
-export function useTour() {
-  return useContext(TourContext);
+export function TourProvider({ children }: { children: React.ReactNode }) {
+  return <TourProviderInner>{children}</TourProviderInner>;
 }
+
+export function useTour() { return useContext(CohiTourCtx); }
+
+export function clearTourStorage() {
+  try { sessionStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(ACTIVE_KEY); } catch {}
+}
+export function dismissTourStep(_key: string) {}
+export function dismissAllTours() { clearTourStorage(); }
+export function isTourStepDismissed(_key: string) { return false; }

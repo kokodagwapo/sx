@@ -1,4 +1,6 @@
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom";
+import { TourProvider } from "@/context/TourContext";
+import { CohiTourPanel } from "@/components/onboarding/TourBubble";
 import Landing from "@/pages/Landing";
 import BankCallReport from "@/pages/BankCallReport";
 import Step1Geography from "@/pages/steps/Step1Geography";
@@ -14,23 +16,37 @@ import Step8Summary from "@/pages/steps/Step8Summary";
 import Step9Cohorts from "@/pages/steps/Step9Cohorts";
 import TapeImport from "@/pages/admin/TapeImport";
 
+function RootLayout() {
+  return (
+    <TourProvider>
+      <Outlet />
+      <CohiTourPanel />
+    </TourProvider>
+  );
+}
+
 const router = createBrowserRouter([
-  { path: "/",                  element: <Step1Geography /> },
-  { path: "/landing",           element: <Landing /> },
-  { path: "/bank-call-report",  element: <BankCallReport /> },
-  { path: "/step/1",            element: <Step1Geography /> },
-  { path: "/step/2",     element: <Step2SearchLoans /> },
-  { path: "/step/3",     element: <Step3CreditMetrics /> },
-  { path: "/step/4",     element: <Step4PricingSheet /> },
-  { path: "/step/5",     element: <Step5FinancialMetrics /> },
-  { path: "/step/6a",    element: <Step6aLoanComposition /> },
-  { path: "/step/6b",    element: <Step6bYields /> },
-  { path: "/step/6c",    element: <Step6cLoanConcentration /> },
-  { path: "/step/7",     element: <Step7Schedule /> },
-  { path: "/step/8",     element: <Step8Summary /> },
-  { path: "/step/9",     element: <Step9Cohorts /> },
-  { path: "/admin/tape-import", element: <TapeImport /> },
-  { path: "*",           element: <Navigate to="/step/1" replace /> },
+  {
+    element: <RootLayout />,
+    children: [
+      { path: "/",                  element: <Step1Geography /> },
+      { path: "/landing",           element: <Landing /> },
+      { path: "/bank-call-report",  element: <BankCallReport /> },
+      { path: "/step/1",            element: <Step1Geography /> },
+      { path: "/step/2",     element: <Step2SearchLoans /> },
+      { path: "/step/3",     element: <Step3CreditMetrics /> },
+      { path: "/step/4",     element: <Step4PricingSheet /> },
+      { path: "/step/5",     element: <Step5FinancialMetrics /> },
+      { path: "/step/6a",    element: <Step6aLoanComposition /> },
+      { path: "/step/6b",    element: <Step6bYields /> },
+      { path: "/step/6c",    element: <Step6cLoanConcentration /> },
+      { path: "/step/7",     element: <Step7Schedule /> },
+      { path: "/step/8",     element: <Step8Summary /> },
+      { path: "/step/9",     element: <Step9Cohorts /> },
+      { path: "/admin/tape-import", element: <TapeImport /> },
+      { path: "*",           element: <Navigate to="/step/1" replace /> },
+    ],
+  },
 ]);
 
 export function AppRouter() {

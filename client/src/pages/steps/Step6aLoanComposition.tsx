@@ -48,6 +48,7 @@ export default function Step6aLoanComposition() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         {/* Left: Narrative */}
         <PanelCard
+          data-tour="composition-sellers"
           className="col-span-1 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1 lg:col-span-5"
           icon={FileText}
           title="Loan Composition with Selections"
@@ -89,6 +90,7 @@ export default function Step6aLoanComposition() {
         {/* Right: Chart + Drilldown */}
         <div className="col-span-1 space-y-4 lg:col-span-7">
           <PanelCard
+            data-tour="composition-chart"
             className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-2"
             icon={BarChart2}
             title="Loan Composition with Selections"
@@ -109,6 +111,7 @@ export default function Step6aLoanComposition() {
           {/* Drilldown panel */}
           {drilldown && (
             <PanelCard
+              data-tour="composition-proforma"
               className="opacity-0 animate-fade-in-up border-emerald-200/60 bg-emerald-50/30"
               icon={Sparkles}
               title={`Drilldown: ${drilldown.loanType}`}

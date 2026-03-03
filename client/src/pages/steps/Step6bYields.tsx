@@ -235,6 +235,7 @@ export default function Step6bYields() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         {/* Historical Loan Yields */}
         <PanelCard
+          data-tour="yields-chart"
           className="col-span-1 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1 lg:col-span-7"
           icon={LineChart}
           title="Historical Loan Yields — Last Five Quarters"
@@ -252,6 +253,7 @@ export default function Step6bYields() {
         {/* Portfolio Comparison Panels */}
         <div className="col-span-1 grid gap-4 lg:col-span-5 lg:grid-rows-2">
           <PanelCard
+            data-tour="yields-spread"
             className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-2"
             icon={Banknote}
             title="As of Last Quarter"
@@ -276,6 +278,7 @@ export default function Step6bYields() {
             </div>
           </PanelCard>
           <PanelCard
+            data-tour="yields-summary"
             className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-3"
             icon={TrendingUp}
             title="Projected Portfolio"

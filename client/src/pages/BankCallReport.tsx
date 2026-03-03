@@ -451,7 +451,7 @@ function ResultsPanel({ query, institutions, isLoading, isError, expanded, onTog
 
       {/* Filter chips */}
       {!isLoading && !isError && institutions.length > 0 && (
-        <div className="rounded-2xl border border-white/50 bg-white/30 backdrop-blur-xl mb-2 overflow-hidden">
+        <div data-tour="bcr-filter" className="rounded-2xl border border-white/50 bg-white/30 backdrop-blur-xl mb-2 overflow-hidden">
           <div className="flex items-center gap-1.5 px-3 py-2.5 overflow-x-auto scrollbar-none">
             <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400 shrink-0 mr-0.5" />
             {INST_FILTERS.map(({ id, label }) => {
@@ -582,7 +582,7 @@ export default function BankCallReport() {
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 text-center mb-3">
                 Buyer Intelligence
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div data-tour="buyer-intelligence" className="grid grid-cols-2 gap-3">
                 {/* Sellers card — from uploaded tape or default real data */}
                 <div className="rounded-2xl border border-rose-100/60 bg-rose-50/60 backdrop-blur-sm p-4 flex flex-col gap-3">
                   <div className="flex items-center gap-2.5">
@@ -699,7 +699,7 @@ export default function BankCallReport() {
           </div>
 
           {/* Search bar */}
-          <div className="relative max-w-2xl w-full">
+          <div data-tour="bcr-search" className="relative max-w-2xl w-full">
             <div className="flex items-center gap-2 rounded-2xl px-4 py-3 shadow-[0_8px_60px_rgba(0,0,0,0.12)] backdrop-blur-sm border border-white/20 bg-white">
               <Search className="h-5 w-5 text-slate-400 flex-shrink-0" />
               <input
