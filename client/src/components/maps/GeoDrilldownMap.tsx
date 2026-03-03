@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import type { LoanGeoRecord } from "@/data/mock/step1";
 import { step1TractCentroids } from "@/data/mock/step1";
 import { STATE_CENTERS } from "@/data/mock/step1GeoData";
-import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS } from "@/data/mock/femaRisk";
+import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS, type RiskLevel } from "@/data/mock/femaRisk";
 
 const STATES_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 const COUNTIES_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
@@ -280,6 +280,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className, riskLayer
               tractData={tractData}
               stateName={stateNameByFips.get(selectedState) ?? ""}
               countyName={countyNameByFips.get(selectedCounty) ?? ""}
+              stateFips={selectedState}
             />
           </div>
         )}
@@ -473,15 +474,70 @@ function CountyMap({
   );
 }
 
+// ── Tract-view helper: KPI card ────────────────────────────────────────────
+function TractKpiCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="flex flex-col rounded-lg border border-slate-200/80 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-sm">
+      <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">{label}</span>
+      <span className="mt-0.5 text-sm font-bold tabular-nums leading-tight text-slate-800">{value}</span>
+      {sub && <span className="mt-0.5 truncate text-[10px] text-slate-400">{sub}</span>}
+    </div>
+  );
+}
+
+// ── Tract-view helper: risk badge ──────────────────────────────────────────
+const WILDFIRE_BADGE: Record<string, string> = {
+  High: "bg-orange-100 text-orange-800 border-orange-300",
+  Moderate: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  Low: "bg-green-50 text-green-700 border-green-200",
+};
+
+function TractRiskBadge({
+  label,
+  level,
+  events,
+  layer,
+}: {
+  label: string;
+  level: RiskLevel;
+  events: number;
+  layer: "flood" | "wildfire";
+}) {
+  const badgeCls = layer === "flood" ? RISK_COLORS[level].badge : WILDFIRE_BADGE[level] ?? "";
+  const fillColor = layer === "flood" ? RISK_COLORS[level].fill : WILDFIRE_COLORS[level].fill;
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold", badgeCls)}>
+      <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ background: fillColor }} />
+      {label}: <span className="font-bold">{level}</span>
+      {events > 0 && <span className="font-normal opacity-60">· {events} FEMA</span>}
+    </span>
+  );
+}
+
+// ── Main Tract View ────────────────────────────────────────────────────────
 function TractView({
   tractData,
   stateName,
   countyName,
+  stateFips,
 }: {
   tractData: LoanGeoRecord[];
   stateName: string;
   countyName: string;
+  stateFips: string;
 }) {
+  const [mapLayer, setMapLayer] = useState<"loans" | "flood" | "wildfire">("loans");
+  const [hoveredTractFips, setHoveredTractFips] = useState<string | null>(null);
+
+  const stateAbbr = FIPS_TO_ABBR[stateFips] ?? "";
+  const stateRisk = getRiskForState(stateAbbr);
+
+  const totalLoans = tractData.reduce((s, t) => s + t.loanCount, 0);
+  const totalUpb = tractData.reduce((s, t) => s + t.upb, 0);
+  const avgBalance = totalLoans > 0 ? Math.round(totalUpb / totalLoans) : 0;
+  const maxLoans = Math.max(1, ...tractData.map((t) => t.loanCount));
+  const sorted = [...tractData].sort((a, b) => b.loanCount - a.loanCount);
+
   const centroidMap = new Map(step1TractCentroids.map((c) => [c.tractFips, c]));
   const tractWithCoords = tractData
     .map((t) => {
@@ -490,75 +546,318 @@ function TractView({
     })
     .filter(Boolean) as (LoanGeoRecord & { lon: number; lat: number })[];
 
+  const mapCenter: [number, number] =
+    tractWithCoords.length > 0
+      ? [tractWithCoords[0].lon, tractWithCoords[0].lat]
+      : stateCenter(stateFips);
+
+  const floodFill = RISK_COLORS[stateRisk.floodZone].fill;
+  const wildfireFill = WILDFIRE_COLORS[stateRisk.wildfireRisk].fill;
+
+  const layerBtns: { key: "loans" | "flood" | "wildfire"; label: string; color: string }[] = [
+    { key: "loans",    label: "Loans",        color: "#3b82f6" },
+    { key: "flood",    label: "Flood Risk",   color: floodFill },
+    { key: "wildfire", label: "Wildfire",     color: wildfireFill },
+  ];
+
+  const hoveredTract = hoveredTractFips ? tractData.find((t) => t.tractFips === hoveredTractFips) : null;
+
   return (
-    <div className="grid h-full grid-cols-1 gap-3 p-3 md:grid-cols-2">
-        <div className="overflow-hidden rounded-lg border border-slate-200/70 bg-white">
-        <div className="border-b border-slate-200/70 px-3 py-2 text-xs font-semibold text-slate-700">
-          Census Tracts — {countyName}, {stateName}
-        </div>
-        <div className="max-h-[280px] overflow-auto">
-          <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-slate-50">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium text-slate-600">Tract</th>
-                <th className="px-3 py-2 text-left font-medium text-slate-600">City</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-600">Loans</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-600">UPB</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tractData.map((t) => (
-                <tr key={t.tractFips} className="border-t border-slate-100">
-                  <td className="px-3 py-2 text-slate-800">{t.tractName}</td>
-                  <td className="px-3 py-2 text-slate-700">{t.city ?? countyName}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-slate-700">{t.loanCount}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-slate-700">
-                    {Intl.NumberFormat("en-US").format(t.upb)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    <div className="flex h-full flex-col overflow-hidden">
+
+      {/* ── KPI strip ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-4 gap-2 border-b border-white/30 bg-white/20 px-3 py-2.5 backdrop-blur-sm">
+        <TractKpiCard
+          label="Total Loans"
+          value={totalLoans.toLocaleString()}
+          sub={`across ${tractData.length} tract${tractData.length !== 1 ? "s" : ""}`}
+        />
+        <TractKpiCard
+          label="Total UPB"
+          value={`$${(totalUpb / 1_000_000).toFixed(2)}M`}
+          sub={countyName}
+        />
+        <TractKpiCard
+          label="Avg Balance"
+          value={`$${(avgBalance / 1000).toFixed(0)}K`}
+          sub="per loan"
+        />
+        <TractKpiCard
+          label="Top Tract"
+          value={sorted[0] ? sorted[0].loanCount.toLocaleString() + " loans" : "—"}
+          sub={sorted[0]?.tractName ?? "—"}
+        />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200/70 bg-white">
-        <div className="border-b border-slate-200/70 px-3 py-2 text-xs font-semibold text-slate-700">
-          Tract Locations (centroids)
+      {/* ── Environmental risk badges ──────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/30 bg-white/10 px-3 py-2">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mr-1">Risk:</span>
+        <TractRiskBadge label="Flood" level={stateRisk.floodZone} events={stateRisk.floodDisasters} layer="flood" />
+        <TractRiskBadge label="Wildfire" level={stateRisk.wildfireRisk} events={stateRisk.wildfireDisasters} layer="wildfire" />
+        {stateRisk.hurricaneRisk !== "Low" && (
+          <TractRiskBadge label="Hurricane" level={stateRisk.hurricaneRisk} events={0} layer="flood" />
+        )}
+        {stateRisk.notes && (
+          <span
+            className="ml-auto hidden max-w-[280px] truncate text-[9px] italic text-slate-400 lg:block"
+            title={stateRisk.notes}
+          >
+            ⓘ {stateRisk.notes}
+          </span>
+        )}
+      </div>
+
+      {/* ── Main content (table + mini-map) ───────────────────────── */}
+      <div className="flex min-h-0 flex-1 gap-3 p-3">
+
+        {/* Tract table ─────────────────────────────────────────────── */}
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+          <div className="flex items-center justify-between border-b border-slate-200/60 px-3 py-2">
+            <span className="text-xs font-semibold text-slate-700">
+              Census Tracts — {countyName}, {stateName}
+            </span>
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+              {tractData.length} tract{tractData.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="flex-1 overflow-auto">
+            <table className="w-full text-xs">
+              <thead className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-sm">
+                <tr>
+                  <th className="w-7 px-2 py-2 text-center text-[10px] font-medium text-slate-400">#</th>
+                  <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">Tract</th>
+                  <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">City</th>
+                  <th className="px-3 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500">Loans</th>
+                  <th className="px-3 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500">UPB</th>
+                  <th className="px-3 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500">Avg $</th>
+                  <th className="px-3 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-slate-500">% Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.map((t, i) => {
+                  const isHov = hoveredTractFips === t.tractFips;
+                  const avgBal = t.loanCount > 0 ? Math.round(t.upb / t.loanCount) : 0;
+                  const pct = totalLoans > 0 ? ((t.loanCount / totalLoans) * 100).toFixed(1) : "0.0";
+                  const barW = Math.round((t.loanCount / maxLoans) * 100);
+                  return (
+                    <tr
+                      key={t.tractFips}
+                      className={cn(
+                        "border-t border-slate-100 transition-colors cursor-default",
+                        isHov ? "bg-sky-50" : i % 2 === 0 ? "bg-white" : "bg-slate-50/50",
+                      )}
+                      onMouseEnter={() => setHoveredTractFips(t.tractFips)}
+                      onMouseLeave={() => setHoveredTractFips(null)}
+                    >
+                      <td className="px-2 py-2 text-center text-[10px] tabular-nums text-slate-400 font-medium">{i + 1}</td>
+                      <td className="px-3 py-2">
+                        <div className="font-semibold text-slate-800">{t.tractName}</div>
+                        <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className="h-1 rounded-full bg-blue-400 transition-all duration-300"
+                            style={{ width: `${barW}%` }}
+                          />
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-slate-500">{t.city ?? countyName}</td>
+                      <td className="px-3 py-2 text-right tabular-nums font-bold text-slate-700">
+                        {t.loanCount.toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-slate-600">
+                        ${(t.upb / 1_000_000).toFixed(2)}M
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-slate-500">
+                        ${(avgBal / 1_000).toFixed(0)}K
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        <span
+                          className={cn(
+                            "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                            parseFloat(pct) >= 30
+                              ? "bg-blue-100 text-blue-700"
+                              : parseFloat(pct) >= 15
+                              ? "bg-slate-100 text-slate-600"
+                              : "text-slate-400",
+                          )}
+                        >
+                          {pct}%
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="relative h-[280px] w-full">
-          <ComposableMap projection="geoAlbersUsa" className="h-full w-full">
-            <ZoomableGroup center={[tractWithCoords[0]?.lon ?? -98, tractWithCoords[0]?.lat ?? 38]} zoom={6}>
-              <Geographies geography={STATES_URL}>
-                {({ geographies }: { geographies: Geo[] }) =>
-                  geographies.map((geo) => (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      fill="white"
-                      stroke="none"
-                      strokeWidth={0}
-                      style={{ default: { outline: "none", border: "none", boxShadow: "none" }, hover: { outline: "none", border: "none", boxShadow: "none" }, pressed: { outline: "none", border: "none", boxShadow: "none" } }}
+
+        {/* Mini map panel ──────────────────────────────────────────── */}
+        <div className="flex w-[250px] shrink-0 flex-col overflow-hidden rounded-xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+
+          {/* Layer toggle pills */}
+          <div className="flex items-center gap-1 border-b border-slate-200/60 px-2 py-2">
+            {layerBtns.map((b) => (
+              <button
+                key={b.key}
+                type="button"
+                onClick={() => setMapLayer(b.key)}
+                className={cn(
+                  "flex-1 rounded-md px-1 py-1.5 text-[10px] font-semibold leading-none transition-all",
+                  mapLayer === b.key
+                    ? "text-white shadow-sm"
+                    : "bg-slate-100 text-slate-500 hover:bg-slate-200",
+                )}
+                style={mapLayer === b.key ? { background: b.color } : {}}
+              >
+                {b.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Map canvas */}
+          <div className="relative min-h-0 flex-1">
+            <ComposableMap
+              projection="geoAlbersUsa"
+              className="h-full w-full"
+              style={{ width: "100%", height: "100%", outline: "none", border: "none", background: "transparent" }}
+            >
+              <ZoomableGroup center={mapCenter} zoom={6}>
+                {/* County fills — risk-colored or loan-presence */}
+                <Geographies geography={COUNTIES_URL}>
+                  {({ geographies }: { geographies: Geo[] }) =>
+                    geographies
+                      .filter((g) => g.id.startsWith(stateFips))
+                      .map((geo) => {
+                        const hasTract = tractWithCoords.some((t) =>
+                          t.tractFips.startsWith(geo.id),
+                        );
+                        const countyFill =
+                          mapLayer === "flood"
+                            ? floodFill
+                            : mapLayer === "wildfire"
+                            ? wildfireFill
+                            : hasTract
+                            ? "#bfdbfe"
+                            : "#f1f5f9";
+                        return (
+                          <Geography
+                            key={geo.rsmKey}
+                            geography={geo}
+                            fill={countyFill}
+                            fillOpacity={mapLayer !== "loans" ? 0.65 : 1}
+                            stroke={mapLayer !== "loans" ? "rgba(255,255,255,0.55)" : "#e2e8f0"}
+                            strokeWidth={0.6}
+                            style={{
+                              default: { outline: "none" },
+                              hover: { outline: "none" },
+                              pressed: { outline: "none" },
+                            }}
+                          />
+                        );
+                      })
+                  }
+                </Geographies>
+
+                {/* Tract bubble markers */}
+                {tractWithCoords.map((t) => {
+                  const r = Math.max(5, Math.min(17, (t.loanCount / maxLoans) * 17));
+                  const isHov = hoveredTractFips === t.tractFips;
+                  const bubbleFill =
+                    mapLayer === "loans"
+                      ? "#3b82f6"
+                      : mapLayer === "flood"
+                      ? "#1e40af"
+                      : "#c2410c";
+                  return (
+                    <Marker key={t.tractFips} coordinates={[t.lon, t.lat]}>
+                      <circle
+                        r={isHov ? r + 3 : r}
+                        fill={bubbleFill}
+                        fillOpacity={isHov ? 0.95 : 0.75}
+                        stroke="#fff"
+                        strokeWidth={isHov ? 2 : 1.5}
+                        style={{ cursor: "pointer", transition: "all 0.15s ease" }}
+                        onMouseEnter={() => setHoveredTractFips(t.tractFips)}
+                        onMouseLeave={() => setHoveredTractFips(null)}
+                      />
+                      {isHov && (
+                        <text
+                          textAnchor="middle"
+                          y={-(r + 5)}
+                          fontSize={9}
+                          fill="#1e293b"
+                          fontFamily="system-ui, sans-serif"
+                          fontWeight={700}
+                          style={{ pointerEvents: "none" }}
+                        >
+                          {t.loanCount} loans
+                        </text>
+                      )}
+                    </Marker>
+                  );
+                })}
+              </ZoomableGroup>
+            </ComposableMap>
+
+            {/* Hover tooltip */}
+            {hoveredTract && (
+              <div className="pointer-events-none absolute bottom-2 left-2 right-2 rounded-lg border border-slate-200/70 bg-white/95 px-2.5 py-2 shadow-md backdrop-blur-sm">
+                <div className="text-[10px] font-bold text-slate-700">{hoveredTract.tractName}</div>
+                <div className="mt-0.5 flex items-center justify-between text-[10px] text-slate-500">
+                  <span>{hoveredTract.loanCount.toLocaleString()} loans</span>
+                  <span>${(hoveredTract.upb / 1_000_000).toFixed(2)}M UPB</span>
+                </div>
+                {mapLayer !== "loans" && (
+                  <div className="mt-1 flex items-center gap-1.5 border-t border-slate-100 pt-1 text-[9px] text-slate-400">
+                    <span
+                      className="h-2 w-2 flex-shrink-0 rounded-full"
+                      style={{ background: mapLayer === "flood" ? floodFill : wildfireFill }}
                     />
-                  ))
-                }
-              </Geographies>
-              {tractWithCoords.map((t) => (
-                <Marker key={t.tractFips} coordinates={[t.lon, t.lat]}>
-                  <circle
-                    r={Math.max(4, Math.min(14, t.loanCount / 2))}
-                    fill="#7dd3fc"
-                    fillOpacity={0.75}
-                    stroke="#fff"
-                    strokeWidth={1}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <title>{`${t.tractName}: ${t.loanCount} loans`}</title>
-                  </circle>
-                </Marker>
-              ))}
-            </ZoomableGroup>
-          </ComposableMap>
+                    {mapLayer === "flood"
+                      ? `Flood: ${stateRisk.floodZone} · ${stateRisk.floodDisasters} FEMA declarations`
+                      : `Wildfire: ${stateRisk.wildfireRisk} · ${stateRisk.wildfireDisasters} events`}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Map legend strip */}
+          <div className="flex flex-wrap items-center gap-2.5 border-t border-slate-200/60 px-2.5 py-1.5">
+            {mapLayer === "loans" ? (
+              <>
+                <div className="flex items-center gap-1">
+                  <div className="h-2.5 w-2.5 rounded-sm bg-blue-200" />
+                  <span className="text-[9px] text-slate-400">Has loans</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                  <span className="text-[9px] text-slate-400">Tract (∝ loans)</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-1">
+                  <div
+                    className="h-2.5 w-2.5 rounded-sm flex-shrink-0"
+                    style={{ background: mapLayer === "flood" ? floodFill : wildfireFill, opacity: 0.65 }}
+                  />
+                  <span className="text-[9px] text-slate-400">
+                    {mapLayer === "flood"
+                      ? `Flood: ${stateRisk.floodZone}`
+                      : `Fire: ${stateRisk.wildfireRisk}`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ background: mapLayer === "flood" ? "#1e40af" : "#c2410c" }}
+                  />
+                  <span className="text-[9px] text-slate-400">Tracts</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
