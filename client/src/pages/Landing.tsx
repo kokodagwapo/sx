@@ -641,12 +641,12 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
   const handleFilterChange = (f: FilterCategory) => {
     setActiveFilter(f);
     setPage(0);
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handlePageChange = (p: number) => {
     setPage(p);
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const rangeStart = filtered.length === 0 ? 0 : page * PAGE_SIZE + 1;
@@ -656,7 +656,7 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
   if (!hasContent) return null;
 
   return (
-    <div className="max-w-2xl w-full mb-3 animate-fade-in-up">
+    <div ref={scrollRef} className="max-w-2xl w-full mb-3 animate-fade-in-up">
       <div className={cn(
         "rounded-2xl overflow-hidden",
         isDark ? "bg-white/[0.02] backdrop-blur-sm" : "bg-white/[0.25] backdrop-blur-sm",
@@ -715,7 +715,7 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
         </div>
 
         {/* Card list */}
-        <div ref={scrollRef} className="max-h-[60vh] overflow-y-auto p-3 space-y-2">
+        <div className="p-3 space-y-2">
           {isLoading && (
             <div className="flex items-center gap-3 px-3 py-4">
               <div className="h-5 w-5 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
@@ -1100,24 +1100,24 @@ function HeroSection() {
   const pinnedInstitutions = ALL_INSTITUTIONS.filter((i) => pinned.has(i.id));
 
   return (
-    <section className="flex flex-col items-center justify-end pb-16 flex-1 relative px-4 pt-20">
-      <ResultsPanel
-        results={results} viewMode={viewMode} onViewModeChange={setViewMode}
-        cohiResponse={cohiResponse} isLoading={isLoading}
-        pinned={pinned} onPin={handlePin} onView={handleView}
-      />
-
-      <QuickActions active={activeAction} onSelect={handleQuickAction} pinnedCount={pinnedIds.length} />
-
+    <section className="flex flex-col items-center flex-1 relative px-4 pt-24 pb-16 overflow-y-auto">
       <SearchBar
         query={query} onQueryChange={setQuery} onSubmit={handleSubmit}
         cohiMode={cohiMode} onCohiToggle={() => setCohiMode((v) => !v)}
         isListening={isListening} onMicToggle={handleMicToggle} isLoading={isLoading}
       />
 
-      <p className={cn("mt-3 text-xs", isDark ? "text-white/40" : "text-slate-400")}>
+      <p className={cn("mt-2 mb-3 text-xs", isDark ? "text-white/40" : "text-slate-400")}>
         Search {ALL_INSTITUTIONS.length} institutions · Filter by category · Ask Cohi a question
       </p>
+
+      <QuickActions active={activeAction} onSelect={handleQuickAction} pinnedCount={pinnedIds.length} />
+
+      <ResultsPanel
+        results={results} viewMode={viewMode} onViewModeChange={setViewMode}
+        cohiResponse={cohiResponse} isLoading={isLoading}
+        pinned={pinned} onPin={handlePin} onView={handleView}
+      />
 
       {pinnedIds.length >= 2 && (
         <CompareBar
