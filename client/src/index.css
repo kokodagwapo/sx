@@ -33,8 +33,9 @@
   --pastel-peach: #fdba74;
   --pastel-amber: #fcd34d;
 
-  --radius-card: 8px;
-  --radius-sm: 6px;
+  --radius: 0.5rem;
+  --radius-card: 14px;
+  --radius-sm: 8px;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: 150ms var(--ease-out-expo);

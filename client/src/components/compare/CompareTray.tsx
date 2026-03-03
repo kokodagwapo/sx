@@ -76,7 +76,7 @@ function CompareModal({ loans, onClose }: { loans: Step2Loan[]; onClose: () => v
                       <button
                         type="button"
                         onClick={() => removeFromCompare(loan.id)}
-                        className="rounded p-0.5 text-slate-300 hover:bg-slate-100 hover:text-slate-500 transition-colors shrink-0"
+                        className="rounded-md p-0.5 text-slate-300 hover:bg-slate-100 hover:text-slate-500 transition-colors shrink-0"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>

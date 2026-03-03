@@ -146,7 +146,7 @@ function SliderSection({
                     <button
                       type="button"
                       onClick={() => onSliderChange(s.field, [s.min, s.max])}
-                      className="flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                      className="flex items-center gap-0.5 rounded-md px-1 py-0.5 text-[9px] text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
                     >
                       <X className="h-2.5 w-2.5" /> Reset
                     </button>
@@ -280,7 +280,7 @@ function FilterSection({
                     <button
                       type="button"
                       onClick={() => groupSelected.forEach((v) => onFilterChange(g.title, v, false))}
-                      className="flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                      className="flex items-center gap-0.5 rounded-md px-1 py-0.5 text-[9px] text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
                     >
                       <X className="h-2.5 w-2.5" /> Clear
                     </button>
@@ -466,7 +466,7 @@ function MortgageRatesMini() {
         {isLoading ? (
           <div className="flex gap-4">
             {["w-12", "w-10"].map((w) => (
-              <div key={w} className={`h-5 ${w} rounded bg-slate-200/70 animate-pulse`} />
+              <div key={w} className={`h-5 ${w} rounded-lg bg-slate-200/70 animate-pulse`} />
             ))}
           </div>
         ) : !data ? (

@@ -270,7 +270,7 @@ export function TourBubble({
               <span className="text-[13px] font-bold text-slate-800 leading-snug">{current.title}</span>
             </div>
             <button type="button" onClick={handleSkipAll}
-              className="shrink-0 rounded p-0.5 text-slate-300 hover:text-slate-500 transition-colors mt-0.5"
+              className="shrink-0 rounded-md p-0.5 text-slate-300 hover:text-slate-500 transition-colors mt-0.5"
               title="Dismiss tour">
               <X className="h-3.5 w-3.5" />
             </button>

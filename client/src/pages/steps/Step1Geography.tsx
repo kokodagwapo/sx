@@ -1046,7 +1046,7 @@ export default function Step1Geography() {
                                 type="button"
                                 onClick={() => togglePinLoan(row.id)}
                                 className={cn(
-                                  "rounded p-1 transition-colors",
+                                  "rounded-lg p-1 transition-colors",
                                   isPinned ? "text-sky-600 hover:text-sky-700" : "text-slate-400 hover:text-sky-600"
                                 )}
                                 aria-label={isPinned ? "Unpin loan" : "Pin to compare"}

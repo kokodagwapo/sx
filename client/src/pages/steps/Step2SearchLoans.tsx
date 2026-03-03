@@ -512,11 +512,11 @@ function StatusDrilldownPanel({
                   const p = totalPages <= 7 ? i : Math.max(0, Math.min(page - 3 + i, totalPages - 7 + i));
                   return (
                     <button
-                      key={p}
+                      key={i}
                       type="button"
                       onClick={() => setPage(p)}
                       className={cn(
-                        "h-6 w-6 rounded text-[11px] font-medium transition-colors",
+                        "h-6 w-6 rounded-lg text-[11px] font-medium transition-colors",
                         p === page ? "bg-sky-500 text-white" : "text-slate-500 hover:bg-slate-100"
                       )}
                     >

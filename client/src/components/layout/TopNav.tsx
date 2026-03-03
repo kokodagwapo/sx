@@ -421,7 +421,7 @@ export function TopNav({
                             <button
                               type="button"
                               onClick={(e) => { e.preventDefault(); e.stopPropagation(); dismissNotif(n.id); }}
-                              className="shrink-0 rounded p-0.5 text-slate-200 opacity-0 group-hover:opacity-100 hover:text-slate-400 transition-all"
+                              className="shrink-0 rounded-md p-0.5 text-slate-200 opacity-0 group-hover:opacity-100 hover:text-slate-400 transition-all"
                             >
                               <X className="h-3 w-3" />
                             </button>
