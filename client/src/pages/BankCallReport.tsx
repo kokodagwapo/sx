@@ -122,6 +122,58 @@ const BUYER_INSIGHTS: BuyerInsight[] = [
   },
 ];
 
+// ─── IP Geolocation hook ──────────────────────────────────────────────────────
+
+type IpGeo = { city: string; region: string; region_code: string; country_code: string } | null;
+
+function useIpLocation(): IpGeo {
+  const [geo, setGeo] = useState<IpGeo>(null);
+  useEffect(() => {
+    fetch("https://ipapi.co/json/")
+      .then((r) => r.json())
+      .then((d) => setGeo({ city: d.city ?? "", region: d.region ?? "", region_code: d.region_code ?? "", country_code: d.country_code ?? "" }))
+      .catch(() => {});
+  }, []);
+  return geo;
+}
+
+const STATE_BANKS: Record<string, QuickBank[]> = {
+  // Northeast
+  NY: [{ label: "M&T Bank",       query: "M&T Bank",        initial: "MT", color: "sky",     type: "Regional Bank" }, { label: "Citizens Bank", query: "Citizens Bank", initial: "CB", color: "indigo", type: "Regional Bank" }, { label: "KeyBank",    query: "KeyBank",      initial: "K",  color: "violet", type: "Regional Bank" }],
+  NJ: [{ label: "Investors Bank", query: "Investors Bank",  initial: "IB", color: "emerald", type: "Regional Bank" }, { label: "TD Bank",       query: "TD Bank",      initial: "TD", color: "sky",    type: "Regional Bank" }, { label: "M&T Bank",   query: "M&T Bank",     initial: "MT", color: "indigo", type: "Regional Bank" }],
+  CT: [{ label: "Webster Bank",   query: "Webster Bank",    initial: "WB", color: "violet",  type: "Regional Bank" }, { label: "People's United", query: "Peoples United", initial: "PU", color: "amber", type: "Regional Bank" }, { label: "KeyBank", query: "KeyBank", initial: "K", color: "rose", type: "Regional Bank" }],
+  MA: [{ label: "Citizens Bank",  query: "Citizens Bank",   initial: "CB", color: "sky",     type: "Regional Bank" }, { label: "Webster Bank",  query: "Webster Bank", initial: "WB", color: "indigo", type: "Regional Bank" }, { label: "Eastern Bank", query: "Eastern Bank", initial: "EB", color: "violet", type: "Regional Bank" }],
+  PA: [{ label: "PNC Bank",       query: "PNC Bank",        initial: "PN", color: "rose",    type: "Regional Bank" }, { label: "Citizens Bank",  query: "Citizens Bank", initial: "CB", color: "sky",   type: "Regional Bank" }, { label: "M&T Bank",   query: "M&T Bank",     initial: "MT", color: "indigo", type: "Regional Bank" }],
+  // Southeast
+  FL: [{ label: "Regions Bank",   query: "Regions Bank",    initial: "R",  color: "rose",    type: "Regional Bank" }, { label: "Truist",        query: "Truist Bank",  initial: "T",  color: "sky",    type: "Regional Bank" }, { label: "BankUnited",  query: "BankUnited",   initial: "BU", color: "violet", type: "Regional Bank" }],
+  GA: [{ label: "Truist",         query: "Truist Bank",     initial: "T",  color: "sky",     type: "Regional Bank" }, { label: "Synovus Bank",  query: "Synovus Bank", initial: "SB", color: "amber",  type: "Regional Bank" }, { label: "Regions Bank", query: "Regions Bank", initial: "R", color: "rose", type: "Regional Bank" }],
+  NC: [{ label: "Truist",         query: "Truist Bank",     initial: "T",  color: "sky",     type: "Regional Bank" }, { label: "First Horizon", query: "First Horizon Bank", initial: "FH", color: "indigo", type: "Regional Bank" }, { label: "Pinnacle", query: "Pinnacle Bank", initial: "PB", color: "violet", type: "Regional Bank" }],
+  TN: [{ label: "First Horizon",  query: "First Horizon Bank", initial: "FH", color: "sky",  type: "Regional Bank" }, { label: "Avenue Bank",   query: "Avenue Bank",  initial: "AB", color: "indigo", type: "Regional Bank" }, { label: "Truist",     query: "Truist Bank",  initial: "T",  color: "violet", type: "Regional Bank" }],
+  AL: [{ label: "Regions Bank",   query: "Regions Bank",    initial: "R",  color: "rose",    type: "Regional Bank" }, { label: "ServisFirst",   query: "ServisFirst Bank", initial: "SF", color: "sky",  type: "Regional Bank" }, { label: "Truist",     query: "Truist Bank",  initial: "T",  color: "indigo", type: "Regional Bank" }],
+  VA: [{ label: "Truist",         query: "Truist Bank",     initial: "T",  color: "sky",     type: "Regional Bank" }, { label: "Atlantic Union", query: "Atlantic Union Bank", initial: "AU", color: "indigo", type: "Regional Bank" }, { label: "Cardinal Bankshares", query: "Cardinal Bankshares", initial: "CB", color: "violet", type: "Regional Bank" }],
+  // Midwest
+  OH: [{ label: "Fifth Third",    query: "Fifth Third Bank", initial: "5T", color: "sky",    type: "Regional Bank" }, { label: "Huntington",    query: "Huntington National Bank", initial: "HN", color: "indigo", type: "Regional Bank" }, { label: "KeyBank", query: "KeyBank", initial: "K", color: "violet", type: "Regional Bank" }],
+  MI: [{ label: "Comerica",       query: "Comerica Bank",   initial: "C",  color: "sky",     type: "Regional Bank" }, { label: "Flagstar Bank", query: "Flagstar Bank", initial: "FB", color: "indigo", type: "Regional Bank" }, { label: "Fifth Third", query: "Fifth Third Bank", initial: "5T", color: "violet", type: "Regional Bank" }],
+  IL: [{ label: "BMO Bank",       query: "BMO Bank",        initial: "BM", color: "sky",     type: "Regional Bank" }, { label: "Wintrust",      query: "Wintrust Bank", initial: "W",  color: "indigo", type: "Regional Bank" }, { label: "Byline Bank",  query: "Byline Bank",  initial: "BY", color: "violet", type: "Regional Bank" }],
+  MN: [{ label: "US Bank",        query: "US Bank",         initial: "US", color: "amber",   type: "Regional Bank" }, { label: "Bremer Bank",   query: "Bremer Bank",  initial: "BB", color: "sky",    type: "Regional Bank" }, { label: "Alerus",       query: "Alerus Financial", initial: "AL", color: "indigo", type: "Regional Bank" }],
+  WI: [{ label: "Associated Bank",query: "Associated Bank", initial: "AB", color: "sky",     type: "Regional Bank" }, { label: "Heartland",     query: "Heartland Bank", initial: "HB", color: "indigo", type: "Regional Bank" }, { label: "Johnson Bank", query: "Johnson Bank", initial: "JB", color: "violet", type: "Regional Bank" }],
+  // Southwest / Mountain
+  TX: [{ label: "Frost Bank",     query: "Frost Bank",      initial: "FB", color: "sky",     type: "Regional Bank" }, { label: "Comerica",      query: "Comerica Bank",  initial: "C",  color: "indigo", type: "Regional Bank" }, { label: "Veritex",      query: "Veritex Community Bank", initial: "VC", color: "violet", type: "Regional Bank" }],
+  AZ: [{ label: "Western Alliance",query: "Western Alliance Bank", initial: "WA", color: "sky", type: "Regional Bank" }, { label: "Zions Bank",   query: "Zions Bank",   initial: "ZB", color: "indigo", type: "Regional Bank" }, { label: "Desert Financial", query: "Desert Financial", initial: "DF", color: "violet", type: "Regional Bank" }],
+  CO: [{ label: "Zions Bank",     query: "Zions Bank",      initial: "ZB", color: "sky",     type: "Regional Bank" }, { label: "BOK Financial", query: "BOK Financial", initial: "BK", color: "indigo", type: "Regional Bank" }, { label: "FirstBank",    query: "FirstBank",    initial: "FB", color: "violet", type: "Regional Bank" }],
+  UT: [{ label: "Zions Bank",     query: "Zions Bank",      initial: "ZB", color: "sky",     type: "Regional Bank" }, { label: "Goldman Sachs Bank", query: "Goldman Sachs Bank", initial: "GS", color: "emerald", type: "Regional Bank" }, { label: "America First", query: "America First", initial: "AF", color: "violet", type: "Regional Bank" }],
+  // Pacific
+  CA: [{ label: "East West Bank",  query: "East West Bank",  initial: "EW", color: "sky",    type: "Regional Bank" }, { label: "Pacific Premier",query: "Pacific Premier Bank", initial: "PP", color: "indigo", type: "Regional Bank" }, { label: "Western Alliance", query: "Western Alliance Bank", initial: "WA", color: "violet", type: "Regional Bank" }],
+  WA: [{ label: "Banner Bank",     query: "Banner Bank",     initial: "BB", color: "sky",    type: "Regional Bank" }, { label: "Columbia Banking", query: "Columbia Banking", initial: "CB", color: "indigo", type: "Regional Bank" }, { label: "Washington Federal", query: "Washington Federal", initial: "WF", color: "violet", type: "Regional Bank" }],
+  OR: [{ label: "Umpqua Bank",     query: "Umpqua Bank",     initial: "UB", color: "sky",    type: "Regional Bank" }, { label: "Columbia Banking", query: "Columbia Banking", initial: "CB", color: "indigo", type: "Regional Bank" }, { label: "Banner Bank",  query: "Banner Bank",  initial: "BB", color: "violet", type: "Regional Bank" }],
+};
+
+const DEFAULT_REGIONAL: QuickBank[] = [
+  { label: "Regions Bank", query: "Regions Bank",     initial: "R",  color: "rose",   type: "Regional Bank" },
+  { label: "Fifth Third",  query: "Fifth Third Bank", initial: "5T", color: "sky",    type: "Regional Bank" },
+  { label: "KeyBank",      query: "KeyBank",          initial: "K",  color: "indigo", type: "Regional Bank" },
+];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtM(v?: number) {
@@ -412,6 +464,7 @@ export default function BankCallReport() {
   const resultsScrollRef        = useRef<HTMLDivElement>(null);
 
   const { importedLoans } = useLoanContext();
+  const geo = useIpLocation();
 
   const { data, isLoading, isError, isFetching } = useSearch(query);
   const institutions = (data?.data ?? []).map((r) => r.data);
