@@ -77,10 +77,12 @@ function useFdic(cert?: number) {
 
 function TypeBadge({ type }: { type: BuyerEntry["type"] }) {
   const map = {
-    bank:         { label: "FDIC-Insured Bank",      cls: "bg-sky-100 text-sky-700" },
+    bank:         { label: "FDIC-Insured Bank",      cls: "bg-sky-100 text-sky-700"     },
     credit_union: { label: "NCUA Credit Union",       cls: "bg-emerald-100 text-emerald-700" },
-    insurance:    { label: "Insurance Co.",           cls: "bg-amber-100 text-amber-700" },
-    gse:          { label: "Gov't-Sponsored Entity",  cls: "bg-violet-100 text-violet-700" },
+    insurance:    { label: "Insurance Co.",           cls: "bg-amber-100 text-amber-700"  },
+    reit:         { label: "Mortgage REIT",           cls: "bg-rose-100 text-rose-700"    },
+    investment:   { label: "Investment Manager",      cls: "bg-indigo-100 text-indigo-700"},
+    gse:          { label: "Gov't-Sponsored Entity",  cls: "bg-violet-100 text-violet-700"},
   };
   const { label, cls } = map[type];
   return (

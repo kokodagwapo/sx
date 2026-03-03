@@ -19,8 +19,8 @@ const useTheme = () => useContext(ThemeCtx);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type BuyerType = "bank" | "credit_union" | "insurance" | "gse";
-type FilterCategory = "all" | "seller" | "bank" | "credit_union" | "insurance" | "gse";
+type BuyerType = "bank" | "credit_union" | "insurance" | "reit" | "investment" | "gse";
+type FilterCategory = "all" | "seller" | "bank" | "credit_union" | "insurance" | "reit" | "investment" | "gse";
 
 type InstitutionResult = {
   id: string;
@@ -87,31 +87,75 @@ function mkBuyer(
 }
 
 const BUYERS: InstitutionResult[] = [
-  mkBuyer("BNK-001", "JPMorgan Chase Bank, NA",    "bank",         "sky",     "FDIC-Insured Bank",     "Columbus, OH",       "Largest U.S. bank by total assets; leading whole-loan and MBS buyer with global capital markets presence.",                          3_900_000_000_000),
-  mkBuyer("BNK-002", "Bank of America, NA",         "bank",         "indigo",  "FDIC-Insured Bank",     "Charlotte, NC",      "Second-largest U.S. bank; active acquirer of residential mortgage pools and GSE-eligible collateral.",                             3_300_000_000_000),
-  mkBuyer("BNK-003", "Wells Fargo Bank, NA",        "bank",         "violet",  "FDIC-Insured Bank",     "Sioux Falls, SD",    "Top-4 U.S. bank; historically one of the largest mortgage servicers and whole-loan buyers in the country.",                        1_900_000_000_000),
-  mkBuyer("BNK-004", "Citibank, NA",                "bank",         "emerald", "FDIC-Insured Bank",     "New York, NY",       "Third-largest U.S. bank; major residential mortgage investor and whole-loan acquirer with global presence.",                       1_700_000_000_000),
-  mkBuyer("BNK-005", "U.S. Bank, NA",               "bank",         "amber",   "FDIC-Insured Bank",     "Cincinnati, OH",     "Fifth-largest U.S. bank; active portfolio lender and mortgage-backed securities investor.",                                       680_000_000_000),
-  mkBuyer("BNK-006", "PNC Bank, NA",                "bank",         "rose",    "FDIC-Insured Bank",     "Pittsburgh, PA",     "Major regional bank; significant residential mortgage portfolio and whole-loan acquisition program.",                              560_000_000_000),
-  mkBuyer("BNK-007", "Truist Bank",                 "bank",         "sky",     "FDIC-Insured Bank",     "Charlotte, NC",      "Top-6 U.S. bank formed from BB&T/SunTrust merger; active in Southeast mortgage markets.",                                        535_000_000_000),
-  mkBuyer("BNK-008", "Capital One, NA",             "bank",         "indigo",  "FDIC-Insured Bank",     "McLean, VA",         "Large diversified bank; selectively acquires residential mortgage loans to complement retail deposits.",                           465_000_000_000),
-  mkBuyer("BNK-009", "TD Bank, NA",                 "bank",         "violet",  "FDIC-Insured Bank",     "Cherry Hill, NJ",    "U.S. subsidiary of TD Bank Group; major East Coast mortgage lender and portfolio investor.",                                      390_000_000_000),
-  mkBuyer("BNK-010", "Goldman Sachs Bank USA",      "bank",         "emerald", "FDIC-Insured Bank",     "Salt Lake City, UT", "Investment bank FDIC subsidiary; invests in mortgage assets and MBS through its institutional banking platform.",                  595_000_000_000),
-  mkBuyer("BNK-011", "Citizens Bank, NA",           "bank",         "amber",   "FDIC-Insured Bank",     "Providence, RI",     "Major Northeast regional bank; active residential mortgage lender and whole-loan portfolio buyer.",                               225_000_000_000),
-  mkBuyer("BNK-012", "Regions Bank",                "bank",         "rose",    "FDIC-Insured Bank",     "Birmingham, AL",     "Large Southeast regional bank; purchases residential mortgage pools to serve community lending needs.",                           160_000_000_000),
-  mkBuyer("BNK-013", "Fifth Third Bank",            "bank",         "sky",     "FDIC-Insured Bank",     "Cincinnati, OH",     "Midwest-headquartered bank; active whole-loan buyer with focus on conforming and government mortgages.",                          215_000_000_000),
-  mkBuyer("BNK-014", "KeyBank, NA",                 "bank",         "indigo",  "FDIC-Insured Bank",     "Cleveland, OH",      "Top-15 U.S. bank; acquires residential mortgage pools through its community banking platform.",                                   190_000_000_000),
-  mkBuyer("BNK-015", "Flagstar Bank, NA",           "bank",         "violet",  "FDIC-Insured Bank",     "Hicksville, NY",     "Specialty mortgage bank; one of the largest non-bank mortgage servicers and a leading whole-loan buyer.",                         115_000_000_000),
-  mkBuyer("CU-001",  "PenFed Credit Union",         "credit_union", "emerald", "Federal Credit Union",  "McLean, VA",         "Largest federal credit union by assets; active buyer of conforming mortgage pools with competitive pricing.",                      38_000_000_000),
-  mkBuyer("CU-002",  "Navy Federal Credit Union",   "credit_union", "amber",   "Federal Credit Union",  "Vienna, VA",         "Largest U.S. federal credit union; major mortgage acquirer serving military and defense community.",                              170_000_000_000),
-  mkBuyer("CU-003",  "USAA Federal Savings Bank",   "bank",         "rose",    "FDIC-Insured Bank",     "San Antonio, TX",    "Bank serving U.S. military members and their families; major residential mortgage portfolio investor.",                          125_000_000_000),
-  mkBuyer("CU-004",  "Boeing Employees CU (BECU)",  "credit_union", "sky",     "State Credit Union",    "Tukwila, WA",        "Large Pacific Northwest credit union; acquires residential mortgage pools for member benefit.",                                    30_000_000_000),
-  mkBuyer("INS-001", "Pacific Life Insurance Co.",  "insurance",    "indigo",  "Insurance Company",     "Newport Beach, CA",  "Major life insurance carrier; invests in high-quality MBS and whole loans for long-duration asset-liability management.",          150_000_000_000),
-  mkBuyer("INS-002", "New York Life Insurance Co.", "insurance",    "violet",  "Insurance Company",     "New York, NY",       "Largest mutual life insurer in the U.S.; invests in residential mortgages for long-duration yield matching.",                     600_000_000_000),
-  mkBuyer("INS-003", "MetLife Insurance",           "insurance",    "emerald", "Insurance Company",     "New York, NY",       "Global life insurer; invests in residential MBS and whole loans as part of its fixed-income strategy.",                           730_000_000_000),
-  mkBuyer("INS-004", "Prudential Financial",        "insurance",    "amber",   "Insurance Company",     "Newark, NJ",         "Major life and annuity insurer; allocates to residential mortgage investments for liability-duration matching.",                   1_500_000_000_000),
-  mkBuyer("INV-001", "BlackRock Mortgage Strategies","gse",         "rose",    "Investment Manager",    "New York, NY",       "World's largest asset manager; operates multiple mortgage-focused funds acquiring whole loans and MBS.",                         10_000_000_000_000),
-  mkBuyer("INV-002", "TIAA Financial Services",     "insurance",    "sky",     "Insurance Company",     "New York, NY",       "Teacher Insurance and Annuity Association; long-duration fixed income investor including residential mortgage assets.",           1_200_000_000_000),
+  // ── FDIC-Insured Banks (26) ──────────────────────────────────────────────────
+  mkBuyer("BNK-001", "JPMorgan Chase Bank, NA",         "bank",         "sky",     "FDIC-Insured Bank",    "Columbus, OH",        "Largest U.S. bank by total assets; leading whole-loan and MBS buyer with global capital markets presence.",                          3_900_000_000_000),
+  mkBuyer("BNK-002", "Bank of America, NA",              "bank",         "indigo",  "FDIC-Insured Bank",    "Charlotte, NC",       "Second-largest U.S. bank; active acquirer of residential mortgage pools and GSE-eligible collateral.",                             3_300_000_000_000),
+  mkBuyer("BNK-003", "Wells Fargo Bank, NA",             "bank",         "violet",  "FDIC-Insured Bank",    "Sioux Falls, SD",     "Top-4 U.S. bank; historically one of the largest mortgage servicers and whole-loan buyers in the country.",                        1_900_000_000_000),
+  mkBuyer("BNK-004", "Citibank, NA",                     "bank",         "emerald", "FDIC-Insured Bank",    "New York, NY",        "Third-largest U.S. bank; major residential mortgage investor and whole-loan acquirer with global presence.",                       1_700_000_000_000),
+  mkBuyer("BNK-005", "U.S. Bank, NA",                    "bank",         "amber",   "FDIC-Insured Bank",    "Cincinnati, OH",      "Fifth-largest U.S. bank; active portfolio lender and mortgage-backed securities investor.",                                       680_000_000_000),
+  mkBuyer("BNK-006", "PNC Bank, NA",                     "bank",         "rose",    "FDIC-Insured Bank",    "Pittsburgh, PA",      "Major regional bank; significant residential mortgage portfolio and whole-loan acquisition program.",                              560_000_000_000),
+  mkBuyer("BNK-007", "Truist Bank",                      "bank",         "sky",     "FDIC-Insured Bank",    "Charlotte, NC",       "Top-6 U.S. bank formed from BB&T/SunTrust merger; active in Southeast mortgage markets.",                                        535_000_000_000),
+  mkBuyer("BNK-008", "Capital One, NA",                  "bank",         "indigo",  "FDIC-Insured Bank",    "McLean, VA",          "Large diversified bank; selectively acquires residential mortgage loans to complement retail deposits.",                           465_000_000_000),
+  mkBuyer("BNK-009", "TD Bank, NA",                      "bank",         "violet",  "FDIC-Insured Bank",    "Cherry Hill, NJ",     "U.S. subsidiary of TD Bank Group; major East Coast mortgage lender and portfolio investor.",                                      390_000_000_000),
+  mkBuyer("BNK-010", "Goldman Sachs Bank USA",           "bank",         "emerald", "FDIC-Insured Bank",    "Salt Lake City, UT",  "Investment bank FDIC subsidiary; invests in mortgage assets and MBS through its institutional banking platform.",                  595_000_000_000),
+  mkBuyer("BNK-011", "Citizens Bank, NA",                "bank",         "amber",   "FDIC-Insured Bank",    "Providence, RI",      "Major Northeast regional bank; active residential mortgage lender and whole-loan portfolio buyer.",                               225_000_000_000),
+  mkBuyer("BNK-012", "Regions Bank",                     "bank",         "rose",    "FDIC-Insured Bank",    "Birmingham, AL",      "Large Southeast regional bank; purchases residential mortgage pools to serve community lending needs.",                           160_000_000_000),
+  mkBuyer("BNK-013", "Fifth Third Bank",                 "bank",         "sky",     "FDIC-Insured Bank",    "Cincinnati, OH",      "Midwest-headquartered bank; active whole-loan buyer with focus on conforming and government mortgages.",                          215_000_000_000),
+  mkBuyer("BNK-014", "KeyBank, NA",                      "bank",         "indigo",  "FDIC-Insured Bank",    "Cleveland, OH",       "Top-15 U.S. bank; acquires residential mortgage pools through its community banking platform.",                                   190_000_000_000),
+  mkBuyer("BNK-015", "Flagstar Bank, NA",                "bank",         "violet",  "FDIC-Insured Bank",    "Hicksville, NY",      "Specialty mortgage bank; one of the largest non-bank mortgage servicers and a leading whole-loan buyer.",                         115_000_000_000),
+  mkBuyer("BNK-016", "Ally Financial (Ally Bank)",       "bank",         "emerald", "FDIC-Insured Bank",    "Sandy, UT",           "Online-focused bank subsidiary of Ally Financial; growing residential mortgage portfolio and direct lending platform.",            180_000_000_000),
+  mkBuyer("BNK-017", "M&T Bank",                         "bank",         "amber",   "FDIC-Insured Bank",    "Buffalo, NY",         "Major Northeast regional bank; strong community mortgage lending presence in Mid-Atlantic and New England markets.",               208_000_000_000),
+  mkBuyer("BNK-018", "Huntington National Bank",         "bank",         "rose",    "FDIC-Insured Bank",    "Columbus, OH",        "Large Midwest bank; active residential mortgage buyer serving Ohio, Michigan, Indiana, and surrounding states.",                   190_000_000_000),
+  mkBuyer("BNK-019", "First Citizens Bank",              "bank",         "sky",     "FDIC-Insured Bank",    "Raleigh, NC",         "Large Southeast bank; expanded significantly via Silicon Valley Bank and CIT Group acquisitions; active mortgage investor.",        220_000_000_000),
+  mkBuyer("BNK-020", "Western Alliance Bank",            "bank",         "indigo",  "FDIC-Insured Bank",    "Phoenix, AZ",         "Specialty bank serving real estate and mortgage sectors; active purchaser of residential whole-loan pools in Western markets.",    80_000_000_000),
+  mkBuyer("BNK-021", "Comerica Bank",                    "bank",         "violet",  "FDIC-Insured Bank",    "Dallas, TX",          "Commercial bank with mortgage banking operations serving Texas, California, and Michigan markets.",                                 80_000_000_000),
+  mkBuyer("BNK-022", "BMO Bank NA",                      "bank",         "emerald", "FDIC-Insured Bank",    "Chicago, IL",         "U.S. subsidiary of BMO Financial Group; active Midwest mortgage lender and whole-loan buyer, expanded via Bank of the West.",      180_000_000_000),
+  mkBuyer("BNK-023", "Synovus Bank",                     "bank",         "amber",   "FDIC-Insured Bank",    "Columbus, GA",        "Southeast regional bank; residential mortgage portfolio buyer serving Georgia, Florida, Tennessee, and neighboring states.",        60_000_000_000),
+  mkBuyer("BNK-024", "Zions Bancorporation, NA",         "bank",         "rose",    "FDIC-Insured Bank",    "Salt Lake City, UT",  "Mountain West banking franchise; active residential mortgage originator and portfolio buyer in Utah, Arizona, and Western states.", 90_000_000_000),
+  mkBuyer("BNK-025", "First Horizon Bank",               "bank",         "sky",     "FDIC-Insured Bank",    "Memphis, TN",         "Major Southeast regional bank; active mortgage lender and whole-loan acquirer serving Tennessee, Louisiana, and Gulf Coast.",       90_000_000_000),
+  mkBuyer("CU-003",  "USAA Federal Savings Bank",        "bank",         "indigo",  "FDIC-Insured Bank",    "San Antonio, TX",     "Bank serving U.S. military members and their families; major residential mortgage portfolio investor.",                          125_000_000_000),
+  // ── Credit Unions (9) ────────────────────────────────────────────────────────
+  mkBuyer("CU-001",  "PenFed Credit Union",              "credit_union", "violet",  "Federal Credit Union", "McLean, VA",          "Largest federal credit union by assets; active buyer of conforming mortgage pools with competitive pricing for members.",           38_000_000_000),
+  mkBuyer("CU-002",  "Navy Federal Credit Union",        "credit_union", "emerald", "Federal Credit Union", "Vienna, VA",          "Largest U.S. federal credit union; major mortgage acquirer serving military and defense community nationwide.",                    170_000_000_000),
+  mkBuyer("CU-004",  "Boeing Employees CU (BECU)",       "credit_union", "amber",   "State Credit Union",   "Tukwila, WA",         "Large Pacific Northwest credit union; acquires residential mortgage pools for member benefit.",                                    30_000_000_000),
+  mkBuyer("CU-005",  "State Employees' Credit Union",    "credit_union", "rose",    "State Credit Union",   "Raleigh, NC",         "Largest state-chartered credit union in the U.S.; major North Carolina mortgage buyer serving state employees.",                   56_000_000_000),
+  mkBuyer("CU-006",  "Golden 1 Credit Union",            "credit_union", "sky",     "State Credit Union",   "Sacramento, CA",      "Large California credit union; active residential mortgage lender and pool buyer in California's housing markets.",                21_000_000_000),
+  mkBuyer("CU-007",  "Alliant Credit Union",             "credit_union", "indigo",  "Federal Credit Union", "Chicago, IL",         "One of the largest online credit unions in the U.S.; national mortgage buyer with competitive products.",                         19_000_000_000),
+  mkBuyer("CU-008",  "SchoolsFirst Federal Credit Union","credit_union", "violet",  "Federal Credit Union", "Santa Ana, CA",       "Largest California school-employee credit union; significant residential mortgage portfolio in Southern California.",              28_000_000_000),
+  mkBuyer("CU-009",  "America First Credit Union",       "credit_union", "emerald", "State Credit Union",   "Ogden, UT",           "Major Utah credit union; active mortgage originator and purchaser in the Mountain West housing market.",                           17_000_000_000),
+  // ── Insurance & Annuity Companies (11) ──────────────────────────────────────
+  mkBuyer("INS-001", "Pacific Life Insurance Co.",       "insurance",    "amber",   "Insurance Company",    "Newport Beach, CA",   "Major life insurance carrier; invests in high-quality MBS and whole loans for long-duration asset-liability management.",          150_000_000_000),
+  mkBuyer("INS-002", "New York Life Insurance Co.",      "insurance",    "rose",    "Insurance Company",    "New York, NY",        "Largest mutual life insurer in the U.S.; invests in residential mortgages for long-duration yield matching.",                     600_000_000_000),
+  mkBuyer("INS-003", "MetLife Insurance",                "insurance",    "sky",     "Insurance Company",    "New York, NY",        "Global life insurer; invests in residential MBS and whole loans as part of its fixed-income strategy.",                           730_000_000_000),
+  mkBuyer("INS-004", "Prudential Financial",             "insurance",    "indigo",  "Insurance Company",    "Newark, NJ",          "Major life and annuity insurer; allocates to residential mortgage investments for liability-duration matching.",                   1_500_000_000_000),
+  mkBuyer("INS-005", "Massachusetts Mutual Life (MassMutual)","insurance","violet", "Insurance Company",    "Springfield, MA",     "Large mutual life insurer; buys residential MBS and whole loans to support long-dated life insurance liabilities.",               280_000_000_000),
+  mkBuyer("INS-006", "Lincoln Financial Group",          "insurance",    "emerald", "Insurance Company",    "Radnor, PA",          "Life insurance and annuity company; allocates to residential mortgage assets to match annuity duration requirements.",              290_000_000_000),
+  mkBuyer("INS-007", "Principal Financial Group",        "insurance",    "amber",   "Insurance Company",    "Des Moines, IA",      "Insurance and financial services company; invests in mortgage-backed assets for its general account and pension clients.",          220_000_000_000),
+  mkBuyer("INS-008", "Nationwide Insurance",             "insurance",    "rose",    "Insurance Company",    "Columbus, OH",        "Major U.S. insurer; residential MBS and whole-loan buyer as part of its general account fixed-income allocation.",                 260_000_000_000),
+  mkBuyer("INS-009", "Sun Life U.S.",                    "insurance",    "sky",     "Insurance Company",    "Wellesley Hills, MA", "U.S. subsidiary of Sun Life Financial; invests in residential mortgages for general account yield enhancement.",                    200_000_000_000),
+  mkBuyer("INS-010", "Transamerica",                     "insurance",    "indigo",  "Insurance Company",    "Cedar Rapids, IA",    "Major life and supplemental health insurer; buys mortgage assets to support long-duration liability-matching requirements.",        300_000_000_000),
+  mkBuyer("INV-002", "TIAA Financial Services",          "insurance",    "violet",  "Insurance Company",    "New York, NY",        "Teacher Insurance and Annuity Association; long-duration fixed income investor including residential mortgage assets.",           1_200_000_000_000),
+  // ── Mortgage REITs (8) ───────────────────────────────────────────────────────
+  mkBuyer("REIT-001","Annaly Capital Management",        "reit",         "emerald", "Mortgage REIT",        "New York, NY",        "Largest U.S. mortgage REIT; invests in agency MBS, whole loans, and residential credit backed by federally chartered agencies.",   73_000_000_000),
+  mkBuyer("REIT-002","AGNC Investment Corp",             "reit",         "amber",   "Mortgage REIT",        "Bethesda, MD",        "Large agency-focused mortgage REIT; primarily acquires agency MBS backed by Fannie Mae, Freddie Mac, and Ginnie Mae.",             62_000_000_000),
+  mkBuyer("REIT-003","Two Harbors Investment Corp",      "reit",         "rose",    "Mortgage REIT",        "St. Louis Park, MN",  "Hybrid mortgage REIT; invests in both agency MBS and residential credit, including non-agency whole loans.",                        14_000_000_000),
+  mkBuyer("REIT-004","Rithm Capital Corp",               "reit",         "sky",     "Mortgage REIT",        "New York, NY",        "Formerly New Residential Investment; mortgage REIT and operating company acquiring whole loans and MSRs at scale.",                  32_000_000_000),
+  mkBuyer("REIT-005","PennyMac Mortgage Investment Trust","reit",        "indigo",  "Mortgage REIT",        "Westlake Village, CA","Mortgage REIT focused on non-agency and distressed residential mortgage assets; affiliated with PennyMac Financial.",               20_000_000_000),
+  mkBuyer("REIT-006","Redwood Trust",                    "reit",         "violet",  "Mortgage REIT",        "Mill Valley, CA",     "Pioneer non-agency REIT; acquires and securitizes jumbo and non-QM residential mortgage loans since 1994.",                          16_000_000_000),
+  mkBuyer("REIT-007","Ready Capital Corporation",        "reit",         "emerald", "Mortgage REIT",        "New York, NY",        "Commercial and residential mortgage REIT; acquires small-balance residential and commercial whole loans.",                             8_000_000_000),
+  mkBuyer("REIT-008","Ellington Financial",              "reit",         "amber",   "Mortgage REIT",        "Old Greenwich, CT",   "Specialty finance REIT; invests in non-agency MBS, residential whole loans, and other mortgage-related credit instruments.",          4_000_000_000),
+  // ── Investment Managers (4) ──────────────────────────────────────────────────
+  mkBuyer("INV-001", "BlackRock Mortgage Strategies",   "investment",   "rose",    "Investment Manager",   "New York, NY",        "World's largest asset manager; operates multiple mortgage-focused funds acquiring whole loans and MBS on behalf of institutions.",10_000_000_000_000),
+  mkBuyer("INV-003", "PIMCO Mortgage Strategy",         "investment",   "sky",     "Investment Manager",   "Newport Beach, CA",   "Leading fixed income manager; one of the world's largest buyers of agency MBS, non-agency RMBS, and residential whole loans.",    1_700_000_000_000),
+  mkBuyer("INV-004", "Apollo Global Management",        "investment",   "indigo",  "Investment Manager",   "New York, NY",        "Alternative investment manager; significant buyer of non-QM, non-agency, and distressed residential mortgage whole loans.",          650_000_000_000),
+  mkBuyer("INV-005", "Angelo Gordon Mortgage Strategies","investment",  "violet",  "Investment Manager",   "New York, NY",        "Alternative credit manager; acquires residential mortgage loans, RMBS, and mortgage-related credit through dedicated funds.",         73_000_000_000),
+  // ── GSEs & Federal Agencies (6) ─────────────────────────────────────────────
+  mkBuyer("GSE-001", "Fannie Mae (FNMA)",                        "gse", "emerald", "Government-Sponsored Enterprise", "Washington, DC",    "Largest single buyer of residential mortgage loans in the U.S.; backs the conforming loan secondary market.",              4_300_000_000_000),
+  mkBuyer("GSE-002", "Freddie Mac (FHLMC)",                      "gse", "amber",   "Government-Sponsored Enterprise", "McLean, VA",        "Major secondary market purchaser of conforming residential mortgages from originators nationwide.",                        3_200_000_000_000),
+  mkBuyer("GSE-003", "Ginnie Mae (GNMA)",                        "gse", "rose",    "Federal Corporation",             "Washington, DC",    "Government corporation; guarantees MBS backed by FHA, VA, and USDA loans, channeling capital to affordable housing.",      2_400_000_000_000),
+  mkBuyer("GSE-004", "Federal Home Loan Bank of New York",       "gse", "sky",     "Federal Home Loan Bank",          "New York, NY",      "Regional Federal Home Loan Bank; provides liquidity to member banks for residential mortgage lending.",                     197_000_000_000),
+  mkBuyer("GSE-005", "Federal Home Loan Bank of San Francisco",  "gse", "indigo",  "Federal Home Loan Bank",          "San Francisco, CA", "Western regional FHLB; supports member mortgage lending capacity through advances and MPF programs.",                     165_000_000_000),
+  mkBuyer("GSE-006", "Federal Home Loan Bank of Chicago",        "gse", "violet",  "Federal Home Loan Bank",          "Chicago, IL",       "Midwest FHLB; operates the Mortgage Partnership Finance (MPF) program for whole-loan purchases from members.",             132_000_000_000),
 ];
 
 const ALL_INSTITUTIONS: InstitutionResult[] = [...INSTITUTIONS, ...BUYERS];
@@ -138,12 +182,14 @@ const COLOR_MAP = {
 const PAGE_SIZE = 20;
 
 const FILTER_CHIPS: { id: FilterCategory; label: string }[] = [
-  { id: "all",          label: "All"           },
-  { id: "seller",       label: "Loan Sellers"  },
-  { id: "bank",         label: "Banks"         },
-  { id: "credit_union", label: "Credit Unions" },
-  { id: "insurance",    label: "Insurance"     },
-  { id: "gse",          label: "Investment"    },
+  { id: "all",          label: "All"             },
+  { id: "seller",       label: "Loan Sellers"    },
+  { id: "bank",         label: "Banks"           },
+  { id: "credit_union", label: "Credit Unions"   },
+  { id: "insurance",    label: "Insurance"       },
+  { id: "reit",         label: "Mortgage REITs"  },
+  { id: "investment",   label: "Investment"      },
+  { id: "gse",          label: "GSE / Federal"   },
 ];
 
 function fmt(n: number): string {
@@ -583,6 +629,8 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
     bank:         results.filter((i) => i.kind === "buyer" && i.buyerType === "bank").length,
     credit_union: results.filter((i) => i.kind === "buyer" && i.buyerType === "credit_union").length,
     insurance:    results.filter((i) => i.kind === "buyer" && i.buyerType === "insurance").length,
+    reit:         results.filter((i) => i.kind === "buyer" && i.buyerType === "reit").length,
+    investment:   results.filter((i) => i.kind === "buyer" && i.buyerType === "investment").length,
     gse:          results.filter((i) => i.kind === "buyer" && i.buyerType === "gse").length,
   };
 
