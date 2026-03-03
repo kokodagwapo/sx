@@ -68,6 +68,38 @@ export function loanToPricingRow(r: LoanRecord): PricingRow {
   };
 }
 
+/** Convert LoanRecord to Step2Loan for display in Step 2 */
+export function loanRecordToStep2Loan(r: LoanRecord, index: number): Step2Loan {
+  const rate = r.rate ?? 4;
+  let bucket = "4–4.5";
+  if (rate < 2.5) bucket = "2–2.5";
+  else if (rate < 3) bucket = "2.5–3";
+  else if (rate < 3.5) bucket = "3–3.5";
+  else if (rate < 4) bucket = "3.5–4";
+  else if (rate < 4.5) bucket = "4–4.5";
+  else if (rate < 5) bucket = "4.5–5";
+  else if (rate < 5.5) bucket = "5–5.5";
+  else bucket = "5.5–6";
+
+  return {
+    id: r.id ?? r.tvm ?? `loan-${index}`,
+    product: r.product ?? "30 FRM",
+    interestRate: bucket,
+    occupancy: r.occupancy ?? "Owner",
+    purpose: r.purpose ?? "Purchase",
+    propertyType: r.propertyType ?? "Single-family",
+    loanType: r.loanType ?? "Conventional",
+    state: r.stateName ?? "CA",
+    upb: r.upb ?? 0,
+    coupon: rate,
+    duration: r.term ?? 360,
+    status: r.status ?? "Available",
+    buyerId: r.buyerId,
+    units: r.units ?? 1,
+    dti: r.dti ?? 36,
+  };
+}
+
 /** Convert Step2Loan to LoanRecord for export */
 export function step2LoanToLoanRecord(r: Step2Loan): LoanRecord {
   const purpose: "Purchase" | "Refinance" = /purchase/i.test(r.purpose) ? "Purchase" : "Refinance";

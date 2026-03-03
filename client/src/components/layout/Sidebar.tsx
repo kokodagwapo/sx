@@ -83,7 +83,7 @@ export function Sidebar({
               : "text-sky-600 hover:bg-sky-100"
           )}
         >
-          <Menu className="h-5 w-5" strokeWidth={2} />
+          <Menu className={cn("h-5 w-5", collapsed && "animate-menu-blink")} strokeWidth={2} />
         </button>
       </div>
 

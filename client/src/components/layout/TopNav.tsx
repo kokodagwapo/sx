@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, Bell, User, ChevronDown, Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Bell, User, ChevronDown, Menu, ChevronLeft, ChevronRight, FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { search, type SearchResult } from "@/app/searchIndex";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { steps, getPrevNext, type StepId } from "@/app/steps";
+import { UploadModal } from "@/components/importExport/UploadModal";
+import { useLoanContext } from "@/context/LoanContext";
 
 /** Step nav items: 1–9, with 6 mapping to 6a */
 const STEP_NAV: { num: number; stepId: StepId }[] = [
@@ -39,6 +41,8 @@ export function TopNav({
   const [searchFocused, setSearchFocused] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
   const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const { setImportedLoans, importedLoans } = useLoanContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -208,25 +212,48 @@ export function TopNav({
           {title}
         </h1>
         <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-        >
-          <Bell className="h-5 w-5" strokeWidth={2} />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[#ef4444]" />
-        </button>
-        <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-white">
-            <User className="h-4 w-4" strokeWidth={2} />
+          <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded · click to re-import` : "Upload loan tape (CSV / Excel)"} side="bottom">
+            <button
+              type="button"
+              onClick={() => setUploadOpen(true)}
+              className={cn(
+                "relative rounded-lg p-2 transition-colors",
+                importedLoans
+                  ? "text-sky-500 hover:bg-sky-50 hover:text-sky-600"
+                  : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              )}
+            >
+              <FileUp className="h-5 w-5" strokeWidth={2} />
+              {importedLoans && (
+                <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-sky-400" />
+              )}
+            </button>
+          </Tooltip>
+          <button
+            type="button"
+            className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+          >
+            <Bell className="h-5 w-5" strokeWidth={2} />
+            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[#ef4444]" />
+          </button>
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-white">
+              <User className="h-4 w-4" strokeWidth={2} />
+            </div>
+            <div className="hidden sm:block">
+              <div className="text-sm font-medium text-slate-800">Hey, Maylin</div>
+              <div className="text-xs text-slate-500">Business Profile</div>
+            </div>
+            <ChevronDown className="h-4 w-4 text-slate-400" strokeWidth={2} />
           </div>
-          <div className="hidden sm:block">
-            <div className="text-sm font-medium text-slate-800">Hey, Joshua</div>
-            <div className="text-xs text-slate-500">Business Profile</div>
-          </div>
-          <ChevronDown className="h-4 w-4 text-slate-400" strokeWidth={2} />
-        </div>
         </div>
       </div>
+
+      <UploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onImport={(loans) => { setImportedLoans(loans); setUploadOpen(false); }}
+      />
     </header>
   );
 }

@@ -153,3 +153,12 @@ body {
     filter: drop-shadow(0 0 2px rgba(30, 58, 138, 0.25));
   }
 }
+
+/* Hamburger menu blink — white → yellow when sidebar is collapsed */
+@keyframes menu-blink {
+  0%, 100% { color: #ffffff; }
+  50%       { color: #facc15; }
+}
+.animate-menu-blink {
+  animation: menu-blink 1.2s ease-in-out infinite;
+}

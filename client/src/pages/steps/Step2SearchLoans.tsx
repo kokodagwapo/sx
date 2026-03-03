@@ -3,8 +3,9 @@ import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, C
 import { ExportButton } from "@/components/importExport/ExportButton";
 import { exportLoansToCSV } from "@/data/csv/csvExporter";
 import { exportLoansToExcel } from "@/data/excel/excelExporter";
-import { step2LoanToLoanRecord } from "@/data/converters";
+import { step2LoanToLoanRecord, loanRecordToStep2Loan } from "@/data/converters";
 import type { LoanRecord } from "@/data/types/loanRecord";
+import { useLoanContext } from "@/context/LoanContext";
 import type { LoanStatus } from "@/data/types/loanRecord";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
@@ -246,10 +247,16 @@ function BreakdownDetails({
 export default function Step2SearchLoans() {
   const [filterState, setFilterState] = useState<FilterState>({});
   const [sliderState, setSliderState] = useState<SliderState>(SLIDER_DEFAULTS);
+  const { importedLoans } = useLoanContext();
+
+  const allLoans = useMemo(
+    () => importedLoans ? importedLoans.map(loanRecordToStep2Loan) : step2Loans,
+    [importedLoans],
+  );
 
   const filteredLoans = useMemo(
-    () => filterLoansByField(step2Loans, filterState, sliderState),
-    [filterState, sliderState],
+    () => filterLoansByField(allLoans, filterState, sliderState),
+    [allLoans, filterState, sliderState],
   );
 
   const handleFilterChange = useCallback((group: string, value: string, checked: boolean) => {
