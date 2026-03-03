@@ -1100,26 +1100,30 @@ function HeroSection() {
   const pinnedInstitutions = ALL_INSTITUTIONS.filter((i) => pinned.has(i.id));
 
   return (
-    <section className="flex flex-col items-center flex-1 relative px-4 pt-20 pb-16 overflow-y-auto">
-      <div className="flex-1" />
+    <section className="flex flex-col flex-1 relative pt-20 overflow-hidden">
+      {/* Scrollable results area — grows upward, scrolls when full */}
+      <div className="flex-1 overflow-y-auto flex flex-col justify-end items-center px-4 min-h-0">
+        <ResultsPanel
+          results={results} viewMode={viewMode} onViewModeChange={setViewMode}
+          cohiResponse={cohiResponse} isLoading={isLoading}
+          pinned={pinned} onPin={handlePin} onView={handleView}
+        />
+      </div>
 
-      <ResultsPanel
-        results={results} viewMode={viewMode} onViewModeChange={setViewMode}
-        cohiResponse={cohiResponse} isLoading={isLoading}
-        pinned={pinned} onPin={handlePin} onView={handleView}
-      />
+      {/* Fixed bottom strip — never moves */}
+      <div className="flex-shrink-0 flex flex-col items-center px-4 pb-8 pt-3">
+        <QuickActions active={activeAction} onSelect={handleQuickAction} pinnedCount={pinnedIds.length} />
 
-      <QuickActions active={activeAction} onSelect={handleQuickAction} pinnedCount={pinnedIds.length} />
+        <SearchBar
+          query={query} onQueryChange={setQuery} onSubmit={handleSubmit}
+          cohiMode={cohiMode} onCohiToggle={() => setCohiMode((v) => !v)}
+          isListening={isListening} onMicToggle={handleMicToggle} isLoading={isLoading}
+        />
 
-      <SearchBar
-        query={query} onQueryChange={setQuery} onSubmit={handleSubmit}
-        cohiMode={cohiMode} onCohiToggle={() => setCohiMode((v) => !v)}
-        isListening={isListening} onMicToggle={handleMicToggle} isLoading={isLoading}
-      />
-
-      <p className={cn("mt-3 text-xs", isDark ? "text-white/40" : "text-slate-400")}>
-        Search {ALL_INSTITUTIONS.length} institutions · Filter by category · Ask Cohi a question
-      </p>
+        <p className={cn("mt-2 text-xs", isDark ? "text-white/40" : "text-slate-400")}>
+          Search {ALL_INSTITUTIONS.length} institutions · Filter by category · Ask Cohi a question
+        </p>
+      </div>
 
       {pinnedIds.length >= 2 && (
         <CompareBar
