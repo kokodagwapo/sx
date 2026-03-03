@@ -42,7 +42,7 @@ export function KpiStrip({
   className?: string;
 }) {
   return (
-    <div className={cn("border-b border-slate-200/60 bg-white shadow-none", compact ? "py-5" : "py-4", className)}>
+    <div className={cn("border-b border-white/50 bg-white/20 backdrop-blur-sm", compact ? "py-5" : "py-4", className)}>
       <div className="container-page">
         <div
           className={cn(
@@ -63,7 +63,7 @@ export function KpiStrip({
                 onClick={onItemClick ? () => onItemClick(kpi, idx) : undefined}
                 onKeyDown={onItemClick ? (e) => e.key === "Enter" && onItemClick(kpi, idx) : undefined}
                 className={cn(
-                  "flex min-h-[88px] min-w-[163px] flex-col rounded-xl border border-slate-200/70 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300/60",
+                  "flex min-h-[88px] min-w-[163px] flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
                   onItemClick && "cursor-pointer"
                 )}
               >
