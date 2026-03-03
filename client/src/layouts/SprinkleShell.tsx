@@ -60,7 +60,7 @@ export function SprinkleShell({
   const hasFilters = (filters?.length ?? 0) > 0 || (sliders?.length ?? 0) > 0;
 
   return (
-    <div className={cn("min-h-screen bg-white transition-colors duration-300", className)}>
+    <div className={cn("min-h-screen transition-colors duration-300", className)} style={{ background: "hsl(var(--app-bg))" }}>
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((c) => !c)}
