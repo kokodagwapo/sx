@@ -1,12 +1,14 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Search, Building2, ShieldCheck, AlertCircle, Loader2,
   TrendingUp, DollarSign, BarChart2, Users, Landmark,
-  ChevronDown, ChevronUp, X, ArrowRight, Trophy, MapPin, Zap,
+  ChevronDown, ChevronUp, X, ArrowRight, Trophy, MapPin, Zap, FileSpreadsheet,
 } from "lucide-react";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { cn } from "@/lib/utils";
+import { useLoanContext } from "@/context/LoanContext";
+import realStats from "@/data/real/realStats.json";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -409,14 +411,24 @@ export default function BankCallReport() {
   const inputRef                = useRef<HTMLInputElement>(null);
   const resultsScrollRef        = useRef<HTMLDivElement>(null);
 
+  const { importedLoans } = useLoanContext();
+
   const { data, isLoading, isError, isFetching } = useSearch(query);
   const institutions = (data?.data ?? []).map((r) => r.data);
 
   useEffect(() => {
-    if (institutions.length > 0 && resultsScrollRef.current) {
-      resultsScrollRef.current.scrollTop = resultsScrollRef.current.scrollHeight;
+    if (resultsScrollRef.current) {
+      resultsScrollRef.current.scrollTop = 0;
     }
-  }, [institutions.length]);
+  }, [query]);
+
+  const sellerNames: string[] = useMemo(() => {
+    if (importedLoans && importedLoans.length > 0) {
+      const names = Array.from(new Set(importedLoans.map(l => l.source).filter(Boolean))) as string[];
+      return names.length > 0 ? names : Object.keys((realStats as any).bySource ?? {});
+    }
+    return Object.keys((realStats as any).bySource ?? {});
+  }, [importedLoans]);
 
   const handleSubmit = useCallback(() => {
     const q = input.trim();
@@ -443,14 +455,44 @@ export default function BankCallReport() {
         {/* Scrollable results area */}
         <div
           ref={resultsScrollRef}
-          className="flex-1 overflow-y-auto scrollbar-none flex flex-col justify-end items-center px-4 min-h-0"
+          className="flex-1 overflow-y-auto flex flex-col items-center px-4 min-h-0 pb-4 pt-6"
+          style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}
         >
           {!query && (
-            <div className="max-w-2xl w-full mb-4 pt-6">
+            <div className="max-w-2xl w-full mb-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 text-center mb-3">
                 Buyer Intelligence
               </p>
               <div className="grid grid-cols-2 gap-3">
+                {/* Sellers card — from uploaded tape or default real data */}
+                <div className="rounded-2xl border border-rose-100/60 bg-rose-50/60 backdrop-blur-sm p-4 flex flex-col gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100">
+                      <FileSpreadsheet className="h-4 w-4 text-rose-600" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 leading-tight">Your Sellers</p>
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700">
+                        {importedLoans ? "Uploaded Tape" : "Real Data"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Loan sellers in your current portfolio tape. Look up their FDIC profiles.
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {sellerNames.map((name) => (
+                      <button
+                        key={name}
+                        onClick={() => handleQuick({ label: name, query: name, initial: name[0], color: "rose", type: "Loan Seller" })}
+                        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all bg-rose-100 hover:bg-rose-200 text-rose-800"
+                      >
+                        <Building2 className="h-3 w-3" />
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 {BUYER_INSIGHTS.map((insight) => {
                   const p = INSIGHT_PALETTE[insight.color];
                   const Icon = insight.icon;
