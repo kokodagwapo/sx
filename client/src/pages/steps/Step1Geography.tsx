@@ -1088,14 +1088,22 @@ export default function Step1Geography() {
 
       <TourBubble
         stepKey="step1"
+        delay={1200}
         steps={[
           {
-            title: "Geographic Portfolio View",
-            body: "This map shows your loan concentration by county. Click any shaded county to drill down to individual tracts. Toggle the Map Layer pills to overlay FEMA flood or wildfire risk.",
+            title: "Step 1 — Geographic Heatmap",
+            body: "Counties are shaded by loan concentration — darker means higher UPB exposure. Hover any county for a quick summary, or click it to drill into individual Census tracts.",
+            icon: "map",
           },
           {
-            title: "Import Your Loan Tape",
-            body: "Hit the upload icon inside the legend bar to import a CSV or Excel tape — the map and all downstream steps will update instantly.",
+            title: "Risk Overlays",
+            body: "Switch between UPB Concentration, FEMA Flood Risk, and Wildfire Risk using the Map Layer pills in the legend bar. High-risk counties pulse to draw your attention.",
+            icon: "chart",
+          },
+          {
+            title: "Import & Export",
+            body: "The upload button (↑) in the legend imports a CSV or Excel tape — all nine steps update instantly. Use the download button (↓) to export the current view as CSV.",
+            icon: "upload",
             cta: "Got it",
           },
         ]}

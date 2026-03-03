@@ -800,18 +800,22 @@ export default function Step2SearchLoans() {
 
       <TourBubble
         stepKey="step2"
+        delay={1200}
         steps={[
           {
-            title: "Filter & Explore Loans",
-            body: "Use the filters on the left to narrow by product, state, occupancy and more. Range sliders let you dial in exact LTV and FICO windows.",
+            title: "Step 2 — Loan Search & Filters",
+            body: "The left panel holds all your filters: product type, state, occupancy, purpose, and more. Range sliders at the bottom let you set exact LTV and FICO windows. Active filters show as chips you can remove one at a time.",
+            icon: "list",
           },
           {
-            title: "Click a Status to Drill Down",
-            body: "Click any status pill (Available, Allocated, Committed, Sold) to open a detailed breakdown panel with a sortable loan table.",
+            title: "Status Summary Bar",
+            body: "The coloured pills at the top (Available · Allocated · Committed · Sold) show counts and total UPB for each status. Click any pill to open a detailed drilldown panel with KPIs, breakdowns, and a full loan table.",
+            icon: "chart",
           },
           {
             title: "Compare Loans Side-by-Side",
-            body: "In the drilldown table, hit the + button on any row to add that loan to your compare tray. Select up to 5, then click Compare.",
+            body: "In the drilldown table, tap the + on any row to queue that loan for comparison (up to 5). The Compare tray slides up from the bottom — click Compare to see a side-by-side table with green/red best-vs-worst highlighting.",
+            icon: "lightbulb",
             cta: "Got it",
           },
         ]}
