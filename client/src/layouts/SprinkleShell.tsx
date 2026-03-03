@@ -69,7 +69,7 @@ export function SprinkleShell({
       <div
         className={cn(
           "min-h-screen transition-all duration-300",
-          sidebarCollapsed ? "lg:ml-[72px]" : "lg:ml-[260px]"
+          sidebarCollapsed ? "lg:ml-[72px]" : "lg:ml-[220px]"
         )}
       >
         <TopNav
@@ -112,7 +112,7 @@ export function SprinkleShell({
             className="fixed inset-0 z-[999] bg-black/50 lg:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="fixed left-0 top-0 z-[1001] h-full w-[260px] lg:hidden">
+          <div className="fixed left-0 top-0 z-[1001] h-full w-[220px] lg:hidden">
             <Sidebar
               forceShow
               collapsed={false}

@@ -57,21 +57,21 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r transition-all duration-300 shadow-none",
+        "fixed left-0 top-0 z-[1000] flex h-screen flex-col border-r transition-all duration-300",
         !forceShow && "hidden lg:flex",
         collapsed
           ? "w-[72px] bg-sky-600 border-sky-500"
-          : "w-[260px] border-slate-100 bg-white shadow-[4px_0_24px_rgba(56,189,248,0.08)]"
+          : "w-[220px] border-slate-200 bg-white shadow-sm"
       )}
     >
       {/* Logo / Brand */}
       <div className={cn(
         "flex items-center justify-between border-b px-4",
-        collapsed ? "h-14 border-sky-500 justify-center" : "h-28 border-slate-100 items-end pb-3"
+        collapsed ? "h-14 border-sky-500 justify-center" : "h-[72px] border-slate-200"
       )}>
         {!collapsed && (
-          <Link to="/" className="flex items-center justify-center -ml-1">
-            <SprinkleXLogo size="xl" showText={true} />
+          <Link to="/" className="flex items-center -ml-1">
+            <SprinkleXLogo size="md" showText={true} />
           </Link>
         )}
         <button
@@ -81,10 +81,10 @@ export function Sidebar({
             "rounded-lg p-2 transition-colors",
             collapsed
               ? "text-white hover:bg-sky-500"
-              : "text-sky-600 hover:bg-sky-100"
+              : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           )}
         >
-          <Menu className={cn("h-5 w-5", collapsed && "animate-menu-blink")} strokeWidth={2} />
+          <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
       </div>
 
@@ -113,18 +113,18 @@ export function Sidebar({
                       <Link
                         to={step.path}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                           collapsed
                             ? isActive
                               ? "text-white justify-center"
                               : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
                             : isActive
-                              ? "bg-white/80 text-sky-800 shadow-sm ring-1 ring-sky-200/80"
-                              : "text-sky-900/55 hover:bg-sky-100/70 hover:text-sky-800"
+                              ? "bg-amber-50 text-slate-800"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         )}
                       >
                         <Icon
-                          className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-yellow-400" : "")}
+                          className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-amber-400" : "text-slate-400")}
                           strokeWidth={2}
                         />
                         {!collapsed && (
@@ -148,18 +148,18 @@ export function Sidebar({
                 <Link
                   to="/bank-call-report"
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                     collapsed
                       ? isActive
                         ? "text-white justify-center"
                         : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
                       : isActive
-                        ? "bg-white/80 text-sky-800 shadow-sm ring-1 ring-sky-200/80"
-                        : "text-sky-900/55 hover:bg-sky-100/70 hover:text-sky-800"
+                        ? "bg-amber-50 text-slate-800"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   )}
                 >
                   <Landmark
-                    className={cn("h-4 w-4 shrink-0", isActive ? "text-yellow-400" : "")}
+                    className={cn("h-4 w-4 shrink-0", isActive ? "text-amber-400" : "text-slate-400")}
                     strokeWidth={2}
                   />
                   {!collapsed && <span className="truncate">Bank Call Report</span>}
@@ -199,18 +199,18 @@ export function Sidebar({
                       <Link
                         to={path}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                           collapsed
                             ? isActive
                               ? "text-white justify-center"
                               : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
                             : isActive
-                              ? "bg-white/80 text-sky-800 shadow-sm ring-1 ring-sky-200/80"
-                              : "text-sky-900/55 hover:bg-sky-100/70 hover:text-sky-800"
+                              ? "bg-amber-50 text-slate-800"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         )}
                       >
                         <Icon
-                          className={cn("h-4 w-4 shrink-0", isActive ? "text-yellow-400" : "")}
+                          className={cn("h-4 w-4 shrink-0", isActive ? "text-amber-400" : "text-slate-400")}
                           strokeWidth={2}
                         />
                         {!collapsed && <span className="truncate">{label}</span>}
