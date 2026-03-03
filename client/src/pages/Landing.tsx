@@ -4,9 +4,11 @@ import {
   Search, Mic, MicOff, Bot, ArrowRight, LayoutList, LayoutGrid,
   Pin, Eye, X, ChevronDown, Trophy, Shield, Sparkles, MapPin,
   Scale, Pencil, Trash2, Check, Plus, ArrowUpRight, Layers,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LenderDrilldownModal } from "@/components/buyers/LenderDrilldownModal";
+import { BuyerModal } from "@/components/buyers/BuyerInfoCard";
 import { usePools } from "@/context/PoolsContext";
 import realStats from "@/data/real/realStats.json";
 
@@ -15,6 +17,13 @@ import realStats from "@/data/real/realStats.json";
 type InstitutionResult = {
   id: string;
   name: string;
+  kind: "seller" | "buyer";
+  buyerId?: string;
+  color: "sky" | "amber" | "rose" | "indigo" | "violet" | "emerald";
+  institutionType?: string;
+  hq?: string;
+  description?: string;
+  assets?: number;
   count: number;
   upb: number;
   waRate: number;
@@ -25,34 +34,88 @@ type InstitutionResult = {
   products: { p30: number; p15: number; pArm: number };
   status: { avail: number; alloc: number; comm: number; sold: number };
   topStates: { s: string; c: number }[];
-  color: "sky" | "amber" | "rose";
 };
 
 // ─── Real institution data ────────────────────────────────────────────────────
 
 const INSTITUTIONS: InstitutionResult[] = [
   {
-    id: "provident", name: "Provident", color: "sky",
+    id: "provident", name: "Provident", kind: "seller", color: "sky",
     count: 2452, upb: 711354965, waRate: 3.2781, waFico: 769, waLtv: 61.16, waDti: 31.27, avgBal: 290112,
     products: { p30: 1396, p15: 986, pArm: 70 },
     status: { avail: 1323, alloc: 522, comm: 327, sold: 280 },
     topStates: [{ s: "CA", c: 773 }, { s: "UT", c: 195 }, { s: "WA", c: 176 }, { s: "TX", c: 168 }, { s: "CO", c: 153 }],
   },
   {
-    id: "stonegate", name: "Stonegate", color: "amber",
+    id: "stonegate", name: "Stonegate", kind: "seller", color: "amber",
     count: 963, upb: 209093793, waRate: 3.7413, waFico: 716, waLtv: 87.87, waDti: 39.21, avgBal: 217128,
     products: { p30: 901, p15: 62, pArm: 0 },
     status: { avail: 516, alloc: 202, comm: 123, sold: 122 },
     topStates: [{ s: "CA", c: 124 }, { s: "IL", c: 101 }, { s: "OH", c: 74 }, { s: "NJ", c: 60 }, { s: "PA", c: 47 }],
   },
   {
-    id: "new-penn-financial", name: "New Penn Financial", color: "rose",
+    id: "new-penn-financial", name: "New Penn Financial", kind: "seller", color: "rose",
     count: 3637, upb: 940884877, waRate: 3.621, waFico: 732, waLtv: 75.52, waDti: 38.0, avgBal: 258698,
     products: { p30: 3210, p15: 403, pArm: 24 },
     status: { avail: 2010, alloc: 759, comm: 448, sold: 420 },
     topStates: [{ s: "CA", c: 552 }, { s: "FL", c: 310 }, { s: "NY", c: 276 }, { s: "GA", c: 272 }, { s: "PA", c: 265 }],
   },
 ];
+
+const BUYERS: InstitutionResult[] = [
+  {
+    id: "BNK-001", name: "JPMorgan Chase Bank, NA", kind: "buyer", buyerId: "BNK-001", color: "sky",
+    institutionType: "FDIC-Insured Bank", hq: "Columbus, OH",
+    description: "Largest U.S. bank by total assets; leading whole-loan and MBS buyer with global capital markets presence.",
+    assets: 3900000000000,
+    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
+    products: { p30: 0, p15: 0, pArm: 0 },
+    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
+    topStates: [],
+  },
+  {
+    id: "BNK-002", name: "Bank of America, NA", kind: "buyer", buyerId: "BNK-002", color: "indigo",
+    institutionType: "FDIC-Insured Bank", hq: "Charlotte, NC",
+    description: "Second-largest U.S. bank; active acquirer of residential mortgage pools and GSE-eligible collateral.",
+    assets: 3300000000000,
+    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
+    products: { p30: 0, p15: 0, pArm: 0 },
+    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
+    topStates: [],
+  },
+  {
+    id: "BNK-003", name: "Wells Fargo Bank, NA", kind: "buyer", buyerId: "BNK-003", color: "violet",
+    institutionType: "FDIC-Insured Bank", hq: "Sioux Falls, SD",
+    description: "Top-4 U.S. bank; historically one of the largest mortgage servicers and whole-loan buyers in the country.",
+    assets: 1900000000000,
+    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
+    products: { p30: 0, p15: 0, pArm: 0 },
+    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
+    topStates: [],
+  },
+  {
+    id: "CU-001", name: "PenFed Credit Union", kind: "buyer", buyerId: "CU-001", color: "emerald",
+    institutionType: "Federal Credit Union", hq: "McLean, VA",
+    description: "Largest federal credit union by assets; active buyer of conforming mortgage pools with competitive pricing.",
+    assets: 38000000000,
+    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
+    products: { p30: 0, p15: 0, pArm: 0 },
+    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
+    topStates: [],
+  },
+  {
+    id: "INS-001", name: "Pacific Life Insurance Co.", kind: "buyer", buyerId: "INS-001", color: "amber",
+    institutionType: "Insurance Company", hq: "Newport Beach, CA",
+    description: "Major life insurance carrier; invests in high-quality mortgage loans and MBS as part of long-duration asset-liability management.",
+    assets: 150000000000,
+    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
+    products: { p30: 0, p15: 0, pArm: 0 },
+    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
+    topStates: [],
+  },
+];
+
+const ALL_INSTITUTIONS: InstitutionResult[] = [...INSTITUTIONS, ...BUYERS];
 
 // Per-seller, per-state counts for quick action #4
 const SELLER_STATE_COUNTS: Record<string, Record<string, number>> = {
@@ -66,9 +129,12 @@ const ALL_STATES = Object.keys((realStats as any).byState ?? {}).sort();
 // ─── Color helpers ────────────────────────────────────────────────────────────
 
 const COLOR_MAP = {
-  sky:   { accent: "bg-sky-600",   light: "bg-sky-50",   text: "text-sky-700",   border: "border-sky-200",   bar: "bg-sky-500",   ring: "ring-sky-400"   },
-  amber: { accent: "bg-amber-500", light: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", bar: "bg-amber-400", ring: "ring-amber-400" },
-  rose:  { accent: "bg-rose-600",  light: "bg-rose-50",  text: "text-rose-700",  border: "border-rose-200",  bar: "bg-rose-500",  ring: "ring-rose-400"  },
+  sky:     { accent: "bg-sky-600",     light: "bg-sky-50",     text: "text-sky-700",     border: "border-sky-200",     bar: "bg-sky-500",     ring: "ring-sky-400"     },
+  amber:   { accent: "bg-amber-500",   light: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-200",   bar: "bg-amber-400",   ring: "ring-amber-400"   },
+  rose:    { accent: "bg-rose-600",    light: "bg-rose-50",    text: "text-rose-700",    border: "border-rose-200",    bar: "bg-rose-500",    ring: "ring-rose-400"    },
+  indigo:  { accent: "bg-indigo-600",  light: "bg-indigo-50",  text: "text-indigo-700",  border: "border-indigo-200",  bar: "bg-indigo-500",  ring: "ring-indigo-400"  },
+  violet:  { accent: "bg-violet-600",  light: "bg-violet-50",  text: "text-violet-700",  border: "border-violet-200",  bar: "bg-violet-500",  ring: "ring-violet-400"  },
+  emerald: { accent: "bg-emerald-600", light: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", ring: "ring-emerald-400" },
 };
 
 function fmt(n: number): string {
@@ -274,7 +340,7 @@ function CohiResponseCard({ answer }: { answer: string }) {
 
 // ─── ProductMiniBar ───────────────────────────────────────────────────────────
 
-function ProductMiniBar({ products, color }: { products: InstitutionResult["products"]; color: "sky" | "amber" | "rose" }) {
+function ProductMiniBar({ products, color }: { products: InstitutionResult["products"]; color: InstitutionResult["color"] }) {
   const total = products.p30 + products.p15 + products.pArm;
   const c = COLOR_MAP[color];
   return (
@@ -290,29 +356,48 @@ function ProductMiniBar({ products, color }: { products: InstitutionResult["prod
 
 // ─── InstitutionCardList ──────────────────────────────────────────────────────
 
+function fmtAssets(n: number): string {
+  if (n >= 1e12) return `$${(n / 1e12).toFixed(1)}T`;
+  if (n >= 1e9)  return `$${(n / 1e9).toFixed(0)}B`;
+  return `$${(n / 1e6).toFixed(0)}M`;
+}
+
 function InstitutionCardList({
   inst, pinned, onPin, onView,
 }: { inst: InstitutionResult; pinned: boolean; onPin: () => void; onView: () => void }) {
   const c = COLOR_MAP[inst.color];
+  const isBuyer = inst.kind === "buyer";
   return (
     <div className={cn("rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow p-4", c.border)}>
       <div className="flex items-center gap-3">
         <div className={cn("flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-white font-bold text-sm shadow-sm", c.accent)}>
-          {inst.name[0]}
+          {isBuyer ? <Building2 className="h-4 w-4" /> : inst.name[0]}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-slate-800 text-sm">{inst.name}</span>
-            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", c.light, c.text)}>Loan Seller</span>
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", c.light, c.text)}>
+              {isBuyer ? (inst.institutionType ?? "Buyer") : "Loan Seller"}
+            </span>
           </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
-            <Stat label="Loans" value={inst.count.toLocaleString()} />
-            <Stat label="UPB" value={fmt(inst.upb)} />
-            <Stat label="WAC" value={inst.waRate.toFixed(2) + "%"} />
-            <Stat label="WA FICO" value={inst.waFico.toString()} />
-            <Stat label="WA LTV" value={inst.waLtv.toFixed(1) + "%"} />
-          </div>
-          <ProductMiniBar products={inst.products} color={inst.color} />
+          {isBuyer ? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+              <Stat label="Total Assets" value={fmtAssets(inst.assets ?? 0)} />
+              <Stat label="HQ" value={inst.hq ?? "—"} />
+              <span className="text-[11px] text-slate-400 truncate max-w-xs">{inst.description}</span>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                <Stat label="Loans" value={inst.count.toLocaleString()} />
+                <Stat label="UPB" value={fmt(inst.upb)} />
+                <Stat label="WAC" value={inst.waRate.toFixed(2) + "%"} />
+                <Stat label="WA FICO" value={inst.waFico.toString()} />
+                <Stat label="WA LTV" value={inst.waLtv.toFixed(1) + "%"} />
+              </div>
+              <ProductMiniBar products={inst.products} color={inst.color} />
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
@@ -329,7 +414,7 @@ function InstitutionCardList({
             onClick={onView}
             className={cn("flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all hover:shadow-sm", c.border, c.text, c.light)}
           >
-            <Eye className="h-3 w-3" /> View Details
+            <Eye className="h-3 w-3" /> View Profile
           </button>
         </div>
       </div>
@@ -352,28 +437,49 @@ function InstitutionCardGrid({
   inst, pinned, onPin, onView,
 }: { inst: InstitutionResult; pinned: boolean; onPin: () => void; onView: () => void }) {
   const c = COLOR_MAP[inst.color];
+  const isBuyer = inst.kind === "buyer";
+  const kpis = isBuyer
+    ? [
+        { label: "Total Assets", value: fmtAssets(inst.assets ?? 0) },
+        { label: "Type", value: inst.institutionType?.split(" ")[0] ?? "Buyer" },
+        { label: "HQ", value: inst.hq ?? "—" },
+        { label: "Status", value: "Active" },
+      ]
+    : [
+        { label: "Loans", value: inst.count.toLocaleString() },
+        { label: "UPB", value: fmt(inst.upb) },
+        { label: "WAC", value: inst.waRate.toFixed(2) + "%" },
+        { label: "WA FICO", value: inst.waFico.toString() },
+      ];
   return (
     <div className={cn("rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden w-72 flex flex-col", c.border)}>
       <div className={cn("px-4 py-3", c.accent)}>
-        <span className="text-white font-semibold text-sm">{inst.name}</span>
-        <div className="text-white/70 text-[11px]">Loan Seller</div>
+        <div className="flex items-center gap-2">
+          {isBuyer && <Building2 className="h-3.5 w-3.5 text-white/80" />}
+          <span className="text-white font-semibold text-sm truncate">{inst.name}</span>
+        </div>
+        <div className="text-white/70 text-[11px]">{isBuyer ? (inst.institutionType ?? "Buyer") : "Loan Seller"}</div>
       </div>
       <div className="grid grid-cols-2 gap-px bg-slate-100 flex-1">
-        {[
-          { label: "Loans", value: inst.count.toLocaleString() },
-          { label: "UPB", value: fmt(inst.upb) },
-          { label: "WAC", value: inst.waRate.toFixed(2) + "%" },
-          { label: "WA FICO", value: inst.waFico.toString() },
-        ].map(({ label, value }) => (
+        {kpis.map(({ label, value }) => (
           <div key={label} className="bg-white px-3 py-2.5">
             <div className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</div>
-            <div className="font-bold text-slate-800 text-sm tabular-nums">{value}</div>
+            <div className="font-bold text-slate-800 text-sm tabular-nums truncate">{value}</div>
           </div>
         ))}
       </div>
+      {isBuyer && inst.description && (
+        <div className="px-3 pt-2 bg-white">
+          <p className="text-[10px] text-slate-400 leading-relaxed line-clamp-2">{inst.description}</p>
+        </div>
+      )}
+      {!isBuyer && (
+        <div className="px-3 pt-2 bg-white">
+          <ProductMiniBar products={inst.products} color={inst.color} />
+        </div>
+      )}
       <div className="px-3 pb-2 pt-2 bg-white">
-        <ProductMiniBar products={inst.products} color={inst.color} />
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={onPin}
             className={cn(
@@ -387,7 +493,7 @@ function InstitutionCardGrid({
             onClick={onView}
             className={cn("flex-1 flex items-center justify-center gap-1 rounded-lg border py-1.5 text-xs font-medium transition-all", c.border, c.text, c.light)}
           >
-            <Eye className="h-3 w-3" /> View Details
+            <Eye className="h-3 w-3" /> View Profile
           </button>
         </div>
       </div>
@@ -633,7 +739,7 @@ function PoolsManager({ onClose }: { onClose: () => void }) {
             </div>
             <div className="mt-2 flex flex-wrap gap-1">
               {pool.institutionIds.map((id) => {
-                const inst = INSTITUTIONS.find((i) => i.id === id);
+                const inst = ALL_INSTITUTIONS.find((i) => i.id === id);
                 if (!inst) return null;
                 const c = COLOR_MAP[inst.color];
                 return (
@@ -671,7 +777,7 @@ function CompareBar({
       </span>
       <div className="flex items-center gap-1.5">
         {pinnedIds.map((id) => {
-          const inst = INSTITUTIONS.find((i) => i.id === id);
+          const inst = ALL_INSTITUTIONS.find((i) => i.id === id);
           if (!inst) return null;
           const c = COLOR_MAP[inst.color];
           return (
@@ -717,7 +823,7 @@ function CompareBar({
 
 function HeroSection() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<InstitutionResult[]>([]);
+  const [results, setResults] = useState<InstitutionResult[]>(ALL_INSTITUTIONS);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [cohiMode, setCohiMode] = useState(false);
   const [cohiResponse, setCohiResponse] = useState<string | null>(null);
@@ -726,6 +832,7 @@ function HeroSection() {
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [pinned, setPinned] = useState<Set<string>>(new Set());
   const [modalInstitution, setModalInstitution] = useState<InstitutionResult | null>(null);
+  const [buyerModalId, setBuyerModalId] = useState<string | null>(null);
   const [compareOpen, setCompareOpen] = useState(false);
   const { pools, createPool } = usePools();
   const recognitionRef = useRef<any>(null);
@@ -757,12 +864,14 @@ function HeroSection() {
       }
     } else {
       const lower = q.toLowerCase();
-      const matched = INSTITUTIONS.filter((i) =>
+      const matched = ALL_INSTITUTIONS.filter((i) =>
         i.name.toLowerCase().includes(lower) ||
-        i.id.includes(lower) ||
+        i.id.toLowerCase().includes(lower) ||
+        (i.hq ?? "").toLowerCase().includes(lower) ||
+        (i.institutionType ?? "").toLowerCase().includes(lower) ||
         i.topStates.some((st) => st.s.toLowerCase() === lower)
       );
-      setResults(matched.length > 0 ? matched : INSTITUTIONS);
+      setResults(matched.length > 0 ? matched : ALL_INSTITUTIONS);
     }
   }, [cohiMode]);
 
@@ -774,16 +883,18 @@ function HeroSection() {
     setQuery("");
 
     if (action === "top") {
-      setResults([...INSTITUTIONS].sort((a, b) => b.waFico - a.waFico || a.waRate - b.waRate));
+      const sellers = [...INSTITUTIONS].sort((a, b) => b.waFico - a.waFico || a.waRate - b.waRate);
+      setResults([...sellers, ...BUYERS]);
     } else if (action === "risk") {
-      setResults([...INSTITUTIONS].sort((a, b) => a.waLtv - b.waLtv));
+      const sellers = [...INSTITUTIONS].sort((a, b) => a.waLtv - b.waLtv);
+      setResults([...sellers, ...BUYERS]);
     } else if (action === "new") {
       const ranked = INSTITUTIONS.map((i) => ({
         ...i,
         count: Math.round(i.count * 0.28),
         upb: Math.round(i.upb * 0.28),
-      }));
-      setResults(ranked.sort((a, b) => b.count - a.count));
+      })).sort((a, b) => b.count - a.count);
+      setResults([...ranked, ...BUYERS]);
     } else if (action === "state" && state) {
       const ranked = [...INSTITUTIONS]
         .map((i) => {
@@ -791,7 +902,7 @@ function HeroSection() {
           return { ...i, _stateCount: stateCount };
         })
         .sort((a, b) => (b as any)._stateCount - (a as any)._stateCount);
-      setResults(ranked);
+      setResults([...ranked, ...BUYERS]);
     } else if (action === "compare") {
       setCompareOpen(true);
     }
@@ -831,7 +942,15 @@ function HeroSection() {
   }, [isListening, cohiMode, handleSearch]);
 
   const pinnedIds = Array.from(pinned);
-  const pinnedInstitutions = INSTITUTIONS.filter((i) => pinned.has(i.id));
+  const pinnedInstitutions = ALL_INSTITUTIONS.filter((i) => pinned.has(i.id));
+
+  const handleView = useCallback((inst: InstitutionResult) => {
+    if (inst.kind === "buyer") {
+      setBuyerModalId(inst.buyerId ?? inst.id);
+    } else {
+      setModalInstitution(inst);
+    }
+  }, []);
 
   return (
     <section className="flex flex-col items-center justify-end pb-16 flex-1 relative px-4 pt-20">
@@ -843,7 +962,7 @@ function HeroSection() {
         isLoading={isLoading}
         pinned={pinned}
         onPin={handlePin}
-        onView={setModalInstitution}
+        onView={handleView}
       />
 
       <QuickActions
@@ -882,6 +1001,13 @@ function HeroSection() {
         <LenderDrilldownModal
           lender={modalInstitution.name}
           onClose={() => setModalInstitution(null)}
+        />
+      )}
+
+      {buyerModalId && (
+        <BuyerModal
+          buyerId={buyerModalId}
+          onClose={() => setBuyerModalId(null)}
         />
       )}
 

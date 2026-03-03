@@ -401,6 +401,24 @@ function BuyerDetailModal({
   );
 }
 
+// ─── Public: BuyerModal (open modal directly by ID) ──────────────────────────
+
+export function BuyerModal({ buyerId, onClose }: { buyerId: string; onClose: () => void }) {
+  const entry = BUYER_REGISTRY[buyerId];
+  if (!entry) return null;
+  const colors = BUYER_COLOR_MAP[entry.color];
+  return (
+    <BuyerDetailModal
+      entry={entry}
+      loans={[]}
+      loanCount={0}
+      totalUpb={0}
+      colors={colors}
+      onClose={onClose}
+    />
+  );
+}
+
 // ─── Public: BuyerInfoCard (summary card, click → modal) ─────────────────────
 
 export function BuyerInfoCard({
