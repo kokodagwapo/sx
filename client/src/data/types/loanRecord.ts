@@ -5,6 +5,7 @@ export type LoanStatus = "Available" | "Allocated" | "Committed" | "Sold";
 export type LoanRecord = {
   id: string;
   tvm: string;
+  source?: string;
 
   // Transaction tracking (BRD §2.2.4)
   status?: LoanStatus;

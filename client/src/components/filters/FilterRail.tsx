@@ -484,6 +484,49 @@ function MortgageRatesMini() {
   );
 }
 
+// ─── Lender section ───────────────────────────────────────────────────────────
+
+const LENDER_COLORS: Record<string, { bg: string; activeBg: string; activeBorder: string; text: string; activeText: string }> = {
+  Provident:          { bg: "bg-white", activeBg: "bg-sky-600",   activeBorder: "border-sky-600",   text: "text-slate-600 border-slate-200", activeText: "text-white" },
+  Stonegate:          { bg: "bg-white", activeBg: "bg-amber-500", activeBorder: "border-amber-500", text: "text-slate-600 border-slate-200", activeText: "text-white" },
+  "New Penn Financial": { bg: "bg-white", activeBg: "bg-rose-600",  activeBorder: "border-rose-600",  text: "text-slate-600 border-slate-200", activeText: "text-white" },
+};
+
+function LenderSection({
+  options, selected, onFilterChange,
+}: {
+  options: string[];
+  selected: string[];
+  onFilterChange?: (group: string, value: string, checked: boolean) => void;
+}) {
+  return (
+    <div className="border-b border-slate-100 px-3 py-2.5">
+      <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Data Source</p>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((name) => {
+          const active = selected.includes(name);
+          const c = LENDER_COLORS[name] ?? { bg: "bg-white", activeBg: "bg-slate-700", activeBorder: "border-slate-700", text: "text-slate-600 border-slate-200", activeText: "text-white" };
+          return (
+            <button
+              key={name}
+              type="button"
+              onClick={() => onFilterChange?.("Lender", name, !active)}
+              className={cn(
+                "rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all",
+                active
+                  ? `${c.activeBg} ${c.activeBorder} ${c.activeText} shadow-sm`
+                  : `${c.bg} ${c.text} hover:border-slate-300 hover:bg-slate-50`,
+              )}
+            >
+              {name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Filter body ──────────────────────────────────────────────────────────────
 
 function FilterBody({
@@ -497,12 +540,6 @@ function FilterBody({
   sliderState?: SliderState;
   onSliderChange?: (field: string, range: [number, number]) => void;
 }) {
-  const hasFilters = Object.keys(selected).length > 0;
-  const hasSliderFilters = sliders?.some((s) => {
-    const v = sliderState?.[s.field];
-    return v && (v[0] !== s.min || v[1] !== s.max);
-  });
-
   const bySection = useMemo(() => {
     const acc: Record<string, FilterGroup[]> = {};
     for (const g of groups) {
@@ -514,15 +551,9 @@ function FilterBody({
   }, [groups]);
 
   const stateGroup = groups.find((g) => g.title === "State");
+  const lenderGroup = groups.find((g) => g.title === "Lender");
   const productGroups = (bySection["Product"] ?? []).filter((g) => g.title !== "State");
   const creditGroups = bySection["Credit"] ?? [];
-
-  const activeChipCount = Object.values(selected).flat().length;
-  const activeSliderCount = sliders?.filter((s) => {
-    const v = sliderState?.[s.field];
-    return v && (v[0] !== s.min || v[1] !== s.max);
-  }).length ?? 0;
-  const activeCount = activeChipCount + activeSliderCount;
 
   const [autoExpanded, setAutoExpanded] = useState(false);
   useEffect(() => {
@@ -532,38 +563,16 @@ function FilterBody({
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-slate-50 px-3 py-2.5">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-sky-100">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-sky-600" strokeWidth={2} />
-          </div>
-          <span className="text-sm font-semibold text-slate-800">Filters</span>
-          {activeCount > 0 && (
-            <span className="rounded-full bg-sky-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-              {activeCount}
-            </span>
-          )}
-        </div>
-        {(hasFilters || hasSliderFilters) && onClearAll && (
-          <button
-            type="button"
-            onClick={onClearAll}
-            className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 transition-colors shadow-sm"
-          >
-            <X className="h-3 w-3" /> Clear all
-          </button>
-        )}
-      </div>
-
       {/* Market rates */}
       <MortgageRatesMini />
 
-      {/* Helper text */}
-      {onFilterChange && (
-        <div className="border-b border-slate-100 bg-slate-50/50 px-3 py-1.5">
-          <p className="text-[10px] text-slate-400">Click any filter to narrow results</p>
-        </div>
+      {/* Lender picker */}
+      {lenderGroup && (
+        <LenderSection
+          options={lenderGroup.options}
+          selected={selected["Lender"] ?? []}
+          onFilterChange={onFilterChange}
+        />
       )}
 
       <div key={autoExpanded ? "expanded" : "collapsed"}>

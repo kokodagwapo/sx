@@ -30,6 +30,7 @@ const STATUS_CONFIG: Record<LoanStatus, { label: string; badge: string; icon: ty
 };
 
 const FILTER_GROUPS = [
+  { section: "Lender", title: "Lender", options: ["Provident", "Stonegate", "New Penn Financial"] },
   { section: "Product", title: "Product Type", options: ["30 FRM", "15 FRM", "7/1 ARM", "5/1 ARM"] },
   { section: "Product", title: "Occupancy", options: ["Owner", "Investment", "Second home"] },
   { section: "Product", title: "Purpose", options: ["Purchase", "Refinance"] },
@@ -85,6 +86,7 @@ function filterLoansByField(
   sliderState: SliderState,
 ): Step2Loan[] {
   const fieldMap: Record<string, keyof Step2Loan> = {
+    Lender: "source",
     "Product Type": "product",
     State: "state",
     Occupancy: "occupancy",

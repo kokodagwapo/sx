@@ -83,6 +83,7 @@ export function loanRecordToStep2Loan(r: LoanRecord, index: number): Step2Loan {
 
   return {
     id: r.id ?? r.tvm ?? `loan-${index}`,
+    source: r.source ?? "",
     product: r.product ?? "30 FRM",
     interestRate: bucket,
     occupancy: r.occupancy ?? "Owner",

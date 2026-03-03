@@ -4,6 +4,7 @@ import realLoansRaw from "@/data/real/realLoans.json";
 
 export type Step2Loan = {
   id: string;
+  source: string;
   product: string;
   interestRate: string;
   occupancy: string;
@@ -83,6 +84,7 @@ function normalizeOccupancy(occ: string): string {
 
 const loans = (realLoansRaw as RealLoan[]).map((r, i) => ({
   id: r.tvm,
+  source: r.source,
   product: r.productType,
   interestRate: getRateBucket(r.rate),
   occupancy: normalizeOccupancy(r.occupancy),
