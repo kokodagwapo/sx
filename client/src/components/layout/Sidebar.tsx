@@ -80,7 +80,7 @@ export function Sidebar({
           className={cn(
             "rounded-lg p-2 transition-colors",
             collapsed
-              ? "text-white hover:bg-sky-500"
+              ? "text-amber-400 hover:bg-sky-500 animate-pulse"
               : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           )}
         >
@@ -116,15 +116,20 @@ export function Sidebar({
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                           collapsed
                             ? isActive
-                              ? "text-white justify-center"
-                              : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
+                              ? "justify-center bg-white/15"
+                              : "justify-center hover:bg-white/10"
                             : isActive
                               ? "bg-amber-50 text-slate-800"
                               : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         )}
                       >
                         <Icon
-                          className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-amber-400" : "text-slate-400")}
+                          className={cn(
+                            "h-4 w-4 shrink-0 transition-colors",
+                            collapsed
+                              ? isActive ? "text-amber-400" : "text-white"
+                              : isActive ? "text-amber-400" : "text-slate-400"
+                          )}
                           strokeWidth={2}
                         />
                         {!collapsed && (
@@ -151,15 +156,20 @@ export function Sidebar({
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                     collapsed
                       ? isActive
-                        ? "text-white justify-center"
-                        : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
+                        ? "justify-center bg-white/15"
+                        : "justify-center hover:bg-white/10"
                       : isActive
                         ? "bg-amber-50 text-slate-800"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   )}
                 >
                   <Landmark
-                    className={cn("h-4 w-4 shrink-0", isActive ? "text-amber-400" : "text-slate-400")}
+                    className={cn(
+                      "h-4 w-4 shrink-0",
+                      collapsed
+                        ? isActive ? "text-amber-400" : "text-white"
+                        : isActive ? "text-amber-400" : "text-slate-400"
+                    )}
                     strokeWidth={2}
                   />
                   {!collapsed && <span className="truncate">Bank Call Report</span>}
@@ -186,7 +196,7 @@ export function Sidebar({
           )}
           {collapsed && (
             <div className="flex justify-center py-2">
-              <Settings className="h-4 w-4 text-white/40" />
+              <Settings className="h-4 w-4 text-white" />
             </div>
           )}
           {adminOpen && (
@@ -202,15 +212,20 @@ export function Sidebar({
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                           collapsed
                             ? isActive
-                              ? "text-white justify-center"
-                              : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
+                              ? "justify-center bg-white/15"
+                              : "justify-center hover:bg-white/10"
                             : isActive
                               ? "bg-amber-50 text-slate-800"
                               : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                         )}
                       >
                         <Icon
-                          className={cn("h-4 w-4 shrink-0", isActive ? "text-amber-400" : "text-slate-400")}
+                          className={cn(
+                            "h-4 w-4 shrink-0",
+                            collapsed
+                              ? isActive ? "text-amber-400" : "text-white"
+                              : isActive ? "text-amber-400" : "text-slate-400"
+                          )}
                           strokeWidth={2}
                         />
                         {!collapsed && <span className="truncate">{label}</span>}
