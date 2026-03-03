@@ -4,6 +4,7 @@ import {
   Search, Building2, ShieldCheck, AlertCircle, Loader2,
   TrendingUp, DollarSign, BarChart2, Users, Landmark,
   ChevronDown, ChevronUp, X, ArrowRight, Trophy, MapPin, Zap, FileSpreadsheet,
+  SlidersHorizontal,
 } from "lucide-react";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { cn } from "@/lib/utils";
@@ -395,6 +396,30 @@ function ResultCard({ inst, isExpanded, onToggle }: {
   );
 }
 
+// ─── Institution filter ───────────────────────────────────────────────────────
+
+type InstFilter = "all" | "national" | "state" | "savings" | "community" | "large";
+
+const INST_FILTERS: { id: InstFilter; label: string }[] = [
+  { id: "all",       label: "All"              },
+  { id: "national",  label: "National Banks"   },
+  { id: "state",     label: "State Banks"      },
+  { id: "savings",   label: "Savings Inst."    },
+  { id: "community", label: "Community (<$1B)" },
+  { id: "large",     label: "Large ($10B+)"    },
+];
+
+function applyInstFilter(insts: FdicInst[], f: InstFilter): FdicInst[] {
+  switch (f) {
+    case "national":  return insts.filter((i) => i.CLASS === "N");
+    case "state":     return insts.filter((i) => i.CLASS === "SM" || i.CLASS === "NM");
+    case "savings":   return insts.filter((i) => i.CLASS === "SB" || i.CLASS === "SA");
+    case "community": return insts.filter((i) => (i.ASSET ?? 0) < 1_000);
+    case "large":     return insts.filter((i) => (i.ASSET ?? 0) >= 10_000);
+    default:          return insts;
+  }
+}
+
 // ─── Results Panel ────────────────────────────────────────────────────────────
 
 function ResultsPanel({ query, institutions, isLoading, isError, expanded, onToggle }: {
@@ -405,6 +430,12 @@ function ResultsPanel({ query, institutions, isLoading, isError, expanded, onTog
   expanded: number | null;
   onToggle: (cert: number) => void;
 }) {
+  const [activeFilter, setActiveFilter] = useState<InstFilter>("all");
+
+  useEffect(() => { setActiveFilter("all"); }, [query]);
+
+  const filtered = applyInstFilter(institutions, activeFilter);
+
   if (!query && !isLoading) return null;
 
   return (
@@ -414,9 +445,37 @@ function ResultsPanel({ query, institutions, isLoading, isError, expanded, onTog
         <span className="text-xs font-medium text-slate-500">
           {isLoading ? "Searching FDIC BankFind Suite…" :
            isError   ? "Could not reach FDIC API" :
-           `${institutions.length} institution${institutions.length !== 1 ? "s" : ""} found for "${query}"`}
+           `${filtered.length} of ${institutions.length} institution${institutions.length !== 1 ? "s" : ""} · "${query}"`}
         </span>
       </div>
+
+      {/* Filter chips */}
+      {!isLoading && !isError && institutions.length > 0 && (
+        <div className="rounded-2xl border border-white/50 bg-white/30 backdrop-blur-xl mb-2 overflow-hidden">
+          <div className="flex items-center gap-1.5 px-3 py-2.5 overflow-x-auto scrollbar-none">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400 shrink-0 mr-0.5" />
+            {INST_FILTERS.map(({ id, label }) => {
+              const count = applyInstFilter(institutions, id).length;
+              const isActive = activeFilter === id;
+              return (
+                <button
+                  key={id}
+                  onClick={() => setActiveFilter(id)}
+                  className={cn(
+                    "flex-shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium transition-all whitespace-nowrap",
+                    isActive
+                      ? "bg-sky-600 border-sky-600 text-white shadow-sm"
+                      : "border-white/60 bg-white/50 text-slate-500 hover:bg-white/80 hover:text-slate-700",
+                  )}
+                >
+                  {label}
+                  <span className={cn("ml-1", isActive ? "opacity-80" : "opacity-50")}>({count})</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {isLoading && (
         <div className="rounded-2xl border border-white/50 bg-white/40 backdrop-blur-xl px-5 py-6 flex items-center gap-3">
@@ -432,15 +491,22 @@ function ResultsPanel({ query, institutions, isLoading, isError, expanded, onTog
         </div>
       )}
 
+      {!isLoading && !isError && filtered.length === 0 && institutions.length > 0 && (
+        <div className="rounded-2xl border border-white/50 bg-white/40 backdrop-blur-xl px-5 py-8 text-center">
+          <p className="text-sm text-slate-400">No results match the <span className="text-slate-600 font-medium">"{INST_FILTERS.find(f => f.id === activeFilter)?.label}"</span> filter.</p>
+          <button onClick={() => setActiveFilter("all")} className="mt-2 text-xs text-sky-600 hover:underline">Clear filter</button>
+        </div>
+      )}
+
       {!isLoading && !isError && institutions.length === 0 && (
         <div className="rounded-2xl border border-white/50 bg-white/40 backdrop-blur-xl px-5 py-8 text-center">
           <p className="text-sm text-slate-400">No institutions found for "<span className="text-slate-600 font-medium">{query}</span>". Try a shorter or different name.</p>
         </div>
       )}
 
-      {!isLoading && !isError && institutions.length > 0 && (
+      {!isLoading && !isError && filtered.length > 0 && (
         <div className="space-y-2">
-          {institutions.map((inst) => inst.CERT != null && (
+          {filtered.map((inst) => inst.CERT != null && (
             <ResultCard
               key={inst.CERT}
               inst={inst}
