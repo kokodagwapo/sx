@@ -236,7 +236,7 @@ export function CohiTourPanel() {
                 ? <><VolumeX className="h-3.5 w-3.5" /> Stop</>
                 : <><Volume2 className="h-3.5 w-3.5" /> Hear Cohi</>}
             </button>
-            <span className="text-[10px] text-slate-400 italic">voiced by Cohi AI · nova</span>
+            <span className="text-[10px] text-slate-400 italic">voiced by Cohi AI </span>
           </div>
 
           {/* Nav footer */}
