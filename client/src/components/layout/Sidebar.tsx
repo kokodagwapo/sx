@@ -60,13 +60,13 @@ export function Sidebar({
         !forceShow && "hidden lg:flex",
         collapsed
           ? "w-[72px] bg-sky-600 border-sky-500"
-          : "w-[260px] border-white/50 bg-white/30 backdrop-blur-xl shadow-[4px_0_24px_rgba(56,189,248,0.08)]"
+          : "w-[260px] border-slate-100 bg-white shadow-[4px_0_24px_rgba(56,189,248,0.08)]"
       )}
     >
       {/* Logo / Brand */}
       <div className={cn(
         "flex items-center justify-between border-b px-4",
-        collapsed ? "h-14 border-sky-500 justify-center" : "h-28 border-white/40 items-end pb-3"
+        collapsed ? "h-14 border-sky-500 justify-center" : "h-28 border-slate-100 items-end pb-3"
       )}>
         {!collapsed && (
           <Link to="/" className="flex items-center justify-center -ml-1">

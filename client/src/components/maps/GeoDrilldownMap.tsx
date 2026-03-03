@@ -6,6 +6,7 @@ import type { LoanGeoRecord } from "@/data/mock/step1";
 import { step1TractCentroids } from "@/data/mock/step1";
 import { STATE_CENTERS } from "@/data/mock/step1GeoData";
 import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS, type RiskLevel } from "@/data/mock/femaRisk";
+import { getCountyFloodRisk, getCountyWildfireRisk, countyFloodFill, countyWildfireFill } from "@/data/mock/countyRisk";
 
 const STATES_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 const COUNTIES_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
@@ -174,30 +175,34 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className, riskLayer
         {/* Tooltip for county hover */}
         {hoveredCounty && level === "us-county" && (() => {
           const stateAbbr = FIPS_TO_ABBR[hoveredCounty.fips.slice(0, 2)] ?? "";
-          const risk = stateAbbr ? getRiskForState(stateAbbr) : null;
+          const stateRisk = stateAbbr ? getRiskForState(stateAbbr) : null;
+          const countyFloodLevel = getCountyFloodRisk(hoveredCounty.fips);
+          const countyWildfireLevel = getCountyWildfireRisk(hoveredCounty.fips);
           return (
-            <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-white/90 px-3 py-2 shadow-md backdrop-blur-md animate-fade-in-up max-w-[220px] border border-white/50">
+            <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-white/90 px-3 py-2 shadow-md backdrop-blur-md animate-fade-in-up max-w-[240px] border border-white/50">
               <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{hoveredCounty.name}</div>
               <div className="mt-1 text-sm font-semibold text-slate-800">{hoveredCounty.count.toLocaleString()} loans</div>
               <div className="text-xs text-slate-600">UPB: ${(hoveredCounty.upb / 1_000_000).toFixed(1)}M</div>
-              {risk && riskLayer && (
+              {riskLayer && (
                 <div className="mt-1.5 border-t border-slate-200/70 pt-1.5 space-y-0.5">
                   <div className="flex items-center gap-1.5 text-[10px]">
+                    <div className="h-2 w-2 rounded-sm flex-shrink-0" style={{ background: RISK_COLORS[countyFloodLevel].fill }} />
                     <span className="text-slate-500">Flood:</span>
-                    <span className={cn("font-semibold", RISK_COLORS[risk.floodZone].text)}>{risk.floodZone}</span>
-                    <span className="text-slate-400">({risk.floodDisasters} FEMA events)</span>
+                    <span className={cn("font-semibold", RISK_COLORS[countyFloodLevel].text)}>{countyFloodLevel}</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px]">
+                    <div className="h-2 w-2 rounded-sm flex-shrink-0" style={{ background: WILDFIRE_COLORS[countyWildfireLevel].fill }} />
                     <span className="text-slate-500">Wildfire:</span>
-                    <span className={cn("font-semibold", RISK_COLORS[risk.wildfireRisk].text)}>{risk.wildfireRisk}</span>
-                    <span className="text-slate-400">({risk.wildfireDisasters} events)</span>
+                    <span className={cn("font-semibold", countyWildfireLevel === "High" ? "text-orange-700" : countyWildfireLevel === "Moderate" ? "text-yellow-700" : "text-green-700")}>{countyWildfireLevel}</span>
                   </div>
-                  {risk.hurricaneRisk !== "Low" && (
+                  {stateRisk && stateRisk.hurricaneRisk !== "Low" && (
                     <div className="flex items-center gap-1.5 text-[10px]">
+                      <div className="h-2 w-2 rounded-sm flex-shrink-0 bg-indigo-400" />
                       <span className="text-slate-500">Hurricane:</span>
-                      <span className={cn("font-semibold", RISK_COLORS[risk.hurricaneRisk].text)}>{risk.hurricaneRisk}</span>
+                      <span className={cn("font-semibold", RISK_COLORS[stateRisk.hurricaneRisk].text)}>{stateRisk.hurricaneRisk}</span>
                     </div>
                   )}
+                  <div className="mt-1 text-[9px] text-slate-400 italic">County-level FEMA / USFS data</div>
                 </div>
               )}
               {hoveredCounty.count > 0 && <div className="mt-1 text-[10px] text-sky-600 font-medium">Click to drill down</div>}
@@ -303,11 +308,8 @@ const FIPS_TO_ABBR: Record<string, string> = {
   "50": "VT", "51": "VA", "53": "WA", "54": "WV", "55": "WI", "56": "WY",
 };
 
-function riskFillForFips(stateFips: string, layer: "flood" | "wildfire"): string {
-  const abbr = FIPS_TO_ABBR[stateFips] ?? "";
-  const risk = getRiskForState(abbr);
-  const level = layer === "flood" ? risk.floodZone : risk.wildfireRisk;
-  return layer === "flood" ? RISK_COLORS[level].fill : WILDFIRE_COLORS[level].fill;
+function riskFillForCounty(countyFips: string, layer: "flood" | "wildfire"): string {
+  return layer === "flood" ? countyFloodFill(countyFips) : countyWildfireFill(countyFips);
 }
 
 function USCountyMap({
@@ -342,7 +344,7 @@ function USCountyMap({
               const hasData = v > 0;
               const t = maxVal > 0 ? v / maxVal : 0;
               const dataFill = riskLayer
-                ? riskFillForFips(stateFips, riskLayer)
+                ? riskFillForCounty(fips, riskLayer)
                 : choroplethColorFor(t);
               const fill = (!riskLayer && !hasData) ? "#d1dae6" : dataFill;
               const fillOpacity = (!riskLayer && !hasData) ? 0.45 : 1;
