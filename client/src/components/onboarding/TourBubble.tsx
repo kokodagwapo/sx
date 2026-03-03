@@ -167,7 +167,7 @@ export function TourBubble({
   position?: TourPosition;
   delay?: number;
 }) {
-  const { tourVersion } = useTour();
+  const { tourVersion, tourActive } = useTour();
   const [visible, setVisible]           = useState(false);
   const [idx, setIdx]                   = useState(0);
   const [pos, setPos]                   = useState<ComputedPos | null>(null);
@@ -178,13 +178,13 @@ export function TourBubble({
     setIdx(0);
     setPos(null);
     setTargetRect(null);
-    if (isTourStepDismissed(stepKey)) {
+    if (!tourActive || isTourStepDismissed(stepKey)) {
       setVisible(false);
     } else {
       const t = setTimeout(() => setVisible(true), delay);
       return () => clearTimeout(t);
     }
-  }, [stepKey, tourVersion, delay]);
+  }, [stepKey, tourVersion, tourActive, delay]);
 
   const current     = steps[Math.min(idx, steps.length - 1)];
   const isLast      = idx >= steps.length - 1;

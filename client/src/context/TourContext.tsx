@@ -31,24 +31,28 @@ export function isTourStepDismissed(stepKey: string): boolean {
 
 type TourContextValue = {
   tourVersion: number;
+  tourActive: boolean;
   restartTour: () => void;
 };
 
 const TourContext = createContext<TourContextValue>({
   tourVersion: 0,
+  tourActive: false,
   restartTour: () => {},
 });
 
 export function TourProvider({ children }: { children: React.ReactNode }) {
   const [tourVersion, setTourVersion] = useState(0);
+  const [tourActive, setTourActive] = useState(false);
 
   const restartTour = useCallback(() => {
     clearTourStorage();
+    setTourActive(true);
     setTourVersion((v) => v + 1);
   }, []);
 
   return (
-    <TourContext.Provider value={{ tourVersion, restartTour }}>
+    <TourContext.Provider value={{ tourVersion, tourActive, restartTour }}>
       {children}
     </TourContext.Provider>
   );
