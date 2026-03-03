@@ -658,7 +658,7 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
   return (
     <div ref={scrollRef} className="max-w-2xl w-full mb-3 animate-fade-in-up">
       <div className={cn(
-        "rounded-2xl overflow-hidden",
+        "rounded-2xl",
         isDark ? "bg-white/[0.02] backdrop-blur-sm" : "bg-white/[0.25] backdrop-blur-sm",
       )}>
         {/* Header */}
