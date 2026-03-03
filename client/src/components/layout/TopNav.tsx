@@ -217,7 +217,7 @@ export function TopNav({
               type="button"
               onClick={() => setUploadOpen(true)}
               className={cn(
-                "relative rounded-lg p-2 transition-colors",
+                "relative rounded-lg p-2 transition-colors animate-glow-pulse",
                 importedLoans
                   ? "text-sky-500 hover:bg-sky-50 hover:text-sky-600"
                   : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
