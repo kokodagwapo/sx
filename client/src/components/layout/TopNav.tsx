@@ -8,7 +8,7 @@ import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { steps, getPrevNext, type StepId } from "@/app/steps";
 
-/** Step nav items: 1–8, with 6 mapping to 6a */
+/** Step nav items: 1–9, with 6 mapping to 6a */
 const STEP_NAV: { num: number; stepId: StepId }[] = [
   { num: 1, stepId: "1" },
   { num: 2, stepId: "2" },
@@ -18,6 +18,7 @@ const STEP_NAV: { num: number; stepId: StepId }[] = [
   { num: 6, stepId: "6a" },
   { num: 7, stepId: "7" },
   { num: 8, stepId: "8" },
+  { num: 9, stepId: "9" },
 ];
 
 function currentStepId(pathname: string): StepId | null {
