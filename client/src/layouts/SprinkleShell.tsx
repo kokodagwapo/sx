@@ -88,15 +88,17 @@ export function SprinkleShell({
               )}
             >
               {hasFilters ? (
-                <FilterRail
-                  groups={filters ?? []}
-                  selected={filterState}
-                  onFilterChange={onFilterChange}
-                  onClearAll={onClearFilters}
-                  sliders={sliders}
-                  sliderState={sliderState}
-                  onSliderChange={onSliderChange}
-                />
+                <div data-tour="filter-rail">
+                  <FilterRail
+                    groups={filters ?? []}
+                    selected={filterState}
+                    onFilterChange={onFilterChange}
+                    onClearAll={onClearFilters}
+                    sliders={sliders}
+                    sliderState={sliderState}
+                    onSliderChange={onSliderChange}
+                  />
+                </div>
               ) : null}
               <main className="min-w-0">{children}</main>
             </div>

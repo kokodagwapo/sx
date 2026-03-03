@@ -249,7 +249,7 @@ export function TopNav({
               </Link>
             </Tooltip>
           )}
-          <div className="flex items-center gap-0.5">
+          <div data-tour="step-pills" className="flex items-center gap-0.5">
             {STEP_NAV.map(({ num, stepId }) => {
               const step = steps.find((s) => s.id === stepId)!;
               const isActive =
@@ -335,7 +335,7 @@ export function TopNav({
               <HelpCircle className="h-5 w-5" strokeWidth={2} />
             </button>
           </Tooltip>
-          <div className="relative" ref={notifRef}>
+          <div data-tour="notif-bell" className="relative" ref={notifRef}>
             <button
               type="button"
               onClick={() => setNotifOpen((o) => !o)}
@@ -486,26 +486,31 @@ export function TopNav({
             title: "Welcome to SprinkleX",
             body: "This is your loan analytics workspace. The left sidebar is your main navigation — let's take a quick tour so you know where everything lives.",
             icon: "lightbulb",
+            target: "sidebar-main-menu",
           },
           {
             title: "Main Menu — 9 Analysis Steps",
             body: "The sidebar's Main Menu lists Steps 1–9, each covering a different lens: geography, loan search, credit, pricing, performance, cohorts, and more. Click the section header to collapse or expand it.",
             icon: "list",
+            target: "sidebar-main-menu",
           },
           {
             title: "Admin Section",
             body: "Below Main Menu is the Admin section. Use Tape Import here to upload and map seller CSV tapes. The Admin header also collapses independently.",
             icon: "upload",
+            target: "sidebar-admin",
           },
           {
             title: "Quick-Jump Step Pills",
             body: "The numbered pills in the top bar (1–9) let you jump between steps instantly without opening the sidebar. The active step is highlighted in blue.",
             icon: "chart",
+            target: "step-pills",
           },
           {
             title: "Alerts & Portfolio Health",
             body: "The bell icon in the top-right shows live portfolio alerts — flood-risk concentration, rate moves, expiring commitments, and more. Click it any time to review.",
             icon: "bell",
+            target: "notif-bell",
             cta: "Let's go",
           },
         ]}

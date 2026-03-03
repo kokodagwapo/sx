@@ -659,7 +659,7 @@ export default function Step2SearchLoans() {
       onSliderChange={handleSliderChange}
     >
       <div className="mb-2 flex items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
+        <div data-tour="status-bar" className="min-w-0 flex-1">
           <StatusSummaryBar
             loans={filteredLoans}
             selectedStatus={selectedStatus}
@@ -804,18 +804,21 @@ export default function Step2SearchLoans() {
         steps={[
           {
             title: "Step 2 — Loan Search & Filters",
-            body: "The left panel holds all your filters: product type, state, occupancy, purpose, and more. Range sliders at the bottom let you set exact LTV and FICO windows. Active filters show as chips you can remove one at a time.",
+            body: "This panel holds all your filters: product type, state, occupancy, purpose, and more. Range sliders at the bottom let you set exact LTV and FICO windows. Active filters appear as chips you can remove one at a time.",
             icon: "list",
+            target: "filter-rail",
           },
           {
             title: "Status Summary Bar",
-            body: "The coloured pills at the top (Available · Allocated · Committed · Sold) show counts and total UPB for each status. Click any pill to open a detailed drilldown panel with KPIs, breakdowns, and a full loan table.",
+            body: "These coloured pills show counts and UPB for each status. Click any pill to open a detailed drilldown panel with KPIs, breakdowns, and a full sortable loan table.",
             icon: "chart",
+            target: "status-bar",
           },
           {
             title: "Compare Loans Side-by-Side",
             body: "In the drilldown table, tap the + on any row to queue that loan for comparison (up to 5). The Compare tray slides up from the bottom — click Compare to see a side-by-side table with green/red best-vs-worst highlighting.",
             icon: "lightbulb",
+            target: "status-bar",
             cta: "Got it",
           },
         ]}

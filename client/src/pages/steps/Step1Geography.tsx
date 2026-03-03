@@ -615,7 +615,7 @@ export default function Step1Geography() {
         {/* Right column: Map — primary visual, top right */}
         <div className="order-1 lg:order-2 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1">
           {/* Risk Layer toggle + inline legend */}
-          <div className="mb-3 flex flex-wrap items-center gap-2">
+          <div data-tour="map-layers" className="mb-3 flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">Map Layer:</span>
             {(["loans", "flood", "wildfire"] as RiskLayer[]).map((layer, idx) => {
               const labels: Record<RiskLayer, string> = { loans: "Loans", flood: "Flood Risk", wildfire: "Wildfire Risk" };
@@ -715,7 +715,7 @@ export default function Step1Geography() {
             className="border-0 shadow-none bg-transparent [&>header]:hidden"
             contentClassName="!p-0"
           >
-            <div className="h-[564px] min-h-[464px] overflow-hidden bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_4px_24px_rgba(56,189,248,0.10)] p-0 m-0 outline-none ring-0 rounded-xl flex flex-col">
+            <div data-tour="geo-map" className="h-[564px] min-h-[464px] overflow-hidden bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_4px_24px_rgba(56,189,248,0.10)] p-0 m-0 outline-none ring-0 rounded-xl flex flex-col">
               <GeoDrilldownMap
                 className="flex-1 w-full p-0 m-0 border-0 outline-none shadow-none"
                 loans={mapLoans}
@@ -1094,16 +1094,19 @@ export default function Step1Geography() {
             title: "Step 1 — Geographic Heatmap",
             body: "Counties are shaded by loan concentration — darker means higher UPB exposure. Hover any county for a quick summary, or click it to drill into individual Census tracts.",
             icon: "map",
+            target: "geo-map",
           },
           {
             title: "Risk Overlays",
-            body: "Switch between UPB Concentration, FEMA Flood Risk, and Wildfire Risk using the Map Layer pills in the legend bar. High-risk counties pulse to draw your attention.",
+            body: "Switch between UPB Concentration, FEMA Flood Risk, and Wildfire Risk using these pills. High-risk counties pulse to draw your attention.",
             icon: "chart",
+            target: "map-layers",
           },
           {
             title: "Import & Export",
             body: "The upload button (↑) in the legend imports a CSV or Excel tape — all nine steps update instantly. Use the download button (↓) to export the current view as CSV.",
             icon: "upload",
+            target: "map-layers",
             cta: "Got it",
           },
         ]}

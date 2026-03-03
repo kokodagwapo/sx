@@ -92,6 +92,7 @@ export function Sidebar({
         <div className="px-3">
           {!collapsed && (
             <button
+              data-tour="sidebar-main-menu"
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
               className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sky-700/60"
@@ -141,6 +142,7 @@ export function Sidebar({
         <div className="mt-4 px-3">
           {!collapsed && (
             <button
+              data-tour="sidebar-admin"
               type="button"
               onClick={() => setAdminOpen(!adminOpen)}
               className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sky-700/60"
