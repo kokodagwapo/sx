@@ -1007,6 +1007,13 @@ function HeroSection() {
   const [compareOpen, setCompareOpen] = useState(false);
   const { pools, createPool } = usePools();
   const recognitionRef = useRef<any>(null);
+  const resultsScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (results.length > 0 && resultsScrollRef.current) {
+      resultsScrollRef.current.scrollTop = resultsScrollRef.current.scrollHeight;
+    }
+  }, [results]);
 
   const handleSearch = useCallback(async (q: string, mode = cohiMode) => {
     if (!q.trim()) return;
@@ -1102,7 +1109,7 @@ function HeroSection() {
   return (
     <section className="flex flex-col flex-1 relative pt-20 overflow-hidden">
       {/* Scrollable results area — grows upward, scrolls when full */}
-      <div className="flex-1 overflow-y-auto flex flex-col justify-end items-center px-4 min-h-0">
+      <div ref={resultsScrollRef} className="flex-1 overflow-y-auto flex flex-col justify-end items-center px-4 min-h-0">
         <ResultsPanel
           results={results} viewMode={viewMode} onViewModeChange={setViewMode}
           cohiResponse={cohiResponse} isLoading={isLoading}
@@ -1168,7 +1175,7 @@ export default function Landing() {
   return (
     <ThemeCtx.Provider value={{ isDark, toggle }}>
       <div className={cn(
-        "relative min-h-screen flex flex-col overflow-hidden transition-colors duration-300",
+        "relative h-screen flex flex-col overflow-hidden transition-colors duration-300",
         isDark
           ? "bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950"
           : "bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50",
