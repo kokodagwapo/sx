@@ -1100,24 +1100,26 @@ function HeroSection() {
   const pinnedInstitutions = ALL_INSTITUTIONS.filter((i) => pinned.has(i.id));
 
   return (
-    <section className="flex flex-col items-center flex-1 relative px-4 pt-24 pb-16 overflow-y-auto">
-      <SearchBar
-        query={query} onQueryChange={setQuery} onSubmit={handleSubmit}
-        cohiMode={cohiMode} onCohiToggle={() => setCohiMode((v) => !v)}
-        isListening={isListening} onMicToggle={handleMicToggle} isLoading={isLoading}
-      />
-
-      <p className={cn("mt-2 mb-3 text-xs", isDark ? "text-white/40" : "text-slate-400")}>
-        Search {ALL_INSTITUTIONS.length} institutions · Filter by category · Ask Cohi a question
-      </p>
-
-      <QuickActions active={activeAction} onSelect={handleQuickAction} pinnedCount={pinnedIds.length} />
+    <section className="flex flex-col items-center flex-1 relative px-4 pt-20 pb-16 overflow-y-auto">
+      <div className="flex-1" />
 
       <ResultsPanel
         results={results} viewMode={viewMode} onViewModeChange={setViewMode}
         cohiResponse={cohiResponse} isLoading={isLoading}
         pinned={pinned} onPin={handlePin} onView={handleView}
       />
+
+      <QuickActions active={activeAction} onSelect={handleQuickAction} pinnedCount={pinnedIds.length} />
+
+      <SearchBar
+        query={query} onQueryChange={setQuery} onSubmit={handleSubmit}
+        cohiMode={cohiMode} onCohiToggle={() => setCohiMode((v) => !v)}
+        isListening={isListening} onMicToggle={handleMicToggle} isLoading={isLoading}
+      />
+
+      <p className={cn("mt-3 text-xs", isDark ? "text-white/40" : "text-slate-400")}>
+        Search {ALL_INSTITUTIONS.length} institutions · Filter by category · Ask Cohi a question
+      </p>
 
       {pinnedIds.length >= 2 && (
         <CompareBar
