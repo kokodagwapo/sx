@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { DataTable, sortableColumn } from "@/components/tables/DataTable";
 import { step4PricingRows, type PricingRow } from "@/data/mock/step4";
 import { ExportButton } from "@/components/importExport/ExportButton";

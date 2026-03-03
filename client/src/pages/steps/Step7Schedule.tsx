@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import {
   List,
   Hash,

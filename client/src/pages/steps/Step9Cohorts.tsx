@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { BarChart2, Layers, DollarSign, Percent, CreditCard, TrendingUp, Hash, Banknote, Scale } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { DataTable, sortableColumn } from "@/components/tables/DataTable";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
 import { ScatterPlot } from "@/components/charts/ScatterPlot";

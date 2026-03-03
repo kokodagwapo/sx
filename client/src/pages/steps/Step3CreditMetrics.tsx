@@ -1,6 +1,7 @@
 import { Percent, CreditCard, FileText, Package, Home, Wallet } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
 import { DonutChart } from "@/components/charts/DonutChart";
 import {
@@ -34,7 +35,7 @@ export default function Step3CreditMetrics() {
   return (
     <SprinkleShell stepId="3" kpis={STEP3_KPIS} animateKpis>
       {/* Row 1: LTV, FICO, DTI — horizontal bar charts */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div data-tour="step3-credit-row" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <PanelCard
           className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-1"
           icon={Percent}
@@ -68,7 +69,7 @@ export default function Step3CreditMetrics() {
       </div>
 
       {/* Row 2: Product, Occupancy, Purpose — donut charts */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div data-tour="step3-composition-row" className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <PanelCard
           className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-4"
           icon={Package}
@@ -99,7 +100,7 @@ export default function Step3CreditMetrics() {
       </div>
 
       {/* Footer: disclaimers + summary metrics */}
-      <footer className="mt-8 flex flex-col gap-6 border-t border-slate-200/70 pt-6">
+      <footer data-tour="step3-footer" className="mt-8 flex flex-col gap-6 border-t border-slate-200/70 pt-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {FOOTER_METRICS.map((m) => (
             <div
@@ -120,6 +121,32 @@ export default function Step3CreditMetrics() {
           <p>Teraverde Financial LLC. 2026. All rights reserved.</p>
         </div>
       </footer>
+      <TourBubble
+        stepKey="step3"
+        delay={1200}
+        steps={[
+          {
+            title: "Step 3 — Risk Distribution Charts",
+            body: "These three horizontal bar charts show how loans are distributed across LTV buckets, FICO score bands, and DTI ranges. Colour intensity reflects concentration — darker bars signal heavier exposure in that band.",
+            icon: "chart",
+            target: "step3-credit-row",
+          },
+          {
+            title: "Loan Composition Donuts",
+            body: "Product type, occupancy status, and loan purpose are shown as donut charts. Click any segment to see the exact count and percentage for that slice.",
+            icon: "list",
+            target: "step3-composition-row",
+          },
+          {
+            title: "Portfolio Summary Metrics",
+            body: "The bottom row shows weighted average LTV, FICO, DTI, and average loan size — useful sanity-check figures for the full portfolio before moving to pricing in Step 4.",
+            icon: "lightbulb",
+            target: "step3-footer",
+            cta: "Got it",
+          },
+        ]}
+        position="bottom-right"
+      />
     </SprinkleShell>
   );
 }

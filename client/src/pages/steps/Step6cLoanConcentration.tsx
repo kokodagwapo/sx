@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
 import { DataTable, sortableColumn } from "@/components/tables/DataTable";
 import {

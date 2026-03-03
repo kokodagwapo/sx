@@ -1,6 +1,7 @@
 import { Scale, BarChart3, Calculator, Banknote, LayoutList, Percent, TrendingUp, Clock } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { VerticalBarChart } from "@/components/charts/VerticalBarChart";
 import { step5ByProduct, step5ByRate } from "@/data/mock/step5";
 import type { KpiItem } from "@/components/step/KpiStrip";

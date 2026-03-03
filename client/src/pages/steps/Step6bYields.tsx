@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { AreaTrendChart } from "@/components/charts/AreaTrendChart";
 import {
   step6bYieldTrend,

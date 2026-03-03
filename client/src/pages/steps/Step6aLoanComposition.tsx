@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FileText, BarChart2, TrendingUp, Sparkles } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { TourBubble } from "@/components/onboarding/TourBubble";
 import { ComparisonHorizontalBarChart } from "@/components/charts/ComparisonHorizontalBarChart";
 import { step6aComposition, step6aDrilldown } from "@/data/mock/step6a";
 import { Banknote, LayoutList, Percent, TrendingUp as TrendIcon, Clock, Scale } from "lucide-react";
