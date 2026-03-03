@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { SlidersHorizontal, ChevronDown, ChevronRight, X, TrendingUp, TrendingDown, Minus, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -291,12 +291,14 @@ function StateFilterSection({
   options,
   selected,
   onFilterChange,
+  defaultOpen = false,
 }: {
   options: string[];
   selected: string[];
   onFilterChange: (value: string, checked: boolean) => void;
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [search, setSearch] = useState("");
   const filtered = useMemo(() => {
     if (!search.trim()) return options;
@@ -459,6 +461,12 @@ function FilterBody({
   }).length ?? 0;
   const activeCount = activeChipCount + activeSliderCount;
 
+  const [autoExpanded, setAutoExpanded] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setAutoExpanded(true), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.07)]">
       <div className="flex items-center justify-between gap-2 border-b border-white/40 px-3 py-2.5">
@@ -488,14 +496,14 @@ function FilterBody({
           <p className="text-[11px] text-slate-500">Click charts or filters to narrow results</p>
         </div>
       )}
-      <div>
+      <div key={autoExpanded ? "expanded" : "collapsed"}>
         {/* Range sliders first — most banker-friendly */}
         {sliders && sliders.length > 0 && sliderState && onSliderChange && (
           <SliderSection
             sliders={sliders}
             sliderState={sliderState}
             onSliderChange={onSliderChange}
-            defaultOpen
+            defaultOpen={autoExpanded}
           />
         )}
         {productGroups.length > 0 && (
@@ -504,7 +512,7 @@ function FilterBody({
             groups={productGroups}
             selected={selected}
             onFilterChange={onFilterChange ?? (() => {})}
-            defaultOpen
+            defaultOpen={autoExpanded}
           />
         )}
         {stateGroup && (
@@ -512,6 +520,7 @@ function FilterBody({
             options={stateGroup.options}
             selected={selected["State"] ?? []}
             onFilterChange={(value, checked) => onFilterChange?.("State", value, checked)}
+            defaultOpen={autoExpanded}
           />
         )}
         {creditGroups.length > 0 && (
@@ -520,7 +529,7 @@ function FilterBody({
             groups={creditGroups}
             selected={selected}
             onFilterChange={onFilterChange ?? (() => {})}
-            defaultOpen={false}
+            defaultOpen={autoExpanded}
           />
         )}
       </div>
