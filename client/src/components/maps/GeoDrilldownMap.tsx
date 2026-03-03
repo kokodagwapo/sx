@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { LoanGeoRecord } from "@/data/mock/step1";
 import { step1TractCentroids } from "@/data/mock/step1";
 import { STATE_CENTERS } from "@/data/mock/step1GeoData";
+import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS } from "@/data/mock/femaRisk";
 
 const STATES_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 const COUNTIES_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
@@ -17,6 +18,7 @@ type GeoDrilldownMapProps = {
   loans: LoanGeoRecord[];
   onSelectionChange?: (level: "state" | "county" | "tract", name: string, loans: LoanGeoRecord[]) => void;
   className?: string;
+  riskLayer?: "flood" | "wildfire";
 };
 
 /** State FIPS → state name for labels */
@@ -37,13 +39,13 @@ const STATE_NAMES: Record<string, string> = {
 const DEFAULT_CENTER: [number, number] = [-98, 38];
 const DEFAULT_ZOOM = 1;
 
-export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDrilldownMapProps) {
+export function GeoDrilldownMap({ loans, onSelectionChange, className, riskLayer }: GeoDrilldownMapProps) {
   const [level, setLevel] = useState<DrillLevel>("us-county");
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
-  const [hoveredCounty, setHoveredCounty] = useState<{ fips: string; name: string; count: number; upb: number } | null>(null);
+  const [hoveredCounty, setHoveredCounty] = useState<{ fips: string; name: string; count: number; upb: number; stateName?: string } | null>(null);
 
   const allCountyData = useMemo(() => {
     const byCounty = new Map<string, { count: number; upb: number; stateFips: string; countyName: string; stateName: string }>();
@@ -170,17 +172,41 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
         )}
 
         {/* Tooltip for county hover */}
-        {hoveredCounty && level === "us-county" && (
-          <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-white/40 px-3 py-2 shadow-sm backdrop-blur-md animate-fade-in-up">
-            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{hoveredCounty.name}</div>
-            <div className="mt-1 text-sm font-semibold text-slate-800">{hoveredCounty.count.toLocaleString()} loans</div>
-            <div className="text-xs text-slate-600">UPB: {Intl.NumberFormat("en-US").format(hoveredCounty.upb)}</div>
-            <div className="mt-1 text-[10px] text-sky-600 font-medium">Click to drill down</div>
-          </div>
-        )}
+        {hoveredCounty && level === "us-county" && (() => {
+          const stateAbbr = FIPS_TO_ABBR[hoveredCounty.fips.slice(0, 2)] ?? "";
+          const risk = stateAbbr ? getRiskForState(stateAbbr) : null;
+          return (
+            <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-white/90 px-3 py-2 shadow-md backdrop-blur-md animate-fade-in-up max-w-[220px] border border-white/50">
+              <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{hoveredCounty.name}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-800">{hoveredCounty.count.toLocaleString()} loans</div>
+              <div className="text-xs text-slate-600">UPB: ${(hoveredCounty.upb / 1_000_000).toFixed(1)}M</div>
+              {risk && riskLayer && (
+                <div className="mt-1.5 border-t border-slate-200/70 pt-1.5 space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-[10px]">
+                    <span className="text-slate-500">Flood:</span>
+                    <span className={cn("font-semibold", RISK_COLORS[risk.floodZone].text)}>{risk.floodZone}</span>
+                    <span className="text-slate-400">({risk.floodDisasters} FEMA events)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px]">
+                    <span className="text-slate-500">Wildfire:</span>
+                    <span className={cn("font-semibold", RISK_COLORS[risk.wildfireRisk].text)}>{risk.wildfireRisk}</span>
+                    <span className="text-slate-400">({risk.wildfireDisasters} events)</span>
+                  </div>
+                  {risk.hurricaneRisk !== "Low" && (
+                    <div className="flex items-center gap-1.5 text-[10px]">
+                      <span className="text-slate-500">Hurricane:</span>
+                      <span className={cn("font-semibold", RISK_COLORS[risk.hurricaneRisk].text)}>{risk.hurricaneRisk}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              {hoveredCounty.count > 0 && <div className="mt-1 text-[10px] text-sky-600 font-medium">Click to drill down</div>}
+            </div>
+          );
+        })()}
 
         {/* Legend — bottom left when on us-county */}
-        {level === "us-county" && !hoveredCounty && (
+        {level === "us-county" && !hoveredCounty && !riskLayer && (
           <div className="absolute bottom-3 left-3 z-10 rounded-lg px-3 py-2">
             <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Available Loans</div>
             <div className="mt-1 flex items-center gap-1">
@@ -190,12 +216,29 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
             </div>
           </div>
         )}
+        {level === "us-county" && !hoveredCounty && riskLayer && (
+          <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-white/80 backdrop-blur-sm px-3 py-2 shadow-sm border border-white/50">
+            <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500 mb-1.5">
+              {riskLayer === "flood" ? "Flood Risk" : "Wildfire Risk"}
+            </div>
+            {(["High", "Moderate", "Low"] as const).map((lvl) => {
+              const colors = riskLayer === "flood" ? RISK_COLORS : WILDFIRE_COLORS;
+              return (
+                <div key={lvl} className="flex items-center gap-1.5 mb-0.5">
+                  <div className="h-2.5 w-2.5 rounded-sm flex-shrink-0" style={{ background: colors[lvl].fill }} />
+                  <span className="text-[10px] text-slate-600">{lvl}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {level === "us-county" && (
           <div className="h-full w-full transition-opacity duration-300">
             <USCountyMap
               allCountyData={allCountyData}
               maxVal={maxAllCounty}
+              riskLayer={riskLayer}
               center={mapCenter}
               zoom={mapZoom}
               onMoveEnd={handleMapMoveEnd}
@@ -242,9 +285,31 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className }: GeoDril
   );
 }
 
+/** FIPS state code → 2-letter abbreviation */
+const FIPS_TO_ABBR: Record<string, string> = {
+  "01": "AL", "02": "AK", "04": "AZ", "05": "AR", "06": "CA",
+  "08": "CO", "09": "CT", "10": "DE", "11": "DC", "12": "FL",
+  "13": "GA", "15": "HI", "16": "ID", "17": "IL", "18": "IN",
+  "19": "IA", "20": "KS", "21": "KY", "22": "LA", "23": "ME",
+  "24": "MD", "25": "MA", "26": "MI", "27": "MN", "28": "MS",
+  "29": "MO", "30": "MT", "31": "NE", "32": "NV", "33": "NH",
+  "34": "NJ", "35": "NM", "36": "NY", "37": "NC", "38": "ND",
+  "39": "OH", "40": "OK", "41": "OR", "42": "PA", "44": "RI",
+  "45": "SC", "46": "SD", "47": "TN", "48": "TX", "49": "UT",
+  "50": "VT", "51": "VA", "53": "WA", "54": "WV", "55": "WI", "56": "WY",
+};
+
+function riskFillForFips(stateFips: string, layer: "flood" | "wildfire"): string {
+  const abbr = FIPS_TO_ABBR[stateFips] ?? "";
+  const risk = getRiskForState(abbr);
+  const level = layer === "flood" ? risk.floodZone : risk.wildfireRisk;
+  return layer === "flood" ? RISK_COLORS[level].fill : WILDFIRE_COLORS[level].fill;
+}
+
 function USCountyMap({
   allCountyData,
   maxVal,
+  riskLayer,
   center,
   zoom,
   onMoveEnd,
@@ -253,6 +318,7 @@ function USCountyMap({
 }: {
   allCountyData: Map<string, { count: number; upb: number; stateFips: string; countyName: string; stateName: string }>;
   maxVal: number;
+  riskLayer?: "flood" | "wildfire";
   center: [number, number];
   zoom: number;
   onMoveEnd: (args: { coordinates: [number, number]; zoom: number }) => void;
@@ -268,38 +334,42 @@ function USCountyMap({
               const fips = geo.id;
               const d = allCountyData.get(fips);
               const v = d?.count ?? 0;
-              const fill = choroplethColorFor(v / maxVal);
-              const hasData = v > 0;
+              const stateFips = fips.slice(0, 2);
+              const fill = riskLayer
+                ? riskFillForFips(stateFips, riskLayer)
+                : choroplethColorFor(v / maxVal);
+              const hasData = riskLayer ? true : v > 0;
               const animDelay = `${(parseInt(fips, 10) % 17) * 0.6}s`;
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={hasData ? fill : undefined}
-                  stroke="none"
-                  strokeWidth={0}
+                  fill={fill}
+                  stroke="rgba(255,255,255,0.15)"
+                  strokeWidth={riskLayer ? 0.3 : 0}
                   style={{
                     default: {
                       outline: "none",
                       border: "none",
                       boxShadow: "none",
-                      cursor: hasData ? "pointer" : "default",
-                      ...(hasData
-                        ? { transition: "fill 0.2s ease" }
-                        : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "white" }),
+                      cursor: v > 0 ? "pointer" : "default",
+                      transition: "fill 0.3s ease",
+                      ...(!riskLayer && !hasData
+                        ? { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "white" }
+                        : {}),
                     },
                     hover: {
                       outline: "none",
                       border: "none",
                       boxShadow: "none",
-                      fill: hasData ? "#facc15" : "#e9d5ff",
-                      cursor: hasData ? "pointer" : "default",
+                      fill: v > 0 ? "#facc15" : (riskLayer ? fill : "#e9d5ff"),
+                      cursor: v > 0 ? "pointer" : "default",
                     },
                     pressed: { outline: "none", border: "none", boxShadow: "none" },
                   }}
-                  onClick={() => hasData && onCountyClick(fips)}
+                  onClick={() => v > 0 && onCountyClick(fips)}
                   onMouseEnter={() =>
-                    hasData && d && onCountyHover({ fips, name: `${d.countyName}, ${d.stateName}`, count: d.count, upb: d.upb })
+                    d && onCountyHover({ fips, name: `${d.countyName}, ${d.stateName}`, count: d.count, upb: d.upb })
                   }
                   onMouseLeave={() => onCountyHover(null)}
                 />

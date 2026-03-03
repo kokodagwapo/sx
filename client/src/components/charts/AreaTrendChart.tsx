@@ -94,8 +94,8 @@ export function AreaTrendChart({
               boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
             }}
             itemStyle={{ color: "#e2e8f0" }}
-            formatter={(value: number | undefined) => [
-              value != null ? value.toFixed(2) + "%" : "",
+            formatter={(value) => [
+              value != null ? (value as number).toFixed(2) + "%" : "",
               "Yield",
             ]}
           />

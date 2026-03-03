@@ -63,7 +63,7 @@ export function parseExcel(file: File): Promise<ParseResult> {
           const rowNum = r + 1;
 
           const getVal = (field: keyof LoanRecord): unknown => {
-            for (const [col, f] of colToField) {
+            for (const [col, f] of Array.from(colToField.entries())) {
               if (f === field) return cells[col];
             }
             return undefined;

@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
-import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp } from "lucide-react";
+import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag } from "lucide-react";
 import { ExportButton } from "@/components/importExport/ExportButton";
 import { exportLoansToCSV } from "@/data/csv/csvExporter";
 import { exportLoansToExcel } from "@/data/excel/excelExporter";
 import { step2LoanToLoanRecord } from "@/data/converters";
 import type { LoanRecord } from "@/data/types/loanRecord";
+import type { LoanStatus } from "@/data/types/loanRecord";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { VerticalBarChart } from "@/components/charts/VerticalBarChart";
@@ -15,6 +16,14 @@ import type { VerticalBarDatum } from "@/components/charts/VerticalBarChart";
 import type { DonutDatum } from "@/components/charts/DonutChart";
 import { step2Loans, type Step2Loan } from "@/data/mock/step2Loans";
 import { DONUT_REFERENCE_COLORS } from "@/styles/chartPalette";
+import { cn } from "@/lib/utils";
+
+const STATUS_CONFIG: Record<LoanStatus, { label: string; badge: string; icon: typeof CheckCircle2; dot: string }> = {
+  Available:  { label: "Available",  badge: "bg-emerald-100/80 text-emerald-700 border-emerald-200", icon: CheckCircle2, dot: "bg-emerald-500" },
+  Allocated:  { label: "Allocated",  badge: "bg-amber-100/80  text-amber-700  border-amber-200",    icon: Tag,          dot: "bg-amber-500"   },
+  Committed:  { label: "Committed",  badge: "bg-sky-100/80    text-sky-700    border-sky-200",       icon: Lock,         dot: "bg-sky-500"     },
+  Sold:       { label: "Sold",       badge: "bg-slate-100/80  text-slate-600  border-slate-200",     icon: AlertCircle,  dot: "bg-slate-400"   },
+};
 
 const FILTER_GROUPS = [
   { section: "Product", title: "Product Type", options: ["30 FRM", "15 FRM", "7/1 ARM", "5/1 ARM"] },
@@ -23,6 +32,7 @@ const FILTER_GROUPS = [
   { section: "Product", title: "Purpose", options: ["Purchase", "Refinance"] },
   { section: "Product", title: "Property Type", options: ["Single-family", "Condo", "Townhouse"] },
   { section: "Product", title: "Loan Type", options: ["Conventional", "Government", "Jumbo"] },
+  { section: "Product", title: "Status", options: ["Available", "Allocated", "Committed", "Sold"] },
   { section: "Credit", title: "LTV", options: ["<60", "60–70", "70–80", "80–90", ">90"] },
   { section: "Credit", title: "FICO", options: ["<680", "680–720", "720–760", ">760"] },
   { section: "Credit", title: "DTI", options: ["<36", "36–43", ">43"] },
@@ -39,12 +49,13 @@ function filterLoansByField(loans: Step2Loan[], state: FilterState): Step2Loan[]
     Purpose: "purpose",
     "Property Type": "propertyType",
     "Loan Type": "loanType",
+    Status: "status",
   };
   return loans.filter((loan) => {
     for (const [group, selected] of Object.entries(state)) {
       if (!selected?.length) continue;
       const key = fieldMap[group];
-      if (!key) continue; // skip Credit filters (no data yet)
+      if (!key) continue;
       const value = loan[key];
       if (typeof value !== "string" || !selected.includes(value)) return false;
     }
@@ -77,12 +88,46 @@ const BREAKDOWN_COLORS = [
   "#f472b6", "#34d399", "#facc15", "#60a5fa",
 ];
 
+function StatusBadge({ status }: { status: LoanStatus }) {
+  const cfg = STATUS_CONFIG[status];
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold", cfg.badge)}>
+      <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
+      {cfg.label}
+    </span>
+  );
+}
+
+function StatusSummaryBar({ loans }: { loans: Step2Loan[] }) {
+  const total = loans.length;
+  const byStatus = useMemo(() => {
+    const counts = { Available: 0, Allocated: 0, Committed: 0, Sold: 0 };
+    for (const l of loans) counts[l.status] = (counts[l.status] ?? 0) + 1;
+    return counts;
+  }, [loans]);
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      {(["Available", "Allocated", "Committed", "Sold"] as LoanStatus[]).map((s) => {
+        const cfg = STATUS_CONFIG[s];
+        const count = byStatus[s] ?? 0;
+        const pct = total > 0 ? (count / total) * 100 : 0;
+        const Icon = cfg.icon;
+        return (
+          <div key={s} className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-sm", cfg.badge)}>
+            <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            <span className="font-semibold">{count.toLocaleString()}</span>
+            <span className="font-medium opacity-80">{s}</span>
+            <span className="text-xs opacity-60">({pct.toFixed(0)}%)</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function BreakdownColumn({
-  title,
-  data,
-  total,
-  filterGroup,
-  onDrilldown,
+  title, data, total, filterGroup, onDrilldown,
 }: {
   title: string;
   data: DonutDatum[];
@@ -124,13 +169,7 @@ function BreakdownColumn({
 }
 
 function BreakdownDetails({
-  filteredLoans,
-  productDonut,
-  purposeDonut,
-  loanTypeDonut,
-  interestRateBars,
-  stateBars,
-  onDrilldown,
+  filteredLoans, productDonut, purposeDonut, loanTypeDonut, interestRateBars, stateBars, onDrilldown,
 }: {
   filteredLoans: Step2Loan[];
   productDonut: DonutDatum[];
@@ -141,16 +180,8 @@ function BreakdownDetails({
   onDrilldown: (group: string, value: string) => void;
 }) {
   const total = filteredLoans.length;
-  const rateDonuts: DonutDatum[] = interestRateBars.map((b, i) => ({
-    name: b.name,
-    value: b.value,
-    color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length],
-  }));
-  const stateDonuts: DonutDatum[] = stateBars.slice(0, 8).map((b, i) => ({
-    name: b.name,
-    value: b.value,
-    color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length],
-  }));
+  const rateDonuts: DonutDatum[] = interestRateBars.map((b, i) => ({ name: b.name, value: b.value, color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length] }));
+  const stateDonuts: DonutDatum[] = stateBars.slice(0, 8).map((b, i) => ({ name: b.name, value: b.value, color: BREAKDOWN_COLORS[i % BREAKDOWN_COLORS.length] }));
 
   return (
     <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
@@ -230,13 +261,14 @@ export default function Step2SearchLoans() {
     const wad = totalLoans > 0
       ? filteredLoans.reduce((s, l) => s + l.duration * l.upb, 0) / filteredLoans.reduce((s, l) => s + l.upb, 0)
       : 0;
+    const available = filteredLoans.filter(l => l.status === "Available").length;
     return [
-      { label: "Total Unpaid Principal Balance (UPB)", value: totalUpb.toLocaleString("en-US", { maximumFractionDigits: 0 }), icon: Banknote },
-      { label: "Total Loans Meeting Criteria", value: totalLoans.toLocaleString(), icon: LayoutList },
-      { label: "Weighted Average Coupon", value: wac.toFixed(2), icon: Percent },
-      { label: "Bond Equivalent Yield*", value: (wac * 0.9).toFixed(2), icon: TrendingUp },
-      { label: "Weighted Average Duration*", value: wad.toFixed(2), icon: Clock },
-      { label: "Weighted Price Indication**", value: (100 + wac * 0.75).toFixed(2), icon: Scale },
+      { label: "Total UPB", value: "$" + (totalUpb / 1_000_000).toFixed(1) + "M", icon: Banknote },
+      { label: "Total Loans", value: totalLoans.toLocaleString(), icon: LayoutList },
+      { label: "Available", value: available.toLocaleString(), icon: CheckCircle2 },
+      { label: "Wtd Avg Coupon", value: wac.toFixed(2) + "%", icon: Percent },
+      { label: "Bond Equiv Yield*", value: (wac * 0.9).toFixed(2) + "%", icon: TrendingUp },
+      { label: "Wtd Avg Duration*", value: wad.toFixed(2) + " yrs", icon: Clock },
     ];
   }, [filteredLoans]);
 
@@ -249,7 +281,10 @@ export default function Step2SearchLoans() {
       onFilterChange={handleFilterChange}
       onClearFilters={() => setFilterState({})}
     >
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <StatusSummaryBar loans={filteredLoans} />
+        </div>
         <ExportButton
           data={filteredLoans.map(step2LoanToLoanRecord)}
           filename="loans_search"
@@ -257,6 +292,7 @@ export default function Step2SearchLoans() {
           exportExcel={(data: LoanRecord[]) => exportLoansToExcel(data)}
         />
       </div>
+
       <div className="grid grid-cols-12 gap-4">
         <PanelCard className="col-span-12 lg:col-span-6" icon={Percent} title="Available Loans by Interest Rate">
           <div className="h-[250px]">
@@ -281,26 +317,17 @@ export default function Step2SearchLoans() {
 
         <PanelCard className="col-span-12 lg:col-span-4" icon={PieChart} title="Available Loans by Product Type">
           <div className="h-[260px]">
-            <DonutChart
-              data={productDonut}
-              onSegmentClick={(name) => drilldown("Product Type", name)}
-            />
+            <DonutChart data={productDonut} onSegmentClick={(name) => drilldown("Product Type", name)} />
           </div>
         </PanelCard>
         <PanelCard className="col-span-12 lg:col-span-4" icon={Target} title="Available Loans by Purpose">
           <div className="h-[260px]">
-            <DonutChart
-              data={purposeDonut}
-              onSegmentClick={(name) => drilldown("Purpose", name)}
-            />
+            <DonutChart data={purposeDonut} onSegmentClick={(name) => drilldown("Purpose", name)} />
           </div>
         </PanelCard>
         <PanelCard className="col-span-12 lg:col-span-4" icon={FileText} title="Available Loans by Loan Type">
           <div className="h-[260px]">
-            <DonutChart
-              data={loanTypeDonut}
-              onSegmentClick={(name) => drilldown("Loan Type", name)}
-            />
+            <DonutChart data={loanTypeDonut} onSegmentClick={(name) => drilldown("Loan Type", name)} />
           </div>
         </PanelCard>
 
@@ -314,6 +341,41 @@ export default function Step2SearchLoans() {
             stateBars={stateBars}
             onDrilldown={drilldown}
           />
+        </PanelCard>
+
+        {/* Status breakdown card */}
+        <PanelCard className="col-span-12" icon={Scale} title="Loan Status Breakdown" subtitle="Transaction lifecycle tracking">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {(["Available", "Allocated", "Committed", "Sold"] as LoanStatus[]).map((s) => {
+              const cfg = STATUS_CONFIG[s];
+              const count = filteredLoans.filter(l => l.status === s).length;
+              const upb = filteredLoans.filter(l => l.status === s).reduce((sum, l) => sum + l.upb, 0);
+              const pct = filteredLoans.length > 0 ? (count / filteredLoans.length) * 100 : 0;
+              const Icon = cfg.icon;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => drilldown("Status", s)}
+                  className={cn(
+                    "rounded-xl border p-3 text-left transition-all duration-150 hover:scale-[1.02]",
+                    cfg.badge,
+                    (filterState["Status"] ?? []).includes(s) ? "ring-2 ring-offset-1 ring-current" : ""
+                  )}
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Icon className="h-4 w-4" strokeWidth={2} />
+                    <span className="font-semibold text-sm">{s}</span>
+                  </div>
+                  <div className="text-xl font-bold tabular-nums">{count.toLocaleString()}</div>
+                  <div className="text-[11px] opacity-70 mt-0.5">${(upb / 1_000_000).toFixed(1)}M UPB · {pct.toFixed(0)}%</div>
+                  <div className="mt-2 h-1 rounded-full bg-current/20">
+                    <div className="h-full rounded-full bg-current transition-all duration-500" style={{ width: `${pct}%` }} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </PanelCard>
       </div>
 

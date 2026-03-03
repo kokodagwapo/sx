@@ -18,7 +18,13 @@ import {
   X,
   FileText,
   LayoutList,
+  CheckCircle2,
+  Tag,
+  Lock,
+  AlertCircle,
 } from "lucide-react";
+import type { LoanStatus } from "@/data/types/loanRecord";
+import { cn } from "@/lib/utils";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { DataTable, sortableColumn } from "@/components/tables/DataTable";
@@ -149,11 +155,34 @@ function DrilldownPanel({
   );
 }
 
+const STATUS_CONFIG: Record<LoanStatus, { badge: string; icon: typeof CheckCircle2; dot: string }> = {
+  Available:  { badge: "bg-emerald-100/80 text-emerald-700 border-emerald-200", icon: CheckCircle2, dot: "bg-emerald-500" },
+  Allocated:  { badge: "bg-amber-100/80  text-amber-700  border-amber-200",    icon: Tag,          dot: "bg-amber-500"   },
+  Committed:  { badge: "bg-sky-100/80    text-sky-700    border-sky-200",       icon: Lock,         dot: "bg-sky-500"     },
+  Sold:       { badge: "bg-slate-100/80  text-slate-600  border-slate-200",     icon: AlertCircle,  dot: "bg-slate-400"   },
+};
+
+function StatusBadge({ status }: { status?: LoanStatus }) {
+  if (!status) return <span className="text-slate-400 text-xs">—</span>;
+  const cfg = STATUS_CONFIG[status];
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold", cfg.badge)}>
+      <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
+      {status}
+    </span>
+  );
+}
+
 const columns = [
   sortableColumn<ScheduleRow>("tvm", "TVMA Inventory #", {
     icon: Hash,
     sortingFn: "string",
     cell: ({ getValue }) => (getValue() as string) ?? "—",
+  }),
+  sortableColumn<ScheduleRow>("status", "Status", {
+    icon: CheckCircle2,
+    sortingFn: "string",
+    cell: ({ getValue }) => <StatusBadge status={getValue() as LoanStatus | undefined} />,
   }),
   sortableColumn<ScheduleRow>("source", "Source", {
     icon: FileText,

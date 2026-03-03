@@ -1,4 +1,5 @@
 /** Granular loan records for Step 2 filtering and drilldown */
+import type { LoanStatus } from "@/data/types/loanRecord";
 
 export type Step2Loan = {
   id: string;
@@ -12,11 +13,16 @@ export type Step2Loan = {
   upb: number;
   coupon: number;
   duration: number;
+  status: LoanStatus;
+  buyerId?: string;
+  units: number;
 };
 
 const interestRates = ["2–2.5", "2.5–3", "3–3.5", "3.5–4", "4–4.5", "4.5–5", "5–5.5", "5.5–6"];
 const occupancies = ["Owner", "Investment", "Second home"];
 const propertyTypes = ["Single-family", "Condo", "Townhouse"];
+const STATUSES: LoanStatus[] = ["Available", "Allocated", "Committed", "Sold"];
+const BUYER_IDS = ["BNK-001", "BNK-002", "BNK-003", "CU-001", "INS-001"];
 
 const irCounts: Record<string, number> = {
   "2–2.5": 2, "2.5–3": 26, "3–3.5": 428, "3.5–4": 1609,
@@ -76,6 +82,20 @@ export function generateStep2Loans(): Step2Loan[] {
       const coupon = irNum + rng() * 0.8;
       const duration = 5 + rng() * 18;
 
+      const statusRoll = rng();
+      const status: LoanStatus =
+        statusRoll < 0.55 ? "Available" :
+        statusRoll < 0.75 ? "Allocated" :
+        statusRoll < 0.88 ? "Committed" : "Sold";
+
+      const buyerId =
+        status === "Allocated" || status === "Committed" || status === "Sold"
+          ? pick(BUYER_IDS, rng)
+          : undefined;
+
+      const unitsRoll = rng();
+      const units = unitsRoll < 0.80 ? 1 : unitsRoll < 0.92 ? 2 : unitsRoll < 0.97 ? 3 : 4;
+
       loans.push({
         id: `loan-${++id}`,
         product: prod,
@@ -88,6 +108,9 @@ export function generateStep2Loans(): Step2Loan[] {
         upb: Math.round(baseUpb),
         coupon: Math.round(coupon * 100) / 100,
         duration: Math.round(duration * 100) / 100,
+        status,
+        buyerId,
+        units,
       });
     }
   }

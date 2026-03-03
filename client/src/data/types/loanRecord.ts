@@ -1,8 +1,15 @@
 /** Canonical loan record for import/export and backend persistence */
 
+export type LoanStatus = "Available" | "Allocated" | "Committed" | "Sold";
+
 export type LoanRecord = {
   id: string;
   tvm: string;
+
+  // Transaction tracking (BRD §2.2.4)
+  status?: LoanStatus;
+  buyerId?: string;
+  sellerId?: string;
 
   // Geography
   stateFips?: string;
@@ -21,6 +28,7 @@ export type LoanRecord = {
   loanType?: string;
   term: number;
   units: number;
+  selfEmployed?: boolean;
 
   // Amounts & rates
   loanAmount: number;
@@ -35,6 +43,7 @@ export type LoanRecord = {
 
   // Dates
   firstPaymentDate: string;
+  originationYear?: number;
 
   // Pricing (optional)
   basePrice?: number;
@@ -100,4 +109,6 @@ export const CSV_COLUMN_MAP: Record<string, keyof LoanRecord> = {
   loanAmount: "loanAmount",
   "Loan Amount": "loanAmount",
   units: "units",
+  status: "status",
+  Status: "status",
 };

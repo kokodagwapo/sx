@@ -39,7 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const signups = await storage.getAllSignups();
       const stats = {
         total: signups.length,
-        countries: [...new Set(signups.map(s => s.country))].length,
+        countries: Array.from(new Set(signups.map(s => s.country))).length,
         recentSignups: signups.filter(s => {
           const dayAgo = new Date();
           dayAgo.setDate(dayAgo.getDate() - 1);

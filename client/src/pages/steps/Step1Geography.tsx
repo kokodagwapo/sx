@@ -15,6 +15,9 @@ import {
   Banknote,
   Hash,
   Package,
+  Flame,
+  Droplets,
+  AlertTriangle,
 } from "lucide-react";
 import { step1Kpis } from "@/data/mock/step1Kpis";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
@@ -27,8 +30,11 @@ import {
   step1StateBars,
   type LoanGeoRecord,
 } from "@/data/mock/step1";
+import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS, STATE_RISK, type RiskLevel } from "@/data/mock/femaRisk";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
+
+type RiskLayer = "loans" | "flood" | "wildfire";
 
 const STATE_ABBR = new Map([
   ["California", "CA"], ["Florida", "FL"], ["Georgia", "GA"], ["New York", "NY"], ["Pennsylvania", "PA"],
@@ -71,6 +77,7 @@ export default function Step1Geography() {
   const [chartBarSelected, setChartBarSelected] = useState<string | null>(null);
   const [drilldownExpandToLoans, setDrilldownExpandToLoans] = useState(false);
   const [pinnedLoans, setPinnedLoans] = useState<Set<string>>(new Set());
+  const [riskLayer, setRiskLayer] = useState<RiskLayer>("loans");
 
   /** Loans for map: filter by state input when set */
   const mapLoans = useMemo(() => {
@@ -220,6 +227,22 @@ export default function Step1Geography() {
       .map(([state, data]) => ({ state, ...data }))
       .sort((a, b) => b.loans - a.loans);
   }, [displayLoans]);
+
+  /** FEMA risk exposure summary — loans/UPB by risk level */
+  const riskExposure = useMemo(() => {
+    const result: Record<RiskLevel, { loans: number; upb: number }> = {
+      High: { loans: 0, upb: 0 },
+      Moderate: { loans: 0, upb: 0 },
+      Low: { loans: 0, upb: 0 },
+    };
+    for (const l of loansByState) {
+      const risk = getRiskForState(l.state);
+      const level: RiskLevel = riskLayer === "flood" ? risk.floodZone : risk.wildfireRisk;
+      result[level].loans += l.loans;
+      result[level].upb += l.upb;
+    }
+    return result;
+  }, [loansByState, riskLayer]);
 
   /** Deterministic synthetic loan attributes from tract id + index */
   const synthLoan = (tractId: string, idx: number) => {
@@ -584,10 +607,46 @@ export default function Step1Geography() {
 
         {/* Right column: Map — primary visual, top right */}
         <div className="order-1 lg:order-2 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1">
+          {/* Risk Layer toggle */}
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Risk Layer:</span>
+            {(["loans", "flood", "wildfire"] as RiskLayer[]).map((layer) => {
+              const labels: Record<RiskLayer, string> = { loans: "Loans", flood: "Flood Risk", wildfire: "Wildfire Risk" };
+              const icons: Record<RiskLayer, typeof Globe> = { loans: Globe, flood: Droplets, wildfire: Flame };
+              const active: Record<RiskLayer, string> = {
+                loans: "bg-sky-500 text-white border-sky-500 shadow-sky-200",
+                flood: "bg-blue-600 text-white border-blue-600 shadow-blue-200",
+                wildfire: "bg-orange-500 text-white border-orange-500 shadow-orange-200",
+              };
+              const Icon = icons[layer];
+              return (
+                <button
+                  key={layer}
+                  type="button"
+                  onClick={() => setRiskLayer(layer)}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all shadow-sm",
+                    riskLayer === layer
+                      ? active[layer]
+                      : "bg-white/50 text-slate-600 border-white/50 hover:bg-slate-50"
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                  {labels[layer]}
+                </button>
+              );
+            })}
+          </div>
+
           <PanelCard
             icon={Globe}
             title="Interactive Map"
-            subtitle="County choropleth • Click to drill down to state → tract"
+            subtitle={riskLayer === "loans"
+              ? "County choropleth • Click to drill down to state → tract"
+              : riskLayer === "flood"
+                ? "FEMA Flood Risk Overlay • Red=High · Amber=Moderate · Green=Low"
+                : "Wildfire Risk Overlay • Orange=High · Yellow=Moderate · Green=Low"
+            }
             className="border-0 shadow-none bg-transparent [&>header]:hidden"
             contentClassName="!p-0"
           >
@@ -595,6 +654,7 @@ export default function Step1Geography() {
               <GeoDrilldownMap
                 className="flex-1 w-full p-0 m-0 border-0 outline-none shadow-none"
                 loans={mapLoans}
+                riskLayer={riskLayer !== "loans" ? riskLayer : undefined}
                 onSelectionChange={(level, name, loans) => {
                   setSelectedLevel(level);
                   setSelectedName(name);
@@ -603,8 +663,73 @@ export default function Step1Geography() {
               />
             </div>
           </PanelCard>
+
+          {/* Risk legend */}
+          {riskLayer !== "loans" && (
+            <div className="mt-2 flex items-center gap-3 px-1">
+              <span className="text-xs font-medium text-slate-500">Legend:</span>
+              {(["High", "Moderate", "Low"] as RiskLevel[]).map((level) => {
+                const fill = riskLayer === "flood" ? RISK_COLORS[level].fill : WILDFIRE_COLORS[level].fill;
+                return (
+                  <span key={level} className="flex items-center gap-1.5 text-xs text-slate-600">
+                    <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: fill }} />
+                    {level}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Risk Exposure Summary — shown when risk layer active */}
+      {riskLayer !== "loans" && (
+        <div className="mt-4 opacity-0 animate-fade-in-up">
+          <PanelCard
+            icon={AlertTriangle}
+            title={`${riskLayer === "flood" ? "Flood" : "Wildfire"} Risk Exposure Summary`}
+            subtitle={`Portfolio UPB split by FEMA ${riskLayer === "flood" ? "flood zone" : "wildfire risk"} designation per state`}
+          >
+            <div className="grid gap-3 sm:grid-cols-3 mb-4">
+              {(["High", "Moderate", "Low"] as RiskLevel[]).map((level) => {
+                const cfg = RISK_COLORS[level];
+                const exposure = riskExposure[level];
+                const totalLns = Object.values(riskExposure).reduce((s, v) => s + v.loans, 0);
+                const totalUPB = Object.values(riskExposure).reduce((s, v) => s + v.upb, 0);
+                const pctLoans = totalLns > 0 ? (exposure.loans / totalLns * 100) : 0;
+                const pctUpb = totalUPB > 0 ? (exposure.upb / totalUPB * 100) : 0;
+                const fill = riskLayer === "flood" ? RISK_COLORS[level].fill : WILDFIRE_COLORS[level].fill;
+                return (
+                  <div key={level} className={cn("rounded-xl border p-4", cfg.badge)}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: fill }} />
+                      <span className="text-xs font-bold uppercase tracking-wider">{level} Risk</span>
+                    </div>
+                    <div className="text-2xl font-bold tabular-nums">{exposure.loans.toLocaleString()}</div>
+                    <div className="text-xs opacity-70 mt-0.5">loans · {pctLoans.toFixed(0)}% of pool</div>
+                    <div className="text-sm font-semibold mt-1">${(exposure.upb / 1_000_000).toFixed(0)}M UPB</div>
+                    <div className="text-xs opacity-60">{pctUpb.toFixed(1)}% of total UPB</div>
+                    <div className="mt-2 h-1.5 rounded-full bg-current/20">
+                      <div className="h-full rounded-full bg-current transition-all" style={{ width: `${pctUpb}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {riskExposure.High.loans > 0 && (
+              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50/60 px-3 py-2.5 text-sm text-red-700">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  <strong>{riskExposure.High.loans.toLocaleString()} loans</strong> (${(riskExposure.High.upb / 1_000_000).toFixed(0)}M UPB) are in FEMA {riskLayer === "flood" ? "high flood-risk" : "high wildfire-risk"} zones — consider insurance and concentration risk review.
+                </span>
+              </div>
+            )}
+            <div className="mt-3 text-[11px] text-slate-400">
+              Risk classifications based on FEMA NFHL, USFS National Fire Risk Index. State-level aggregation — actual exposure varies by county and property elevation.
+            </div>
+          </PanelCard>
+        </div>
+      )}
 
       {/* Loans drilldown — full width */}
       {loansDrilldownOpen && (

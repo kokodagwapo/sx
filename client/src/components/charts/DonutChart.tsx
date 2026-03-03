@@ -115,8 +115,8 @@ export function DonutChart({
                 padding: "8px 12px",
               }}
               itemStyle={{ color: "#e2e8f0" }}
-              formatter={(value: number | undefined) =>
-                value != null && isPercent ? `${value.toFixed(1)}%` : value ?? ""
+              formatter={(value) =>
+                value != null && isPercent ? `${(value as number).toFixed(1)}%` : (value as number) ?? ""
               }
             />
             <Pie

@@ -13,6 +13,8 @@ import {
   ChevronDown,
   LayoutDashboard,
   Menu,
+  Upload,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -21,17 +23,22 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 
 const STEP_ICONS: Record<string, typeof MapPin> = {
-  "1": MapPin,
-  "2": Search,
-  "3": CreditCard,
-  "4": DollarSign,
-  "5": TrendingUp,
+  "1":  MapPin,
+  "2":  Search,
+  "3":  CreditCard,
+  "4":  DollarSign,
+  "5":  TrendingUp,
   "6a": PieChart,
   "6b": BarChart2,
   "6c": Layers,
-  "7": List,
-  "8": FileBarChart,
+  "7":  List,
+  "8":  FileBarChart,
+  "9":  Layers,
 };
+
+const ADMIN_NAV = [
+  { path: "/admin/tape-import", label: "Tape Import", icon: Upload, tooltip: "Upload & map seller tape CSV files" },
+];
 
 export function Sidebar({
   collapsed,
@@ -44,6 +51,7 @@ export function Sidebar({
 }) {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(true);
+  const [adminOpen, setAdminOpen] = useState(true);
 
   return (
     <aside
@@ -86,7 +94,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sky-700/60 letter-spacing-widest"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sky-700/60"
             >
               Main Menu
               <ChevronDown className={cn("h-4 w-4 transition-transform", menuOpen && "rotate-180")} />
@@ -120,6 +128,59 @@ export function Sidebar({
                         {!collapsed && (
                           <span className="truncate">{step.headerTitle.replace(/^Step \d+\w? - /, "")}</span>
                         )}
+                      </Link>
+                    </Tooltip>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {/* Admin Section */}
+        <div className="mt-4 px-3">
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={() => setAdminOpen(!adminOpen)}
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sky-700/60"
+            >
+              <span className="flex items-center gap-2">
+                <Settings className="h-3.5 w-3.5" /> Admin
+              </span>
+              <ChevronDown className={cn("h-4 w-4 transition-transform", adminOpen && "rotate-180")} />
+            </button>
+          )}
+          {collapsed && (
+            <div className="flex justify-center py-2">
+              <Settings className="h-4 w-4 text-white/40" />
+            </div>
+          )}
+          {adminOpen && (
+            <ul className="mt-1 space-y-0.5">
+              {ADMIN_NAV.map(({ path, label, icon: Icon, tooltip }) => {
+                const isActive = location.pathname === path;
+                return (
+                  <li key={path}>
+                    <Tooltip content={tooltip} wrapperClassName="w-full [&>a]:w-full">
+                      <Link
+                        to={path}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                          collapsed
+                            ? isActive
+                              ? "text-white justify-center"
+                              : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
+                            : isActive
+                              ? "bg-white/80 text-sky-800 shadow-sm ring-1 ring-sky-200/80"
+                              : "text-sky-900/55 hover:bg-sky-100/70 hover:text-sky-800"
+                        )}
+                      >
+                        <Icon
+                          className={cn("h-4 w-4 shrink-0", isActive ? "text-yellow-400" : "")}
+                          strokeWidth={2}
+                        />
+                        {!collapsed && <span className="truncate">{label}</span>}
                       </Link>
                     </Tooltip>
                   </li>

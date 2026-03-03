@@ -34,7 +34,7 @@ export function parseCSV(csvText: string): ParseResult {
     return { success: false, rows: [], errors: [{ row: 0, message: "No data found" }] };
   }
 
-  const rawHeaders = result.data[0].map((h) => toString(h));
+  const rawHeaders = result.data[0].map((h: unknown) => toString(h));
   const colToField = new Map<number, keyof LoanRecord>();
 
   for (let i = 0; i < rawHeaders.length; i++) {
@@ -49,7 +49,7 @@ export function parseCSV(csvText: string): ParseResult {
     const rowNum = r + 1;
 
     const getVal = (field: keyof LoanRecord): unknown => {
-      for (const [col, f] of colToField) {
+      for (const [col, f] of Array.from(colToField.entries())) {
         if (f === field) return cells[col];
       }
       return undefined;

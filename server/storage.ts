@@ -40,6 +40,8 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const signup: Signup = {
       ...insertSignup,
+      monthlyRemittance: insertSignup.monthlyRemittance ?? null,
+      newsletter: insertSignup.newsletter ?? "",
       id,
       createdAt: new Date(),
     };
