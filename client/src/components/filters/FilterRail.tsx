@@ -1,7 +1,9 @@
 import { useState, useMemo, useCallback, useRef } from "react";
-import { SlidersHorizontal, ChevronDown, ChevronRight, X } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, ChevronRight, X, TrendingUp, TrendingDown, Minus, ExternalLink } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
+import { RateModal, type RatesData } from "@/components/rates/RateModal";
 
 export type FilterGroup = {
   title: string;
@@ -350,6 +352,71 @@ function StateFilterSection({
 
 // ─── FilterBody ───────────────────────────────────────────────────────────────
 
+// ─── Live rate ticker (embedded in filter rail) ───────────────────────────────
+function RateTick({ label, rate, prev }: { label: string; rate?: number; prev?: number }) {
+  if (rate == null) return null;
+  const diff = prev != null ? parseFloat((rate - prev).toFixed(3)) : 0;
+  const up = diff > 0;
+  const dn = diff < 0;
+  return (
+    <div className="flex flex-col">
+      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">{label}</span>
+      <div className="flex items-baseline gap-1">
+        <span className="text-sm font-bold tabular-nums text-slate-800">{rate.toFixed(2)}%</span>
+        <span className={cn(
+          "text-[10px] font-semibold tabular-nums flex items-center gap-0.5",
+          up ? "text-emerald-600" : dn ? "text-red-500" : "text-slate-400",
+        )}>
+          {up ? <TrendingUp className="h-2.5 w-2.5" /> : dn ? <TrendingDown className="h-2.5 w-2.5" /> : <Minus className="h-2.5 w-2.5" />}
+          {up ? "+" : ""}{diff.toFixed(2)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function MortgageRatesMini() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const { data, isLoading } = useQuery<RatesData>({
+    queryKey: ["/api/rates"],
+    staleTime: 30 * 60 * 1000,
+    retry: 1,
+  });
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setModalOpen(true)}
+        className="w-full text-left px-3 py-2.5 border-b border-white/40 bg-gradient-to-r from-sky-50/60 to-indigo-50/40 hover:from-sky-100/60 hover:to-indigo-100/40 transition-colors group"
+      >
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-sky-700">Live Market Rates</span>
+          <ExternalLink className="h-3 w-3 text-sky-400 group-hover:text-sky-600 transition-colors" />
+        </div>
+        {isLoading ? (
+          <div className="flex gap-4">
+            {["w-12", "w-10"].map((w) => (
+              <div key={w} className={`h-5 ${w} rounded bg-slate-200/70 animate-pulse`} />
+            ))}
+          </div>
+        ) : !data ? (
+          <div className="text-[10px] text-slate-400">Unable to load rates</div>
+        ) : (
+          <div className="flex gap-4">
+            <RateTick label="30-YR CONV" rate={data.mortgage30.rate} prev={data.mortgage30.prev} />
+            <RateTick label="10-YR TSY"  rate={data.treasury10.rate} prev={data.treasury10.prev} />
+          </div>
+        )}
+        <div className="mt-1.5 text-[9px] text-sky-600 font-medium group-hover:underline">
+          See all rates →
+        </div>
+      </button>
+      {modalOpen && data && <RateModal data={data} onClose={() => setModalOpen(false)} />}
+    </>
+  );
+}
+
 function FilterBody({
   groups,
   selected,
@@ -415,12 +482,13 @@ function FilterBody({
           </button>
         )}
       </div>
+      <MortgageRatesMini />
       {onFilterChange && (
         <div className="border-b border-white/40 px-3 py-1.5">
           <p className="text-[11px] text-slate-500">Click charts or filters to narrow results</p>
         </div>
       )}
-      <div className="max-h-[calc(100vh-220px)] overflow-y-auto">
+      <div>
         {/* Range sliders first — most banker-friendly */}
         {sliders && sliders.length > 0 && sliderState && onSliderChange && (
           <SliderSection
