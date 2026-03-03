@@ -17,6 +17,8 @@ export type Step2Loan = {
   buyerId?: string;
   units: number;
   dti: number;
+  ltv: number;
+  fico: number;
 };
 
 const interestRates = ["2–2.5", "2.5–3", "3–3.5", "3.5–4", "4–4.5", "4.5–5", "5–5.5", "5.5–6"];
