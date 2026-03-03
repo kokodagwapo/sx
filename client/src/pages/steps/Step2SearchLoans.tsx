@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, UploadCloud, GitCompare, Plus } from "lucide-react";
+import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, UploadCloud, GitCompare, Plus, Building2 } from "lucide-react";
+import { BuyerChip, BuyerInfoCard } from "@/components/buyers/BuyerInfoCard";
 import { ExportButton } from "@/components/importExport/ExportButton";
 import { UploadModal } from "@/components/importExport/UploadModal";
 import { TourBubble } from "@/components/onboarding/TourBubble";
@@ -451,7 +452,7 @@ function StatusDrilldownPanel({
                       </button>
                     </th>
                   ))}
-                  {showBuyer && <th className="px-3 py-2 text-left font-semibold text-slate-500">Buyer ID</th>}
+                  {showBuyer && <th className="px-3 py-2 text-left font-semibold text-slate-500">Buyer</th>}
                   <th className="px-3 py-2 text-center font-semibold text-slate-400 w-10">
                     <GitCompare className="h-3.5 w-3.5 mx-auto" strokeWidth={2} />
                   </th>
@@ -475,7 +476,7 @@ function StatusDrilldownPanel({
                       <td className="px-3 py-2 text-slate-600">{loan.occupancy}</td>
                       <td className="px-3 py-2 tabular-nums text-slate-600">{loan.dti.toFixed(0)}%</td>
                       <td className="px-3 py-2 tabular-nums text-slate-600">{loan.units}</td>
-                      {showBuyer && <td className="px-3 py-2 font-mono text-sky-600">{loan.buyerId ?? "—"}</td>}
+                      {showBuyer && <td className="px-3 py-2"><BuyerChip buyerId={loan.buyerId} /></td>}
                       <td className="px-3 py-2 text-center">
                         <button
                           type="button"
@@ -539,6 +540,37 @@ function StatusDrilldownPanel({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function CounterpartyPanel({ loans }: { loans: Step2Loan[] }) {
+  const buyerMap = useMemo(() => {
+    const m: Record<string, { count: number; upb: number }> = {};
+    for (const l of loans) {
+      if (!l.buyerId) continue;
+      if (!m[l.buyerId]) m[l.buyerId] = { count: 0, upb: 0 };
+      m[l.buyerId].count++;
+      m[l.buyerId].upb += l.upb;
+    }
+    return m;
+  }, [loans]);
+
+  const entries = Object.entries(buyerMap).sort((a, b) => b[1].upb - a[1].upb);
+
+  if (entries.length === 0) {
+    return (
+      <p className="text-sm text-slate-400 py-4 text-center">
+        No assigned buyers in the current filtered set. Select Allocated, Committed, or Sold loans to see counterparties.
+      </p>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      {entries.map(([id, { count, upb }]) => (
+        <BuyerInfoCard key={id} buyerId={id} loanCount={count} totalUpb={upb} />
+      ))}
     </div>
   );
 }
@@ -786,6 +818,16 @@ export default function Step2SearchLoans() {
               );
             })}
           </div>
+        </PanelCard>
+
+        {/* Counterparty Intelligence Panel */}
+        <PanelCard
+          className="col-span-12"
+          icon={Building2}
+          title="Counterparty Intelligence"
+          subtitle="Live FDIC Call Report data for each buyer institution"
+        >
+          <CounterpartyPanel loans={filteredLoans} />
         </PanelCard>
       </div>
 

@@ -133,6 +133,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ─── FDIC Bank Call API proxy ─────────────────────────────────────────────
+  // Public API — no key required. Cache responses for 24 h to avoid hammering FDIC.
+  const fdicCache = new Map<string, { data: unknown; at: number }>();
+  const FDIC_TTL = 24 * 60 * 60 * 1000;
+
+  async function fdicFetch(url: string, cacheKey: string): Promise<unknown> {
+    const cached = fdicCache.get(cacheKey);
+    if (cached && Date.now() - cached.at < FDIC_TTL) return cached.data;
+    const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!resp.ok) throw new Error(`FDIC HTTP ${resp.status}`);
+    const data = await resp.json();
+    fdicCache.set(cacheKey, { data, at: Date.now() });
+    return data;
+  }
+
+  // Search by institution name fragment (returns top result by total assets)
+  app.get("/api/fdic/search", async (req, res) => {
+    const name = String(req.query.name ?? "").trim().slice(0, 120);
+    if (!name) return res.status(400).json({ error: "name required" });
+    try {
+      const encoded = encodeURIComponent(name);
+      const url = `https://api.fdic.gov/banks?filters=ACTIVE%3A1&search=NAME%3A${encoded}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,INSTCAT&limit=1&sort_by=ASSET&sort_order=DESC`;
+      const data = await fdicFetch(url, `search:${name.toLowerCase()}`);
+      res.json(data);
+    } catch {
+      res.status(502).json({ error: "FDIC API unavailable" });
+    }
+  });
+
+  // Fetch by FDIC certificate number
+  app.get("/api/fdic/institution/:cert", async (req, res) => {
+    const cert = parseInt(req.params.cert ?? "");
+    if (isNaN(cert)) return res.status(400).json({ error: "invalid cert" });
+    try {
+      const url = `https://api.fdic.gov/banks/${cert}?fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,INSTCAT`;
+      const data = await fdicFetch(url, `cert:${cert}`);
+      res.json(data);
+    } catch {
+      res.status(502).json({ error: "FDIC API unavailable" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
