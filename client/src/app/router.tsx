@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import Landing from "@/pages/Landing";
+import BankCallReport from "@/pages/BankCallReport";
 import Step1Geography from "@/pages/steps/Step1Geography";
 import Step2SearchLoans from "@/pages/steps/Step2SearchLoans";
 import Step3CreditMetrics from "@/pages/steps/Step3CreditMetrics";
@@ -14,8 +15,10 @@ import Step9Cohorts from "@/pages/steps/Step9Cohorts";
 import TapeImport from "@/pages/admin/TapeImport";
 
 const router = createBrowserRouter([
-  { path: "/",           element: <Landing /> },
-  { path: "/step/1",     element: <Step1Geography /> },
+  { path: "/",                  element: <Step1Geography /> },
+  { path: "/landing",           element: <Landing /> },
+  { path: "/bank-call-report",  element: <BankCallReport /> },
+  { path: "/step/1",            element: <Step1Geography /> },
   { path: "/step/2",     element: <Step2SearchLoans /> },
   { path: "/step/3",     element: <Step3CreditMetrics /> },
   { path: "/step/4",     element: <Step4PricingSheet /> },

@@ -15,6 +15,7 @@ import {
   Menu,
   Upload,
   Settings,
+  Landmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -136,6 +137,36 @@ export function Sidebar({
               })}
             </ul>
           )}
+        </div>
+
+        {/* Bank Call Report */}
+        <div className="mt-2 px-3">
+          {(() => {
+            const isActive = location.pathname === "/bank-call-report";
+            return (
+              <Tooltip content="Search FDIC bank call report data" wrapperClassName="w-full [&>a]:w-full">
+                <Link
+                  to="/bank-call-report"
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                    collapsed
+                      ? isActive
+                        ? "text-white justify-center"
+                        : "text-white/60 hover:bg-white/10 hover:text-white/90 justify-center"
+                      : isActive
+                        ? "bg-white/80 text-sky-800 shadow-sm ring-1 ring-sky-200/80"
+                        : "text-sky-900/55 hover:bg-sky-100/70 hover:text-sky-800"
+                  )}
+                >
+                  <Landmark
+                    className={cn("h-4 w-4 shrink-0", isActive ? "text-yellow-400" : "")}
+                    strokeWidth={2}
+                  />
+                  {!collapsed && <span className="truncate">Bank Call Report</span>}
+                </Link>
+              </Tooltip>
+            );
+          })()}
         </div>
 
         {/* Admin Section */}

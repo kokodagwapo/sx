@@ -208,6 +208,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Search institutions by name (for Bank Call Report page)
+  app.get("/api/fdic/search", async (req, res) => {
+    const q = String(req.query.q ?? "").trim();
+    if (!q) return res.status(400).json({ error: "q is required" });
+    try {
+      const encoded = encodeURIComponent(q);
+      const url = `https://api.fdic.gov/banks/institutions?search=${encoded}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,NETINC,INTINC,NONII,LNLSNET,DEP,EQ,ROA,ROE&limit=25&sort_by=ASSET&sort_order=DESC`;
+      const data = await fdicFetch(url, `search:${q.toLowerCase()}`);
+      res.json(data);
+    } catch {
+      res.status(502).json({ error: "FDIC API unavailable" });
+    }
+  });
+
+  // Fetch full call report by cert (extended fields)
+  app.get("/api/fdic/report/:cert", async (req, res) => {
+    const cert = parseInt(req.params.cert ?? "");
+    if (isNaN(cert)) return res.status(400).json({ error: "invalid cert" });
+    try {
+      const url = `https://api.fdic.gov/banks/institutions?filters=CERT%3A${cert}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,NETINC,INTINC,NONII,LNLSNET,DEP,EQ,ROA,ROE,NAMEHCR,SPECGRP&limit=1`;
+      const data = await fdicFetch(url, `report:${cert}`);
+      res.json(data);
+    } catch {
+      res.status(502).json({ error: "FDIC API unavailable" });
+    }
+  });
+
   // ─── Cohi AI chat ─────────────────────────────────────────────────────────
   app.post("/api/cohi/chat", async (req, res) => {
     const { query } = req.body as { query?: string };
