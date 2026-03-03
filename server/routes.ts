@@ -209,13 +209,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Search institutions by name (for Bank Call Report page)
+  // FDIC BankFind uses Lucene filters — NAME:KEYWORD* works; the ?search= param does not.
   app.get("/api/fdic/search", async (req, res) => {
     const q = String(req.query.q ?? "").trim();
     if (!q) return res.status(400).json({ error: "q is required" });
     try {
-      const encoded = encodeURIComponent(q);
-      const url = `https://api.fdic.gov/banks/institutions?search=${encoded}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,NETINC,INTINC,NONII,LNLSNET,DEP,EQ,ROA,ROE&limit=25&sort_by=ASSET&sort_order=DESC`;
-      const data = await fdicFetch(url, `search:${q.toLowerCase()}`);
+      // FDIC Lucene NAME filter matches from the START of the institution name.
+      // Use the first word of the query as the prefix — it always appears first in FDIC names.
+      // Results are sorted by ASSET desc, so the largest matching institution surfaces first.
+      const keyword = q.toUpperCase().split(/\s+/)[0].replace(/[^A-Z0-9]/g, "");
+      const filter = encodeURIComponent(`NAME:${keyword}* AND ACTIVE:1`);
+      const url = `https://api.fdic.gov/banks/institutions?filters=${filter}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,NETINC,INTINC,NONII,LNLSNET,DEP,EQ,ROA,ROE&limit=25&sort_by=ASSET&sort_order=DESC`;
+      const data = await fdicFetch(url, `search:${keyword.toLowerCase()}`);
       res.json(data);
     } catch {
       res.status(502).json({ error: "FDIC API unavailable" });
