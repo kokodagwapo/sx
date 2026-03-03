@@ -45,12 +45,12 @@ export function PanelCard({
   return (
     <section
       className={cn(
-        "rounded-[var(--radius-card)] border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.07)] transition-all duration-200 hover:bg-white/55 hover:shadow-[0_6px_32px_rgba(56,189,248,0.12)]",
+        "rounded-[var(--radius-card)] border border-slate-200/70 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300/60",
         className,
       )}
     >
       {(title || subtitle || right) && (
-        <header className="flex items-start justify-between gap-3 border-b border-white/40 px-4 py-3">
+        <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-3">
           {(tooltip ?? (typeof title === "string" ? title : null)) && (title || Icon) ? (
             <Tooltip content={tooltip ?? (typeof title === "string" ? title : "")}>{headerContent}</Tooltip>
           ) : (
