@@ -41,11 +41,11 @@ export function SprinkleXLogo({
 }: {
   className?: string;
   showText?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }) {
-  const iconSizes = { sm: 26, md: 30, lg: 36 };
-  const textSizes = { sm: "text-[15px]", md: "text-[18px]", lg: "text-[20px]" };
-  const bySizes = { sm: "text-[10px]", md: "text-[11px]", lg: "text-[12px]" };
+  const iconSizes = { sm: 26, md: 30, lg: 36, xl: 54 };
+  const textSizes = { sm: "text-[15px]", md: "text-[18px]", lg: "text-[20px]", xl: "text-[34px]" };
+  const bySizes = { sm: "text-[10px]", md: "text-[11px]", lg: "text-[12px]", xl: "text-[15px]" };
   const iconSize = iconSizes[size];
 
   return (

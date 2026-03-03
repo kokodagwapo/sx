@@ -65,12 +65,12 @@ export function Sidebar({
     >
       {/* Logo / Brand */}
       <div className={cn(
-        "flex h-14 items-center justify-between border-b px-4",
-        collapsed ? "border-sky-500 justify-center" : "border-white/40"
+        "flex items-center justify-between border-b px-4",
+        collapsed ? "h-14 border-sky-500 justify-center" : "h-28 border-white/40 items-end pb-3"
       )}>
         {!collapsed && (
           <Link to="/" className="flex items-center justify-center -ml-1">
-            <SprinkleXLogo size="md" showText={true} />
+            <SprinkleXLogo size="xl" showText={true} />
           </Link>
         )}
         <button
