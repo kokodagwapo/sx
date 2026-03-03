@@ -126,3 +126,30 @@ body {
   80%  { fill: #fbcfe8; }
   100% { fill: #bfdbfe; }
 }
+
+/* Heatmap pulse — data counties breathe with a blue glow (low/mid density) */
+@keyframes county-heat-pulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.55))
+            drop-shadow(0 0 8px rgba(30, 58, 138, 0.25));
+  }
+  50% {
+    opacity: 0.72;
+    filter: drop-shadow(0 0 1px rgba(59, 130, 246, 0.15));
+  }
+}
+
+/* High-intensity heatmap pulse — hot counties glow stronger */
+@keyframes county-heat-pulse-hi {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 7px rgba(30, 58, 138, 0.75))
+            drop-shadow(0 0 14px rgba(37, 99, 235, 0.45))
+            drop-shadow(0 0 2px rgba(219, 234, 254, 0.9));
+  }
+  45% {
+    opacity: 0.78;
+    filter: drop-shadow(0 0 2px rgba(30, 58, 138, 0.25));
+  }
+}

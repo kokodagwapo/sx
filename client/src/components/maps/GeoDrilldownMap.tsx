@@ -339,12 +339,25 @@ function USCountyMap({
               const v = d?.count ?? 0;
               const stateFips = fips.slice(0, 2);
               const hasData = v > 0;
+              const t = maxVal > 0 ? v / maxVal : 0;
               const dataFill = riskLayer
                 ? riskFillForFips(stateFips, riskLayer)
-                : choroplethColorFor(v / maxVal);
-              // No-data counties: flat muted slate so data counties stand out
+                : choroplethColorFor(t);
               const fill = (!riskLayer && !hasData) ? "#d1dae6" : dataFill;
               const fillOpacity = (!riskLayer && !hasData) ? 0.45 : 1;
+
+              // Pulsating heatmap animation — only for loan choropleth, not risk layers
+              const fipsNum = parseInt(fips, 10) || 0;
+              const pulseDuration = !riskLayer && hasData
+                ? (t >= 0.6 ? 1.6 + (fipsNum % 7) * 0.22 : 2.4 + (fipsNum % 11) * 0.3) + "s"
+                : "0s";
+              const pulseDelay = !riskLayer && hasData
+                ? (1.0 + (fipsNum % 23) * 0.19).toFixed(2) + "s"
+                : "0s";
+              const pulseAnim = !riskLayer && hasData
+                ? (t >= 0.6 ? "county-heat-pulse-hi" : "county-heat-pulse")
+                : "none";
+
               return (
                 <Geography
                   key={geo.rsmKey}
@@ -359,8 +372,8 @@ function USCountyMap({
                       border: "none",
                       boxShadow: "none",
                       cursor: hasData ? "pointer" : "default",
-                      transition: "fill 0.25s ease, fill-opacity 0.25s ease",
-                      filter: hasData ? "drop-shadow(0 0 2px rgba(30,58,138,0.18))" : "none",
+                      animation: `${pulseAnim} ${pulseDuration} ease-in-out ${pulseDelay} infinite`,
+                      transition: "fill 0.3s ease",
                     },
                     hover: {
                       outline: "none",
@@ -368,9 +381,12 @@ function USCountyMap({
                       boxShadow: "none",
                       fill: hasData ? "#facc15" : "#cdd6e2",
                       fillOpacity: hasData ? 1 : 0.55,
+                      opacity: 1,
                       cursor: hasData ? "pointer" : "default",
+                      animation: "none",
+                      filter: hasData ? "drop-shadow(0 0 6px rgba(234,179,8,0.7))" : "none",
                     },
-                    pressed: { outline: "none", border: "none", boxShadow: "none" },
+                    pressed: { outline: "none", border: "none", boxShadow: "none", animation: "none" },
                   }}
                   onClick={() => hasData && onCountyClick(fips)}
                   onMouseEnter={() =>
@@ -563,11 +579,3 @@ function choroplethColorFor(t: number) {
   return "#1e3a8a";               // blue-900 — high
 }
 
-/** The 5 legend stops for the choropleth */
-export const CHOROPLETH_LEGEND = [
-  { fill: "#bfdbfe", label: "Low" },
-  { fill: "#60a5fa", label: "" },
-  { fill: "#3b82f6", label: "Mid" },
-  { fill: "#1d4ed8", label: "" },
-  { fill: "#1e3a8a", label: "High" },
-];
