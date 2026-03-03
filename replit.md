@@ -66,6 +66,19 @@ Preferred communication style: Simple, everyday language.
 - **LenderDrilldownModal** (`client/src/components/buyers/LenderDrilldownModal.tsx`): Per-lender modal showing KPIs, status breakdown, top states, product mix, WA metrics, and top-12 loans — triggered via the ↗ icon next to each lender pill in the filter rail
 - **FDIC API**: Proxied at `/api/fdic/institution/:cert` with 24-hour server-side cache; correct endpoint: `api.fdic.gov/banks/institutions?filters=CERT:{cert}&...`
 
+## Landing Page & Cohi AI
+
+- **Route**: `/` → `client/src/pages/Landing.tsx` — full-screen dark-navy hero page, no sidebar
+- **LandingNav**: Fixed top bar with SprinkleX logo, "Hey, Maylin 👋" greeting, "Open Analytics →" button
+- **HeroSection**: Bottom-anchored search bar, results populate upward, quick-action chips above
+- **Cohi AI**: Backend route `POST /api/cohi/chat` in `server/routes.ts`; uses OpenAI `gpt-4o-mini` if `OPENAI_API_KEY` is set, falls back to deterministic keyword-based responses using real portfolio stats
+- **Voice Input**: Web Speech API (no package needed) — mic button in search bar
+- **Institution Cards**: List and grid mode; Provident (sky), Stonegate (amber), New Penn Financial (rose)
+- **Institution Detail**: Reuses `LenderDrilldownModal` with real loan data
+- **Comparison Panel**: Floating bar when 2+ institutions pinned; side-by-side modal with green/red best/worst
+- **Loan Pools**: `client/src/context/PoolsContext.tsx` — creates "Loan Pool 1", "Loan Pool 2", etc.; renameable, deletable
+- **5 Quick Actions**: Top Performing, Lowest Risk, New Listings, State Leaders (dropdown), Compare Selected
+
 ## Application Structure
 
 ### 8-Step Workflow

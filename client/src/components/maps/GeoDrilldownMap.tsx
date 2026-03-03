@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
-import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup, Sphere } from "react-simple-maps";
+import { useState, useCallback, useMemo, useRef } from "react";
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { ChevronLeft, ZoomIn, ZoomOut, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LoanGeoRecord } from "@/data/mock/step1";
@@ -47,6 +47,12 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className, riskLayer
   const [mapCenter, setMapCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
   const [hoveredCounty, setHoveredCounty] = useState<{ fips: string; name: string; count: number; upb: number; stateName?: string } | null>(null);
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleCountyHover = useCallback((info: { fips: string; name: string; count: number; upb: number } | null) => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    if (!info) { setHoveredCounty(null); return; }
+    hoverTimerRef.current = setTimeout(() => setHoveredCounty(info), 10);
+  }, []);
 
   const allCountyData = useMemo(() => {
     const byCounty = new Map<string, { count: number; upb: number; stateFips: string; countyName: string; stateName: string }>();
@@ -258,7 +264,7 @@ export function GeoDrilldownMap({ loans, onSelectionChange, className, riskLayer
                 const stateLoans = loans.filter((l) => l.stateFips === d.stateFips);
                 onSelectionChange?.("state", d.stateName, stateLoans);
               }}
-              onCountyHover={setHoveredCounty}
+              onCountyHover={handleCountyHover}
             />
           </div>
         )}
@@ -340,7 +346,6 @@ function USCountyMap({
               const fips = geo.id;
               const d = allCountyData.get(fips);
               const v = d?.count ?? 0;
-              const stateFips = fips.slice(0, 2);
               const hasData = v > 0;
               const t = maxVal > 0 ? v / maxVal : 0;
               const dataFill = riskLayer
@@ -348,18 +353,6 @@ function USCountyMap({
                 : choroplethColorFor(t);
               const fill = (!riskLayer && !hasData) ? "#d1dae6" : dataFill;
               const fillOpacity = (!riskLayer && !hasData) ? 0.45 : 1;
-
-              // Pulsating heatmap animation — only for loan choropleth, not risk layers
-              const fipsNum = parseInt(fips, 10) || 0;
-              const pulseDuration = !riskLayer && hasData
-                ? (t >= 0.6 ? 1.1 + (fipsNum % 7) * 0.16 : 1.7 + (fipsNum % 11) * 0.20) + "s"
-                : "0s";
-              const pulseDelay = !riskLayer && hasData
-                ? (0.3 + (fipsNum % 23) * 0.14).toFixed(2) + "s"
-                : "0s";
-              const pulseAnim = !riskLayer && hasData
-                ? (t >= 0.6 ? "county-heat-pulse-hi" : "county-heat-pulse")
-                : "none";
 
               return (
                 <Geography
@@ -375,8 +368,6 @@ function USCountyMap({
                       border: "none",
                       boxShadow: "none",
                       cursor: hasData ? "pointer" : "default",
-                      animation: `${pulseAnim} ${pulseDuration} ease-in-out ${pulseDelay} infinite`,
-                      transition: "fill 0.3s ease",
                     },
                     hover: {
                       outline: "none",
@@ -384,12 +375,9 @@ function USCountyMap({
                       boxShadow: "none",
                       fill: hasData ? "#facc15" : "#cdd6e2",
                       fillOpacity: hasData ? 1 : 0.55,
-                      opacity: 1,
                       cursor: hasData ? "pointer" : "default",
-                      animation: "none",
-                      filter: hasData ? "drop-shadow(0 0 6px rgba(234,179,8,0.7))" : "none",
                     },
-                    pressed: { outline: "none", border: "none", boxShadow: "none", animation: "none" },
+                    pressed: { outline: "none", border: "none", boxShadow: "none" },
                   }}
                   onClick={() => hasData && onCountyClick(fips)}
                   onMouseEnter={() =>
@@ -443,8 +431,7 @@ function CountyMap({
                 const fips = geo.id;
                 const v = countyData.get(fips)?.count ?? 0;
                 const hasData = v > 0;
-                const fill = hasData ? choroplethColorFor(v / maxVal) : undefined;
-                const animDelay = `${(parseInt(fips, 10) % 13) * 0.7}s`;
+                const fill = hasData ? choroplethColorFor(v / maxVal) : "#e2e8f0";
                 return (
                   <Geography
                     key={geo.rsmKey}
@@ -458,9 +445,6 @@ function CountyMap({
                         border: "none",
                         boxShadow: "none",
                         cursor: hasData ? "pointer" : "default",
-                        ...(hasData
-                          ? { transition: "fill 0.2s ease" }
-                          : { animation: `pastel-cycle 10s ease-in-out ${animDelay} infinite`, fill: "white" }),
                       },
                       hover: { outline: "none", border: "none", boxShadow: "none", fill: hasData ? "#facc15" : "#e9d5ff", cursor: hasData ? "pointer" : "default" },
                       pressed: { outline: "none", border: "none", boxShadow: "none" },

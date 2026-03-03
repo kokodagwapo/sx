@@ -1,7 +1,53 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import fs from "fs";
+import path from "path";
 import { storage } from "./storage";
 import { insertSignupSchema } from "@shared/schema";
+
+const statsPath = path.resolve(process.cwd(), "client/src/data/real/realStats.json");
+const PORTFOLIO_STATS = (() => {
+  try { return JSON.parse(fs.readFileSync(statsPath, "utf-8")); } catch { return null; }
+})();
+
+const COHI_CONTEXT = {
+  portfolio: { totalLoans: 7052, totalUpb: 1861333635, waRate: 3.5034, waFico: 744, waLtv: 71.42, waDti: 35.56 },
+  bySource: {
+    Provident:           { count: 2452, upb: 711354965,  waRate: 3.2781, waFico: 769, waLtv: 61.16, waDti: 31.27 },
+    Stonegate:           { count: 963,  upb: 209093793,  waRate: 3.7413, waFico: 716, waLtv: 87.87, waDti: 39.21 },
+    "New Penn Financial":{ count: 3637, upb: 940884877,  waRate: 3.621,  waFico: 732, waLtv: 75.52, waDti: 38.00 },
+  },
+  topStates: { CA: 1449, FL: 422, GA: 392, PA: 378, TX: 355 },
+  products: { "30FRM": 5507, "15FRM": 1451, "7/1 ARM": 44, "5/1 ARM": 50 },
+  status: { Available: 3849, Allocated: 1483, Committed: 898, Sold: 822 },
+};
+
+function cohiFallback(query: string): string {
+  const q = query.toLowerCase();
+  if (q.includes("provident"))
+    return "Provident has 2,452 loans totaling $711M UPB with a WA Rate of 3.28%, WA FICO of 769, and WA LTV of 61.16%. It is the highest credit quality seller in the portfolio.";
+  if (q.includes("stonegate"))
+    return "Stonegate has 963 loans totaling $209M UPB with a WA Rate of 3.74%, WA FICO of 716, and WA LTV of 87.87%. It has the highest LTV among the three sellers.";
+  if (q.includes("new penn") || q.includes("penn financial"))
+    return "New Penn Financial has 3,637 loans totaling $941M UPB with a WA Rate of 3.62%, WA FICO of 732, and WA LTV of 75.52%. It is the largest seller by both loan count and UPB.";
+  if (q.includes("fico") || q.includes("credit score"))
+    return "The portfolio WA FICO is 744. By seller: Provident leads at 769, New Penn Financial at 732, and Stonegate at 716.";
+  if (q.includes("ltv") || q.includes("loan-to-value") || q.includes("loan to value"))
+    return "The portfolio WA LTV is 71.42%. Provident has the lowest LTV at 61.16%, New Penn Financial at 75.52%, and Stonegate at 87.87%.";
+  if (q.includes("rate") || q.includes("coupon") || q.includes("interest"))
+    return "The portfolio WA Rate is 3.50%. By seller: Provident 3.28%, New Penn Financial 3.62%, Stonegate 3.74%.";
+  if (q.includes("upb") || q.includes("balance") || q.includes("size") || q.includes("portfolio"))
+    return "Total portfolio UPB is $1.86B across 7,052 loans. New Penn Financial leads at $941M (50.6%), Provident at $711M (38.2%), and Stonegate at $209M (11.2%).";
+  if (q.includes("state") || q.includes("california") || q.includes("florida") || q.includes("georgia"))
+    return "Top states by loan count: California (1,449), Florida (422), Georgia (392), Pennsylvania (378), and Texas (355).";
+  if (q.includes("product") || q.includes("30yr") || q.includes("15yr") || q.includes("arm") || q.includes("fixed"))
+    return "Product mix: 30-year Fixed (78.1%, 5,507 loans), 15-year Fixed (20.6%, 1,451 loans), ARMs (1.3%, 94 loans).";
+  if (q.includes("available") || q.includes("status") || q.includes("sold") || q.includes("allocated"))
+    return "Portfolio status: Available 3,849 loans (54.6%), Allocated 1,483 (21.0%), Committed 898 (12.7%), Sold 822 (11.7%).";
+  if (q.includes("dti") || q.includes("debt") || q.includes("income"))
+    return "The portfolio WA DTI is 35.56%. Provident borrowers have the lowest DTI at 31.27%, New Penn at 38.00%, and Stonegate at 39.21%.";
+  return `The SprinkleX portfolio contains 7,052 loans totaling $1.86B UPB across three sellers: New Penn Financial ($941M), Provident ($711M), and Stonegate ($209M). WA FICO is 744, WA Rate is 3.50%, WA LTV is 71.42%.`;
+}
 
 // ─── FRED rate cache ─────────────────────────────────────────────────────────
 type RateSeries = { rate: number; prev: number; trend: number[]; asOf: string; rangeLow: number; rangeHigh: number };
@@ -160,6 +206,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch {
       res.status(502).json({ error: "FDIC API unavailable" });
     }
+  });
+
+  // ─── Cohi AI chat ─────────────────────────────────────────────────────────
+  app.post("/api/cohi/chat", async (req, res) => {
+    const { query } = req.body as { query?: string };
+    if (!query || typeof query !== "string") return res.status(400).json({ error: "query is required" });
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (apiKey) {
+      try {
+        const { default: OpenAI } = await import("openai");
+        const openai = new OpenAI({ apiKey });
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `You are Cohi, an AI analyst for the SprinkleX mortgage loan portfolio platform. Answer questions factually using only the provided portfolio data. Be concise (2–4 sentences max). Format numbers clearly.\n\nPortfolio data:\n${JSON.stringify(COHI_CONTEXT)}`,
+            },
+            { role: "user", content: query },
+          ],
+          max_tokens: 220,
+        }, { signal: AbortSignal.timeout(30000) });
+        const answer = completion.choices[0]?.message?.content ?? cohiFallback(query);
+        return res.json({ answer });
+      } catch (err) {
+        console.error("Cohi OpenAI error:", err);
+      }
+    }
+    res.json({ answer: cohiFallback(query) });
   });
 
   const httpServer = createServer(app);
