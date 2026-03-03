@@ -227,7 +227,7 @@ export function TopNav({
         <button
           type="button"
           onClick={onMenuClick}
-          className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+          className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-white/30 hover:text-slate-900 lg:hidden"
         >
           <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
@@ -243,7 +243,7 @@ export function TopNav({
             <Tooltip content={`Previous: ${prev.headerTitle}`} side="bottom">
               <Link
                 to={prev.path}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-700 hover:scale-105 active:scale-95"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-white/30 hover:text-slate-700 hover:scale-105 active:scale-95"
               >
                 <ChevronLeft className="h-4 w-4" strokeWidth={2} />
               </Link>
@@ -263,7 +263,7 @@ export function TopNav({
                       "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium transition-all duration-200",
                       isActive
                         ? "bg-sky-500 text-white shadow-sm ring-2 ring-sky-500/20"
-                        : "text-slate-500 hover:bg-sky-100 hover:text-sky-700 hover:scale-105 active:scale-95"
+                        : "text-slate-500 hover:bg-white/30 hover:text-sky-700 hover:scale-105 active:scale-95"
                     )}
                   >
                     {num}
@@ -276,7 +276,7 @@ export function TopNav({
             <Tooltip content={`Next: ${next.headerTitle}`} side="bottom">
               <Link
                 to={next.path}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-700 hover:scale-105 active:scale-95"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-white/30 hover:text-slate-700 hover:scale-105 active:scale-95"
               >
                 <ChevronRight className="h-4 w-4" strokeWidth={2} />
               </Link>
@@ -297,7 +297,7 @@ export function TopNav({
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
             placeholder="Search"
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#4285F4] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4285F4]/20"
+            className="w-full rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-sky-300/60 focus:bg-white/50 focus:outline-none focus:ring-2 focus:ring-sky-300/20"
           />
         </div>
         {dropdownContent && createPortal(dropdownContent, document.body)}
@@ -316,8 +316,8 @@ export function TopNav({
               className={cn(
                 "relative rounded-lg p-2 transition-colors animate-glow-pulse",
                 importedLoans
-                  ? "text-sky-500 hover:bg-sky-50 hover:text-sky-600"
-                  : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                  ? "text-sky-500 hover:bg-white/30 hover:text-sky-600"
+                  : "text-slate-400 hover:bg-white/30 hover:text-slate-600"
               )}
             >
               <FileUp className="h-5 w-5" strokeWidth={2} />
@@ -330,7 +330,7 @@ export function TopNav({
             <button
               type="button"
               onClick={restartTour}
-              className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-sky-50 hover:text-sky-500"
+              className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/30 hover:text-sky-500"
             >
               <HelpCircle className="h-5 w-5" strokeWidth={2} />
             </button>
@@ -342,8 +342,8 @@ export function TopNav({
               className={cn(
                 "relative rounded-lg p-2 transition-colors",
                 notifOpen
-                  ? "bg-slate-100 text-slate-700"
-                  : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                  ? "bg-white/30 text-slate-700"
+                  : "text-slate-400 hover:bg-white/30 hover:text-slate-600"
               )}
             >
               <Bell className="h-5 w-5" strokeWidth={2} />
@@ -458,7 +458,7 @@ export function TopNav({
               document.body,
             )}
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+          <div className="flex items-center gap-2 rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-3 py-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-white">
               <User className="h-4 w-4" strokeWidth={2} />
             </div>
