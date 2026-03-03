@@ -50,6 +50,13 @@ export function SprinkleShell({
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (stepId !== "1") return;
+    setSidebarCollapsed(false);
+    const t = setTimeout(() => setSidebarCollapsed(true), 3500);
+    return () => clearTimeout(t);
+  }, [stepId]);
+
   const hasFilters = (filters?.length ?? 0) > 0 || (sliders?.length ?? 0) > 0;
 
   return (
