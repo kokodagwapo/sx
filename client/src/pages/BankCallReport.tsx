@@ -2,9 +2,11 @@ import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Search, Building2, ShieldCheck, AlertCircle, Loader2,
-  TrendingUp, DollarSign, BarChart2, Users, Landmark, ChevronDown, ChevronUp, X,
+  TrendingUp, DollarSign, BarChart2, Users, Landmark,
+  ChevronDown, ChevronUp, X,
 } from "lucide-react";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
+import { PanelCard } from "@/components/cards/PanelCard";
 import { cn } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -75,6 +77,34 @@ function useReport(cert: number | null) {
   });
 }
 
+// ─── KPI Tile ─────────────────────────────────────────────────────────────────
+
+const KPI_COLORS = {
+  sky:     { tile: "bg-sky-50 border-sky-100",     text: "text-sky-700",     icon: "text-sky-500"     },
+  indigo:  { tile: "bg-indigo-50 border-indigo-100", text: "text-indigo-700", icon: "text-indigo-500"  },
+  violet:  { tile: "bg-violet-50 border-violet-100", text: "text-violet-700", icon: "text-violet-500"  },
+  emerald: { tile: "bg-emerald-50 border-emerald-100", text: "text-emerald-700", icon: "text-emerald-500" },
+  amber:   { tile: "bg-amber-50 border-amber-100",  text: "text-amber-700",   icon: "text-amber-500"   },
+  rose:    { tile: "bg-rose-50 border-rose-100",    text: "text-rose-700",    icon: "text-rose-500"    },
+} as const;
+
+function KpiTile({
+  label, value, icon: Icon, color,
+}: {
+  label: string; value: string; icon: React.ElementType; color: keyof typeof KPI_COLORS;
+}) {
+  const c = KPI_COLORS[color];
+  return (
+    <div className={cn("rounded-xl border px-4 py-3", c.tile)}>
+      <div className="flex items-center gap-1.5 mb-1">
+        <Icon className={cn("h-3.5 w-3.5", c.icon)} strokeWidth={2} />
+        <span className={cn("text-[10px] font-semibold uppercase tracking-wide opacity-70", c.text)}>{label}</span>
+      </div>
+      <p className={cn("text-base font-bold tabular-nums", c.text)}>{value}</p>
+    </div>
+  );
+}
+
 // ─── Report Detail Panel ──────────────────────────────────────────────────────
 
 function ReportDetail({ cert, onClose }: { cert: number; onClose: () => void }) {
@@ -82,59 +112,34 @@ function ReportDetail({ cert, onClose }: { cert: number; onClose: () => void }) 
   const inst = data?.data?.[0]?.data;
 
   const kpis = inst ? [
-    { label: "Total Assets",      value: fmtM(inst.ASSET),    icon: DollarSign,  color: "sky"     },
-    { label: "Net Loans",         value: fmtM(inst.LNLSNET),  icon: Landmark,    color: "indigo"  },
-    { label: "Total Deposits",    value: fmtM(inst.DEP),       icon: Users,       color: "violet"  },
-    { label: "Equity Capital",    value: fmtM(inst.EQ),        icon: BarChart2,   color: "emerald" },
-    { label: "Net Income",        value: fmtM(inst.NETINC),    icon: TrendingUp,  color: inst.NETINC != null && inst.NETINC < 0 ? "rose" : "emerald" },
-    { label: "Interest Income",   value: fmtM(inst.INTINC),    icon: DollarSign,  color: "amber"   },
-    { label: "Return on Assets",  value: fmtPct(inst.ROA ? inst.ROA / 100 : undefined), icon: TrendingUp, color: "sky" },
-    { label: "Return on Equity",  value: fmtPct(inst.ROE ? inst.ROE / 100 : undefined), icon: BarChart2,  color: "indigo" },
+    { label: "Total Assets",    value: fmtM(inst.ASSET),   icon: DollarSign, color: "sky" as const },
+    { label: "Net Loans",       value: fmtM(inst.LNLSNET), icon: Landmark,   color: "indigo" as const },
+    { label: "Total Deposits",  value: fmtM(inst.DEP),     icon: Users,      color: "violet" as const },
+    { label: "Equity Capital",  value: fmtM(inst.EQ),      icon: BarChart2,  color: "emerald" as const },
+    { label: "Net Income",      value: fmtM(inst.NETINC),  icon: TrendingUp, color: (inst.NETINC != null && inst.NETINC < 0 ? "rose" : "emerald") as "rose" | "emerald" },
+    { label: "Interest Income", value: fmtM(inst.INTINC),  icon: DollarSign, color: "amber" as const },
+    { label: "Return on Assets",value: fmtPct(inst.ROA ? inst.ROA / 100 : undefined), icon: TrendingUp, color: "sky" as const },
+    { label: "Return on Equity",value: fmtPct(inst.ROE ? inst.ROE / 100 : undefined), icon: BarChart2,  color: "indigo" as const },
   ] : [];
 
-  const COLOR = {
-    sky:     "bg-sky-50 text-sky-700 border-sky-100",
-    indigo:  "bg-indigo-50 text-indigo-700 border-indigo-100",
-    violet:  "bg-violet-50 text-violet-700 border-violet-100",
-    emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    rose:    "bg-rose-50 text-rose-700 border-rose-100",
-    amber:   "bg-amber-50 text-amber-700 border-amber-100",
-  } as const;
-
   return (
-    <div className="mt-4 rounded-2xl border border-sky-100 bg-white shadow-lg overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 px-5 py-4 bg-sky-50 border-b border-sky-100">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-500 shadow-sm shadow-sky-200">
-            <ShieldCheck className="h-4 w-4 text-white" strokeWidth={2} />
-          </div>
-          {isLoading ? (
-            <span className="text-sm text-slate-500">Loading call report…</span>
-          ) : inst ? (
-            <div className="min-w-0">
-              <p className="font-bold text-slate-800 text-sm truncate">{inst.NAME}</p>
-              <p className="text-[11px] text-slate-500">
-                Cert #{inst.CERT} · {inst.CITY}, {inst.STNAME} · Report: {fmtDate(inst.REPDTE)}
-              </p>
-            </div>
-          ) : (
-            <span className="text-sm text-slate-500">FDIC Call Report</span>
-          )}
-        </div>
-        <button
-          onClick={onClose}
-          className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-600 transition-colors"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Body */}
-      <div className="p-5">
+    <div className="mt-3">
+      <PanelCard
+        icon={ShieldCheck}
+        title={isLoading ? "Loading call report…" : (inst?.NAME ?? "FDIC Call Report")}
+        subtitle={inst ? `Cert #${inst.CERT} · ${inst.CITY}, ${inst.STNAME} · Report: ${fmtDate(inst.REPDTE)}` : undefined}
+        right={
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        }
+      >
         {isLoading && (
           <div className="flex items-center gap-2 text-sm text-slate-400 py-4">
-            <Loader2 className="h-4 w-4 animate-spin" /> Fetching FDIC call report data…
+            <Loader2 className="h-4 w-4 animate-spin text-[#4285F4]" /> Fetching FDIC call report data…
           </div>
         )}
         {isError && (
@@ -143,12 +148,14 @@ function ReportDetail({ cert, onClose }: { cert: number; onClose: () => void }) 
           </div>
         )}
         {inst && (
-          <>
-            {/* Status + Charter row */}
-            <div className="flex flex-wrap items-center gap-2 mb-5">
+          <div className="space-y-4">
+            {/* Status badges */}
+            <div className="flex flex-wrap items-center gap-2">
               <span className={cn(
                 "rounded-full px-3 py-1 text-xs font-semibold border",
-                inst.ACTIVE ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-600 border-red-200"
+                inst.ACTIVE
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-red-50 text-red-600 border-red-200",
               )}>
                 {inst.ACTIVE ? "Active" : "Inactive"}
               </span>
@@ -163,16 +170,8 @@ function ReportDetail({ cert, onClose }: { cert: number; onClose: () => void }) 
             </div>
 
             {/* KPI grid */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-5">
-              {kpis.map(({ label, value, icon: Icon, color }) => (
-                <div key={label} className={cn("rounded-xl border px-4 py-3", COLOR[color as keyof typeof COLOR])}>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Icon className="h-3.5 w-3.5 opacity-60" strokeWidth={2} />
-                    <span className="text-[10px] font-semibold uppercase tracking-wide opacity-60">{label}</span>
-                  </div>
-                  <p className="text-base font-bold tabular-nums">{value}</p>
-                </div>
-              ))}
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+              {kpis.map((k) => <KpiTile key={k.label} {...k} />)}
             </div>
 
             {/* Detail table */}
@@ -186,13 +185,13 @@ function ReportDetail({ cert, onClose }: { cert: number; onClose: () => void }) 
                 </thead>
                 <tbody>
                   {[
-                    ["Full Legal Name",   inst.NAME ?? "—"],
-                    ["FDIC Cert #",       `#${inst.CERT}`],
-                    ["City / State",      `${inst.CITY}, ${inst.STNAME}`],
-                    ["Charter Class",     charterLabel(inst.CLASS)],
-                    ["Regulatory Status", inst.ACTIVE ? "Active (FDIC-insured)" : "Inactive"],
-                    ["Report Date",       fmtDate(inst.REPDTE)],
-                    ["Non-Interest Income", fmtM(inst.NONII)],
+                    ["Full Legal Name",    inst.NAME ?? "—"],
+                    ["FDIC Cert #",        `#${inst.CERT}`],
+                    ["City / State",       `${inst.CITY}, ${inst.STNAME}`],
+                    ["Charter Class",      charterLabel(inst.CLASS)],
+                    ["Regulatory Status",  inst.ACTIVE ? "Active (FDIC-insured)" : "Inactive"],
+                    ["Report Date",        fmtDate(inst.REPDTE)],
+                    ["Non-Interest Income",fmtM(inst.NONII)],
                   ].map(([label, value], i) => (
                     <tr key={label} className={cn("border-b border-slate-50 last:border-0", i % 2 === 0 ? "bg-white" : "bg-slate-50/40")}>
                       <td className="px-4 py-2.5 text-slate-500">{label}</td>
@@ -202,12 +201,13 @@ function ReportDetail({ cert, onClose }: { cert: number; onClose: () => void }) 
                 </tbody>
               </table>
             </div>
-            <p className="mt-3 text-[10px] text-slate-400 text-right">
+
+            <p className="text-[10px] text-slate-400 text-right">
               Source: FDIC BankFind Suite · All figures in $M unless noted
             </p>
-          </>
+          </div>
         )}
-      </div>
+      </PanelCard>
     </div>
   );
 }
@@ -222,14 +222,14 @@ function ResultRow({ inst, isExpanded, onToggle }: {
       <tr
         className={cn(
           "border-b border-slate-100 cursor-pointer transition-colors",
-          isExpanded ? "bg-sky-50" : "bg-white hover:bg-slate-50/60"
+          isExpanded ? "bg-[#4285F4]/5" : "bg-white hover:bg-slate-50/60",
         )}
         onClick={onToggle}
       >
         <td className="px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sky-100">
-              <Building2 className="h-3.5 w-3.5 text-sky-600" strokeWidth={2} />
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#4285F4]/10">
+              <Building2 className="h-3.5 w-3.5 text-[#4285F4]" strokeWidth={2} />
             </div>
             <div>
               <p className="font-semibold text-slate-800 text-sm leading-tight">{inst.NAME}</p>
@@ -242,7 +242,7 @@ function ResultRow({ inst, isExpanded, onToggle }: {
         <td className="px-4 py-3 text-right hidden sm:table-cell">
           <span className={cn(
             "rounded-full px-2 py-0.5 text-[10px] font-bold",
-            inst.ACTIVE ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"
+            inst.ACTIVE ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600",
           )}>
             {inst.ACTIVE ? "Active" : "Inactive"}
           </span>
@@ -252,8 +252,8 @@ function ResultRow({ inst, isExpanded, onToggle }: {
         </td>
       </tr>
       {isExpanded && (
-        <tr className="bg-sky-50/50">
-          <td colSpan={5} className="px-4 py-0 pb-4">
+        <tr>
+          <td colSpan={5} className="px-4 pb-4">
             <ReportDetail cert={inst.CERT!} onClose={onToggle} />
           </td>
         </tr>
@@ -265,10 +265,10 @@ function ResultRow({ inst, isExpanded, onToggle }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function BankCallReport() {
-  const [input, setInput]         = useState("");
-  const [query, setQuery]         = useState("");
-  const [expanded, setExpanded]   = useState<number | null>(null);
-  const inputRef                  = useRef<HTMLInputElement>(null);
+  const [input, setInput]       = useState("");
+  const [query, setQuery]       = useState("");
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const inputRef                = useRef<HTMLInputElement>(null);
 
   const { data, isLoading, isError, isFetching } = useSearch(query);
   const institutions = (data?.data ?? []).map((r) => r.data);
@@ -286,15 +286,15 @@ export default function BankCallReport() {
 
   return (
     <SprinkleShell stepId="9" kpis={[]} title="Bank Call Report">
-      <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
+      <div className="mx-auto max-w-5xl px-4 py-6 space-y-4">
 
-        {/* Search bar */}
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <h2 className="text-base font-bold text-slate-800 mb-1">FDIC Bank Call Report Search</h2>
-          <p className="text-sm text-slate-500 mb-4">
-            Search any FDIC-insured institution by name to view its official call report data including assets, deposits, income, and regulatory status.
-          </p>
-          <div className="flex gap-2">
+        {/* Search card */}
+        <PanelCard
+          icon={Search}
+          title="FDIC Bank Call Report Search"
+          subtitle="Search any FDIC-insured institution by name to view its official call report data."
+        >
+          <div className="flex gap-2 pt-1">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
               <input
@@ -303,7 +303,7 @@ export default function BankCallReport() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
                 placeholder="e.g. JPMorgan, Wells Fargo, First National…"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-9 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 transition-all"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-9 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/10 transition-all"
               />
               {input && (
                 <button
@@ -317,30 +317,29 @@ export default function BankCallReport() {
             <button
               onClick={handleSubmit}
               disabled={input.trim().length < 2}
-              className="flex items-center gap-2 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:bg-slate-200 disabled:text-slate-400 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-sky-200 transition-all"
+              className="flex items-center gap-2 rounded-xl bg-[#4285F4] hover:bg-[#3b78e7] disabled:bg-slate-200 disabled:text-slate-400 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all"
             >
               {isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               Search
             </button>
           </div>
-        </div>
+        </PanelCard>
 
-        {/* Results */}
+        {/* Results card */}
         {query.length >= 2 && (
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            {/* Results header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                {isLoading ? "Searching…" : isError ? "Error loading results" : `${institutions.length} institution${institutions.length !== 1 ? "s" : ""} found`}
-              </span>
-              {query && (
-                <span className="text-xs text-slate-400">Results for: <span className="font-semibold text-slate-600">"{query}"</span></span>
-              )}
-            </div>
-
+          <PanelCard
+            icon={Building2}
+            title={
+              isLoading ? "Searching…" :
+              isError   ? "Error loading results" :
+              `${institutions.length} institution${institutions.length !== 1 ? "s" : ""} found`
+            }
+            subtitle={query ? `Results for "${query}"` : undefined}
+            contentClassName="p-0"
+          >
             {isLoading && (
               <div className="flex items-center gap-3 px-5 py-8 text-slate-400">
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin text-[#4285F4]" />
                 <span className="text-sm">Fetching from FDIC BankFind Suite…</span>
               </div>
             )}
@@ -354,7 +353,8 @@ export default function BankCallReport() {
 
             {!isLoading && !isError && institutions.length === 0 && (
               <div className="px-5 py-10 text-center text-sm text-slate-400">
-                No institutions found for "<span className="text-slate-600 font-medium">{query}</span>". Try a shorter or different name.
+                No institutions found for "<span className="text-slate-600 font-medium">{query}</span>".
+                Try a shorter or different name.
               </div>
             )}
 
@@ -362,7 +362,7 @@ export default function BankCallReport() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100">
+                    <tr className="border-b border-slate-100 bg-slate-50/60">
                       <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Institution</th>
                       <th className="px-4 py-2.5 text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Assets</th>
                       <th className="px-4 py-2.5 text-right text-[10px] font-semibold text-slate-400 uppercase tracking-wider hidden sm:table-cell">Charter</th>
@@ -383,21 +383,23 @@ export default function BankCallReport() {
                 </table>
               </div>
             )}
-          </div>
+          </PanelCard>
         )}
 
         {/* Empty state */}
         {!query && (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-white/60 py-14 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 mx-auto mb-3">
-              <Landmark className="h-6 w-6 text-sky-500" strokeWidth={1.5} />
+          <PanelCard icon={Landmark} title="Search FDIC-Insured Institutions" subtitle="Enter any bank name above to retrieve real call report data from the FDIC BankFind Suite API. Click any result to expand the full report.">
+            <div className="py-8 flex flex-col items-center gap-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#4285F4]/10">
+                <Landmark className="h-7 w-7 text-[#4285F4]" strokeWidth={1.5} />
+              </div>
+              <p className="text-sm text-slate-400 text-center max-w-xs">
+                Enter any bank name in the search box above to retrieve live call report data including assets, deposits, income, and regulatory status.
+              </p>
             </div>
-            <p className="text-sm font-semibold text-slate-600 mb-1">Search FDIC-Insured Institutions</p>
-            <p className="text-xs text-slate-400 max-w-xs mx-auto">
-              Enter any bank name above to retrieve real call report data from the FDIC BankFind Suite API. Click any result to expand the full report.
-            </p>
-          </div>
+          </PanelCard>
         )}
+
       </div>
     </SprinkleShell>
   );
