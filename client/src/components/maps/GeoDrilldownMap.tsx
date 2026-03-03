@@ -350,10 +350,10 @@ function USCountyMap({
               // Pulsating heatmap animation — only for loan choropleth, not risk layers
               const fipsNum = parseInt(fips, 10) || 0;
               const pulseDuration = !riskLayer && hasData
-                ? (t >= 0.6 ? 1.6 + (fipsNum % 7) * 0.22 : 2.4 + (fipsNum % 11) * 0.3) + "s"
+                ? (t >= 0.6 ? 1.1 + (fipsNum % 7) * 0.16 : 1.7 + (fipsNum % 11) * 0.20) + "s"
                 : "0s";
               const pulseDelay = !riskLayer && hasData
-                ? (1.0 + (fipsNum % 23) * 0.19).toFixed(2) + "s"
+                ? (0.3 + (fipsNum % 23) * 0.14).toFixed(2) + "s"
                 : "0s";
               const pulseAnim = !riskLayer && hasData
                 ? (t >= 0.6 ? "county-heat-pulse-hi" : "county-heat-pulse")

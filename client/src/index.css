@@ -127,30 +127,32 @@ body {
   100% { fill: #bfdbfe; }
 }
 
-/* Heatmap pulse — data counties breathe with a blue glow (low/mid density) */
+/* Heatmap pulse — data counties breathe with a blue-yellow glow (low/mid density) */
 @keyframes county-heat-pulse {
   0%, 100% {
     opacity: 1;
-    filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.55))
-            drop-shadow(0 0 8px rgba(30, 58, 138, 0.25));
+    filter: drop-shadow(0 0 7px rgba(59, 130, 246, 0.70))
+            drop-shadow(0 0 12px rgba(30, 58, 138, 0.35))
+            drop-shadow(0 0 4px rgba(250, 204, 21, 0.28));
   }
   50% {
-    opacity: 0.72;
-    filter: drop-shadow(0 0 1px rgba(59, 130, 246, 0.15));
+    opacity: 0.58;
+    filter: drop-shadow(0 0 1px rgba(59, 130, 246, 0.10));
   }
 }
 
-/* High-intensity heatmap pulse — hot counties glow stronger */
+/* High-intensity heatmap pulse — hot counties pulse hard with yellow-blue corona */
 @keyframes county-heat-pulse-hi {
   0%, 100% {
     opacity: 1;
-    filter: drop-shadow(0 0 7px rgba(30, 58, 138, 0.75))
-            drop-shadow(0 0 14px rgba(37, 99, 235, 0.45))
-            drop-shadow(0 0 2px rgba(219, 234, 254, 0.9));
+    filter: drop-shadow(0 0 12px rgba(30, 58, 138, 0.90))
+            drop-shadow(0 0 20px rgba(37, 99, 235, 0.60))
+            drop-shadow(0 0 8px rgba(250, 204, 21, 0.55))
+            drop-shadow(0 0 3px rgba(219, 234, 254, 0.95));
   }
   45% {
-    opacity: 0.78;
-    filter: drop-shadow(0 0 2px rgba(30, 58, 138, 0.25));
+    opacity: 0.60;
+    filter: drop-shadow(0 0 2px rgba(30, 58, 138, 0.18));
   }
 }
 
