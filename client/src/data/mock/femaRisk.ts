@@ -58,9 +58,9 @@ export function getRiskForState(stateAbbr: string): StateRisk {
 }
 
 export const RISK_COLORS: Record<RiskLevel, { fill: string; badge: string; text: string }> = {
-  High: { fill: "#ef4444", badge: "bg-red-100 text-red-700 border-red-200", text: "text-red-600" },
-  Moderate: { fill: "#f59e0b", badge: "bg-amber-100 text-amber-700 border-amber-200", text: "text-amber-600" },
-  Low: { fill: "#22c55e", badge: "bg-green-100 text-green-700 border-green-200", text: "text-green-600" },
+  High:     { fill: "#1e3a8a", badge: "bg-blue-100 text-blue-900 border-blue-300",    text: "text-blue-900" },
+  Moderate: { fill: "#0891b2", badge: "bg-cyan-100 text-cyan-800 border-cyan-300",    text: "text-cyan-700" },
+  Low:      { fill: "#bae6fd", badge: "bg-sky-50  text-sky-700  border-sky-200",      text: "text-sky-600"  },
 };
 
 export const WILDFIRE_COLORS: Record<RiskLevel, { fill: string }> = {
