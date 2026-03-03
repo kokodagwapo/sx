@@ -88,6 +88,13 @@ body {
   background: transparent;
 }
 
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;

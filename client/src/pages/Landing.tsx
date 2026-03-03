@@ -1109,7 +1109,7 @@ function HeroSection() {
   return (
     <section className="flex flex-col flex-1 relative pt-20 overflow-hidden">
       {/* Scrollable results area — grows upward, scrolls when full */}
-      <div ref={resultsScrollRef} className="flex-1 overflow-y-auto flex flex-col justify-end items-center px-4 min-h-0">
+      <div ref={resultsScrollRef} className="flex-1 overflow-y-auto scrollbar-none flex flex-col justify-end items-center px-4 min-h-0">
         <ResultsPanel
           results={results} viewMode={viewMode} onViewModeChange={setViewMode}
           cohiResponse={cohiResponse} isLoading={isLoading}
