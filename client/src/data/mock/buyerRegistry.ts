@@ -5,7 +5,7 @@ export type BuyerEntry = {
   displayName: string;
   shortName: string;
   type: BuyerType;
-  fdicSearchName?: string;
+  fdicCert?: number;
   color: "sky" | "indigo" | "violet" | "emerald" | "amber";
   description: string;
   hq: string;
@@ -17,7 +17,7 @@ export const BUYER_REGISTRY: Record<string, BuyerEntry> = {
     displayName: "JPMorgan Chase Bank, NA",
     shortName: "JPMorgan Chase",
     type: "bank",
-    fdicSearchName: "JPMORGAN CHASE BANK",
+    fdicCert: 628,
     color: "sky",
     description: "Largest U.S. bank by assets; primary dealer and leading whole-loan buyer",
     hq: "Columbus, OH",
@@ -27,7 +27,7 @@ export const BUYER_REGISTRY: Record<string, BuyerEntry> = {
     displayName: "Bank of America, NA",
     shortName: "Bank of America",
     type: "bank",
-    fdicSearchName: "BANK OF AMERICA",
+    fdicCert: 3510,
     color: "indigo",
     description: "Second-largest U.S. bank; significant residential mortgage portfolio",
     hq: "Charlotte, NC",
@@ -37,7 +37,7 @@ export const BUYER_REGISTRY: Record<string, BuyerEntry> = {
     displayName: "Wells Fargo Bank, NA",
     shortName: "Wells Fargo",
     type: "bank",
-    fdicSearchName: "WELLS FARGO BANK",
+    fdicCert: 3511,
     color: "violet",
     description: "Major retail and mortgage bank; one of largest portfolio whole-loan buyers",
     hq: "Sioux Falls, SD",

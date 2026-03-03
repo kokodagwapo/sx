@@ -148,26 +148,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return data;
   }
 
-  // Search by institution name fragment (returns top result by total assets)
-  app.get("/api/fdic/search", async (req, res) => {
-    const name = String(req.query.name ?? "").trim().slice(0, 120);
-    if (!name) return res.status(400).json({ error: "name required" });
-    try {
-      const encoded = encodeURIComponent(name);
-      const url = `https://api.fdic.gov/banks?filters=ACTIVE%3A1&search=NAME%3A${encoded}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,INSTCAT&limit=1&sort_by=ASSET&sort_order=DESC`;
-      const data = await fdicFetch(url, `search:${name.toLowerCase()}`);
-      res.json(data);
-    } catch {
-      res.status(502).json({ error: "FDIC API unavailable" });
-    }
-  });
-
-  // Fetch by FDIC certificate number
+  // Fetch institution by FDIC certificate number
+  // Correct FDIC BankFind Suite endpoint: api.fdic.gov/banks/institutions?filters=CERT:{n}
   app.get("/api/fdic/institution/:cert", async (req, res) => {
     const cert = parseInt(req.params.cert ?? "");
     if (isNaN(cert)) return res.status(400).json({ error: "invalid cert" });
     try {
-      const url = `https://api.fdic.gov/banks/${cert}?fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,INSTCAT`;
+      const url = `https://api.fdic.gov/banks/institutions?filters=CERT%3A${cert}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE&limit=1`;
       const data = await fdicFetch(url, `cert:${cert}`);
       res.json(data);
     } catch {
