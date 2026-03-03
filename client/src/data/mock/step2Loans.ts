@@ -101,6 +101,12 @@ export function generateStep2Loans(): Step2Loan[] {
       // DTI: typical range 18–50%, Gaussian-ish using two rng() calls
       const dtiRaw = 18 + (rng() + rng()) * 16;
       const dti = Math.round(dtiRaw * 10) / 10;
+      // LTV: bell-shaped 50–97, centred around 78
+      const ltvRaw = 50 + (rng() + rng() + rng()) * 15.67;
+      const ltv = Math.round(Math.min(97, Math.max(50, ltvRaw)) * 10) / 10;
+      // FICO: bell-shaped 620–820, centred around 730
+      const ficoRaw = 620 + (rng() + rng() + rng()) * 66.67;
+      const fico = Math.round(Math.min(820, Math.max(620, ficoRaw)) / 5) * 5;
 
       loans.push({
         id: `loan-${++id}`,
@@ -118,6 +124,8 @@ export function generateStep2Loans(): Step2Loan[] {
         buyerId,
         units,
         dti,
+        ltv,
+        fico,
       });
     }
   }

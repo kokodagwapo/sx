@@ -514,39 +514,6 @@ export default function Step1Geography() {
       animateKpis
       kpiCompact
     >
-      {/* Import / Export toolbar */}
-      <div className="mb-3 flex items-center gap-2 justify-end">
-        <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded — click to re-import` : "Upload loan tape CSV or Excel to populate the map & all sections"} side="bottom">
-          <button
-            type="button"
-            onClick={() => setUploadOpen(true)}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all shadow-sm",
-              importedLoans
-                ? "bg-sky-500 text-white border-sky-500 hover:bg-sky-600"
-                : "bg-white/70 text-slate-600 border-white/60 hover:bg-white hover:text-sky-600 backdrop-blur-sm"
-            )}
-          >
-            <UploadCloud className="h-3.5 w-3.5" strokeWidth={2} />
-            {importedLoans ? `${importedLoans.length.toLocaleString()} Loans Loaded` : "Import Tape"}
-          </button>
-        </Tooltip>
-        <Tooltip content="Download current portfolio as CSV" side="bottom">
-          <a
-            href={`data:text/csv;charset=utf-8,${encodeURIComponent(
-              ["State,County,Tract,Loans,UPB", ...step1LoansByGeo.map(l =>
-                `${l.stateName},${l.countyName},${l.tractName},${l.loanCount},${l.upb}`
-              )].join("\n")
-            )}`}
-            download="portfolio_geography.csv"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm backdrop-blur-sm transition-all hover:bg-white hover:text-slate-800"
-          >
-            <FileDown className="h-3.5 w-3.5" strokeWidth={2} />
-            Export CSV
-          </a>
-        </Tooltip>
-      </div>
-
       {/* Top: Left = KPIs + filter + narrative | Right = Map (prominent) */}
       <div className="grid gap-4 lg:grid-cols-[minmax(0,356px)_1fr] lg:items-start">
         {/* Left column: metrics + controls + insights */}
@@ -702,6 +669,36 @@ export default function Step1Geography() {
                   {lvl}
                 </span>
               ))}
+
+              {/* Divider + icon actions */}
+              <span className="ml-1.5 text-[10px] text-slate-300">|</span>
+              <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded — click to re-import` : "Import loan tape (CSV / Excel)"} side="bottom">
+                <button
+                  type="button"
+                  onClick={() => setUploadOpen(true)}
+                  className={cn(
+                    "rounded-md p-1 transition-colors",
+                    importedLoans
+                      ? "text-sky-500 hover:bg-sky-100/60"
+                      : "text-slate-400 hover:bg-slate-200/60 hover:text-slate-600"
+                  )}
+                >
+                  <UploadCloud className="h-3.5 w-3.5" strokeWidth={2} />
+                </button>
+              </Tooltip>
+              <Tooltip content="Export portfolio geography as CSV" side="bottom">
+                <a
+                  href={`data:text/csv;charset=utf-8,${encodeURIComponent(
+                    ["State,County,Tract,Loans,UPB", ...step1LoansByGeo.map(l =>
+                      `${l.stateName},${l.countyName},${l.tractName},${l.loanCount},${l.upb}`
+                    )].join("\n")
+                  )}`}
+                  download="portfolio_geography.csv"
+                  className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-200/60 hover:text-slate-600"
+                >
+                  <FileDown className="h-3.5 w-3.5" strokeWidth={2} />
+                </a>
+              </Tooltip>
             </div>
           </div>
 
