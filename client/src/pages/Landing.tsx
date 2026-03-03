@@ -994,7 +994,7 @@ function CompareBar({ pinnedIds, onCompare, onClear, onSavePool, poolCount }: {
 function HeroSection() {
   const { isDark } = useTheme();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<InstitutionResult[]>(ALL_INSTITUTIONS);
+  const [results, setResults] = useState<InstitutionResult[]>([]);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [cohiMode, setCohiMode] = useState(false);
   const [cohiResponse, setCohiResponse] = useState<string | null>(null);
