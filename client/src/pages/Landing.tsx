@@ -1,10 +1,10 @@
-import { useState, useCallback, useRef, useMemo, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useContext, createContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search, Mic, MicOff, Bot, ArrowRight, LayoutList, LayoutGrid,
   Pin, Eye, X, ChevronDown, Trophy, Shield, Sparkles, MapPin,
   Scale, Pencil, Trash2, Check, Plus, ArrowUpRight, Layers,
-  Building2,
+  Building2, Moon, Sun, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LenderDrilldownModal } from "@/components/buyers/LenderDrilldownModal";
@@ -12,13 +12,22 @@ import { BuyerModal } from "@/components/buyers/BuyerInfoCard";
 import { usePools } from "@/context/PoolsContext";
 import realStats from "@/data/real/realStats.json";
 
+// ─── Theme Context ────────────────────────────────────────────────────────────
+
+const ThemeCtx = createContext<{ isDark: boolean; toggle: () => void }>({ isDark: false, toggle: () => {} });
+const useTheme = () => useContext(ThemeCtx);
+
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type BuyerType = "bank" | "credit_union" | "insurance" | "gse";
+type FilterCategory = "all" | "seller" | "bank" | "credit_union" | "insurance" | "gse";
 
 type InstitutionResult = {
   id: string;
   name: string;
   kind: "seller" | "buyer";
   buyerId?: string;
+  buyerType?: BuyerType;
   color: "sky" | "amber" | "rose" | "indigo" | "violet" | "emerald";
   institutionType?: string;
   hq?: string;
@@ -36,7 +45,7 @@ type InstitutionResult = {
   topStates: { s: string; c: number }[];
 };
 
-// ─── Real institution data ────────────────────────────────────────────────────
+// ─── Institution data ─────────────────────────────────────────────────────────
 
 const INSTITUTIONS: InstitutionResult[] = [
   {
@@ -62,62 +71,51 @@ const INSTITUTIONS: InstitutionResult[] = [
   },
 ];
 
+function mkBuyer(
+  id: string, name: string, buyerType: BuyerType,
+  color: InstitutionResult["color"], institutionType: string,
+  hq: string, description: string, assets: number,
+): InstitutionResult {
+  return {
+    id, name, kind: "buyer", buyerId: id, buyerType, color,
+    institutionType, hq, description, assets,
+    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
+    products: { p30: 0, p15: 0, pArm: 0 },
+    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
+    topStates: [],
+  };
+}
+
 const BUYERS: InstitutionResult[] = [
-  {
-    id: "BNK-001", name: "JPMorgan Chase Bank, NA", kind: "buyer", buyerId: "BNK-001", color: "sky",
-    institutionType: "FDIC-Insured Bank", hq: "Columbus, OH",
-    description: "Largest U.S. bank by total assets; leading whole-loan and MBS buyer with global capital markets presence.",
-    assets: 3900000000000,
-    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
-    products: { p30: 0, p15: 0, pArm: 0 },
-    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
-    topStates: [],
-  },
-  {
-    id: "BNK-002", name: "Bank of America, NA", kind: "buyer", buyerId: "BNK-002", color: "indigo",
-    institutionType: "FDIC-Insured Bank", hq: "Charlotte, NC",
-    description: "Second-largest U.S. bank; active acquirer of residential mortgage pools and GSE-eligible collateral.",
-    assets: 3300000000000,
-    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
-    products: { p30: 0, p15: 0, pArm: 0 },
-    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
-    topStates: [],
-  },
-  {
-    id: "BNK-003", name: "Wells Fargo Bank, NA", kind: "buyer", buyerId: "BNK-003", color: "violet",
-    institutionType: "FDIC-Insured Bank", hq: "Sioux Falls, SD",
-    description: "Top-4 U.S. bank; historically one of the largest mortgage servicers and whole-loan buyers in the country.",
-    assets: 1900000000000,
-    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
-    products: { p30: 0, p15: 0, pArm: 0 },
-    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
-    topStates: [],
-  },
-  {
-    id: "CU-001", name: "PenFed Credit Union", kind: "buyer", buyerId: "CU-001", color: "emerald",
-    institutionType: "Federal Credit Union", hq: "McLean, VA",
-    description: "Largest federal credit union by assets; active buyer of conforming mortgage pools with competitive pricing.",
-    assets: 38000000000,
-    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
-    products: { p30: 0, p15: 0, pArm: 0 },
-    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
-    topStates: [],
-  },
-  {
-    id: "INS-001", name: "Pacific Life Insurance Co.", kind: "buyer", buyerId: "INS-001", color: "amber",
-    institutionType: "Insurance Company", hq: "Newport Beach, CA",
-    description: "Major life insurance carrier; invests in high-quality mortgage loans and MBS as part of long-duration asset-liability management.",
-    assets: 150000000000,
-    count: 0, upb: 0, waRate: 0, waFico: 0, waLtv: 0, waDti: 0, avgBal: 0,
-    products: { p30: 0, p15: 0, pArm: 0 },
-    status: { avail: 0, alloc: 0, comm: 0, sold: 0 },
-    topStates: [],
-  },
+  mkBuyer("BNK-001", "JPMorgan Chase Bank, NA",    "bank",         "sky",     "FDIC-Insured Bank",     "Columbus, OH",       "Largest U.S. bank by total assets; leading whole-loan and MBS buyer with global capital markets presence.",                          3_900_000_000_000),
+  mkBuyer("BNK-002", "Bank of America, NA",         "bank",         "indigo",  "FDIC-Insured Bank",     "Charlotte, NC",      "Second-largest U.S. bank; active acquirer of residential mortgage pools and GSE-eligible collateral.",                             3_300_000_000_000),
+  mkBuyer("BNK-003", "Wells Fargo Bank, NA",        "bank",         "violet",  "FDIC-Insured Bank",     "Sioux Falls, SD",    "Top-4 U.S. bank; historically one of the largest mortgage servicers and whole-loan buyers in the country.",                        1_900_000_000_000),
+  mkBuyer("BNK-004", "Citibank, NA",                "bank",         "emerald", "FDIC-Insured Bank",     "New York, NY",       "Third-largest U.S. bank; major residential mortgage investor and whole-loan acquirer with global presence.",                       1_700_000_000_000),
+  mkBuyer("BNK-005", "U.S. Bank, NA",               "bank",         "amber",   "FDIC-Insured Bank",     "Cincinnati, OH",     "Fifth-largest U.S. bank; active portfolio lender and mortgage-backed securities investor.",                                       680_000_000_000),
+  mkBuyer("BNK-006", "PNC Bank, NA",                "bank",         "rose",    "FDIC-Insured Bank",     "Pittsburgh, PA",     "Major regional bank; significant residential mortgage portfolio and whole-loan acquisition program.",                              560_000_000_000),
+  mkBuyer("BNK-007", "Truist Bank",                 "bank",         "sky",     "FDIC-Insured Bank",     "Charlotte, NC",      "Top-6 U.S. bank formed from BB&T/SunTrust merger; active in Southeast mortgage markets.",                                        535_000_000_000),
+  mkBuyer("BNK-008", "Capital One, NA",             "bank",         "indigo",  "FDIC-Insured Bank",     "McLean, VA",         "Large diversified bank; selectively acquires residential mortgage loans to complement retail deposits.",                           465_000_000_000),
+  mkBuyer("BNK-009", "TD Bank, NA",                 "bank",         "violet",  "FDIC-Insured Bank",     "Cherry Hill, NJ",    "U.S. subsidiary of TD Bank Group; major East Coast mortgage lender and portfolio investor.",                                      390_000_000_000),
+  mkBuyer("BNK-010", "Goldman Sachs Bank USA",      "bank",         "emerald", "FDIC-Insured Bank",     "Salt Lake City, UT", "Investment bank FDIC subsidiary; invests in mortgage assets and MBS through its institutional banking platform.",                  595_000_000_000),
+  mkBuyer("BNK-011", "Citizens Bank, NA",           "bank",         "amber",   "FDIC-Insured Bank",     "Providence, RI",     "Major Northeast regional bank; active residential mortgage lender and whole-loan portfolio buyer.",                               225_000_000_000),
+  mkBuyer("BNK-012", "Regions Bank",                "bank",         "rose",    "FDIC-Insured Bank",     "Birmingham, AL",     "Large Southeast regional bank; purchases residential mortgage pools to serve community lending needs.",                           160_000_000_000),
+  mkBuyer("BNK-013", "Fifth Third Bank",            "bank",         "sky",     "FDIC-Insured Bank",     "Cincinnati, OH",     "Midwest-headquartered bank; active whole-loan buyer with focus on conforming and government mortgages.",                          215_000_000_000),
+  mkBuyer("BNK-014", "KeyBank, NA",                 "bank",         "indigo",  "FDIC-Insured Bank",     "Cleveland, OH",      "Top-15 U.S. bank; acquires residential mortgage pools through its community banking platform.",                                   190_000_000_000),
+  mkBuyer("BNK-015", "Flagstar Bank, NA",           "bank",         "violet",  "FDIC-Insured Bank",     "Hicksville, NY",     "Specialty mortgage bank; one of the largest non-bank mortgage servicers and a leading whole-loan buyer.",                         115_000_000_000),
+  mkBuyer("CU-001",  "PenFed Credit Union",         "credit_union", "emerald", "Federal Credit Union",  "McLean, VA",         "Largest federal credit union by assets; active buyer of conforming mortgage pools with competitive pricing.",                      38_000_000_000),
+  mkBuyer("CU-002",  "Navy Federal Credit Union",   "credit_union", "amber",   "Federal Credit Union",  "Vienna, VA",         "Largest U.S. federal credit union; major mortgage acquirer serving military and defense community.",                              170_000_000_000),
+  mkBuyer("CU-003",  "USAA Federal Savings Bank",   "bank",         "rose",    "FDIC-Insured Bank",     "San Antonio, TX",    "Bank serving U.S. military members and their families; major residential mortgage portfolio investor.",                          125_000_000_000),
+  mkBuyer("CU-004",  "Boeing Employees CU (BECU)",  "credit_union", "sky",     "State Credit Union",    "Tukwila, WA",        "Large Pacific Northwest credit union; acquires residential mortgage pools for member benefit.",                                    30_000_000_000),
+  mkBuyer("INS-001", "Pacific Life Insurance Co.",  "insurance",    "indigo",  "Insurance Company",     "Newport Beach, CA",  "Major life insurance carrier; invests in high-quality MBS and whole loans for long-duration asset-liability management.",          150_000_000_000),
+  mkBuyer("INS-002", "New York Life Insurance Co.", "insurance",    "violet",  "Insurance Company",     "New York, NY",       "Largest mutual life insurer in the U.S.; invests in residential mortgages for long-duration yield matching.",                     600_000_000_000),
+  mkBuyer("INS-003", "MetLife Insurance",           "insurance",    "emerald", "Insurance Company",     "New York, NY",       "Global life insurer; invests in residential MBS and whole loans as part of its fixed-income strategy.",                           730_000_000_000),
+  mkBuyer("INS-004", "Prudential Financial",        "insurance",    "amber",   "Insurance Company",     "Newark, NJ",         "Major life and annuity insurer; allocates to residential mortgage investments for liability-duration matching.",                   1_500_000_000_000),
+  mkBuyer("INV-001", "BlackRock Mortgage Strategies","gse",         "rose",    "Investment Manager",    "New York, NY",       "World's largest asset manager; operates multiple mortgage-focused funds acquiring whole loans and MBS.",                         10_000_000_000_000),
+  mkBuyer("INV-002", "TIAA Financial Services",     "insurance",    "sky",     "Insurance Company",     "New York, NY",       "Teacher Insurance and Annuity Association; long-duration fixed income investor including residential mortgage assets.",           1_200_000_000_000),
 ];
 
 const ALL_INSTITUTIONS: InstitutionResult[] = [...INSTITUTIONS, ...BUYERS];
 
-// Per-seller, per-state counts for quick action #4
 const SELLER_STATE_COUNTS: Record<string, Record<string, number>> = {
   provident:           { CA: 773, UT: 195, WA: 176, TX: 168, CO: 153, AZ: 138, ID: 95, NV: 78, OR: 61, MT: 32 },
   stonegate:           { CA: 124, IL: 101, OH: 74,  NJ: 60,  PA: 47,  NY: 44,  MI: 38, IN: 27, MO: 22, WI: 18 },
@@ -126,16 +124,27 @@ const SELLER_STATE_COUNTS: Record<string, Record<string, number>> = {
 
 const ALL_STATES = Object.keys((realStats as any).byState ?? {}).sort();
 
-// ─── Color helpers ────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const COLOR_MAP = {
-  sky:     { accent: "bg-sky-600",     light: "bg-sky-50",     text: "text-sky-700",     border: "border-sky-200",     bar: "bg-sky-500",     ring: "ring-sky-400"     },
-  amber:   { accent: "bg-amber-500",   light: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-200",   bar: "bg-amber-400",   ring: "ring-amber-400"   },
-  rose:    { accent: "bg-rose-600",    light: "bg-rose-50",    text: "text-rose-700",    border: "border-rose-200",    bar: "bg-rose-500",    ring: "ring-rose-400"    },
-  indigo:  { accent: "bg-indigo-600",  light: "bg-indigo-50",  text: "text-indigo-700",  border: "border-indigo-200",  bar: "bg-indigo-500",  ring: "ring-indigo-400"  },
-  violet:  { accent: "bg-violet-600",  light: "bg-violet-50",  text: "text-violet-700",  border: "border-violet-200",  bar: "bg-violet-500",  ring: "ring-violet-400"  },
-  emerald: { accent: "bg-emerald-600", light: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", ring: "ring-emerald-400" },
+  sky:     { accent: "bg-sky-600",     light: "bg-sky-50",     text: "text-sky-700",     border: "border-sky-200",     bar: "bg-sky-500",     leftBorder: "border-l-sky-500"     },
+  amber:   { accent: "bg-amber-500",   light: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-200",   bar: "bg-amber-400",   leftBorder: "border-l-amber-400"   },
+  rose:    { accent: "bg-rose-600",    light: "bg-rose-50",    text: "text-rose-700",    border: "border-rose-200",    bar: "bg-rose-500",    leftBorder: "border-l-rose-500"    },
+  indigo:  { accent: "bg-indigo-600",  light: "bg-indigo-50",  text: "text-indigo-700",  border: "border-indigo-200",  bar: "bg-indigo-500",  leftBorder: "border-l-indigo-500"  },
+  violet:  { accent: "bg-violet-600",  light: "bg-violet-50",  text: "text-violet-700",  border: "border-violet-200",  bar: "bg-violet-500",  leftBorder: "border-l-violet-500"  },
+  emerald: { accent: "bg-emerald-600", light: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", bar: "bg-emerald-500", leftBorder: "border-l-emerald-500" },
 };
+
+const PAGE_SIZE = 20;
+
+const FILTER_CHIPS: { id: FilterCategory; label: string }[] = [
+  { id: "all",          label: "All"           },
+  { id: "seller",       label: "Loan Sellers"  },
+  { id: "bank",         label: "Banks"         },
+  { id: "credit_union", label: "Credit Unions" },
+  { id: "insurance",    label: "Insurance"     },
+  { id: "gse",          label: "Investment"    },
+];
 
 function fmt(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
@@ -143,25 +152,52 @@ function fmt(n: number): string {
   return `$${n.toLocaleString()}`;
 }
 
+function fmtAssets(n: number): string {
+  if (n >= 1e12) return `$${(n / 1e12).toFixed(1)}T`;
+  if (n >= 1e9)  return `$${(n / 1e9).toFixed(0)}B`;
+  return `$${(n / 1e6).toFixed(0)}M`;
+}
+
 function pct(n: number, total: number) { return total ? ((n / total) * 100).toFixed(0) + "%" : "0%"; }
+
+function applyFilter(items: InstitutionResult[], filter: FilterCategory): InstitutionResult[] {
+  if (filter === "all") return items;
+  if (filter === "seller") return items.filter((i) => i.kind === "seller");
+  return items.filter((i) => i.kind === "buyer" && i.buyerType === filter);
+}
 
 // ─── LandingNav ───────────────────────────────────────────────────────────────
 
 function LandingNav() {
   const navigate = useNavigate();
+  const { isDark, toggle } = useTheme();
+
   return (
-    <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 py-3 backdrop-blur-md bg-white/5 border-b border-white/10">
+    <nav className={cn(
+      "fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 py-3 backdrop-blur-md border-b transition-colors",
+      isDark ? "bg-white/5 border-white/10" : "bg-white/90 border-slate-200",
+    )}>
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 shadow-lg shadow-sky-500/30">
           <span className="text-[11px] font-black text-white tracking-tight">SX</span>
         </div>
         <div>
-          <span className="text-white font-semibold text-sm tracking-tight">SprinkleX</span>
-          <span className="ml-2 text-white/40 text-xs">Loan Portfolio Analytics</span>
+          <span className={cn("font-semibold text-sm tracking-tight", isDark ? "text-white" : "text-slate-900")}>SprinkleX</span>
+          <span className={cn("ml-2 text-xs", isDark ? "text-white/40" : "text-slate-400")}>Loan Portfolio Analytics</span>
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <span className="text-white/60 text-sm">Hey, Maylin 👋</span>
+      <div className="flex items-center gap-2">
+        <span className={cn("text-sm", isDark ? "text-white/60" : "text-slate-500")}>Hey, Maylin 👋</span>
+        <button
+          onClick={toggle}
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            isDark ? "text-white/60 hover:bg-white/10 hover:text-white" : "text-slate-500 hover:bg-slate-100 hover:text-slate-700",
+          )}
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
         <button
           onClick={() => navigate("/step/1")}
           className="flex items-center gap-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 px-4 py-1.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition-all"
@@ -188,33 +224,27 @@ type SearchBarProps = {
 
 function SearchBar({ query, onQueryChange, onSubmit, cohiMode, onCohiToggle, isListening, onMicToggle, isLoading }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleKey = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") onSubmit();
-  };
+  const handleKey = (e: React.KeyboardEvent) => { if (e.key === "Enter") onSubmit(); };
 
   return (
     <div className="relative max-w-2xl w-full">
       <div className={cn(
-        "flex items-center gap-2 rounded-2xl bg-white/95 px-4 py-3 shadow-[0_8px_60px_rgba(0,0,0,0.5)] backdrop-blur-sm border border-white/20 transition-all duration-200",
-        cohiMode && "ring-2 ring-indigo-500/40",
+        "flex items-center gap-2 rounded-2xl px-4 py-3 shadow-[0_8px_60px_rgba(0,0,0,0.3)] backdrop-blur-sm border transition-all duration-200 bg-white",
+        cohiMode ? "ring-2 ring-indigo-500/40 border-indigo-200" : "border-white/20",
       )}>
-        {cohiMode ? (
-          <Bot className="h-5 w-5 text-indigo-500 flex-shrink-0" />
-        ) : (
-          <Search className="h-5 w-5 text-slate-400 flex-shrink-0" />
-        )}
+        {cohiMode
+          ? <Bot className="h-5 w-5 text-indigo-500 flex-shrink-0" />
+          : <Search className="h-5 w-5 text-slate-400 flex-shrink-0" />
+        }
         <input
           ref={inputRef}
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           onKeyDown={handleKey}
-          placeholder={cohiMode ? "Ask Cohi about the portfolio..." : "Search institutions, states, products..."}
+          placeholder={cohiMode ? "Ask Cohi about the portfolio..." : "Search by name, type, state, HQ city..."}
           className="flex-1 bg-transparent text-slate-800 placeholder:text-slate-400 text-sm outline-none"
         />
-        {isLoading && (
-          <div className="h-4 w-4 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin flex-shrink-0" />
-        )}
+        {isLoading && <div className="h-4 w-4 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin flex-shrink-0" />}
         <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={onMicToggle}
@@ -222,7 +252,6 @@ function SearchBar({ query, onQueryChange, onSubmit, cohiMode, onCohiToggle, isL
               "flex h-8 w-8 items-center justify-center rounded-full transition-all",
               isListening ? "bg-red-500 text-white ring-2 ring-red-400 ring-offset-1" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600",
             )}
-            title={isListening ? "Stop listening" : "Voice input"}
           >
             {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </button>
@@ -232,7 +261,6 @@ function SearchBar({ query, onQueryChange, onSubmit, cohiMode, onCohiToggle, isL
               "flex h-8 w-8 items-center justify-center rounded-full transition-all",
               cohiMode ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/30" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600",
             )}
-            title={cohiMode ? "Cohi AI on" : "Enable Cohi AI"}
           >
             <Bot className="h-4 w-4" />
           </button>
@@ -250,13 +278,8 @@ function SearchBar({ query, onQueryChange, onSubmit, cohiMode, onCohiToggle, isL
 
 // ─── QuickActions ─────────────────────────────────────────────────────────────
 
-type QuickActionsProps = {
-  active: string | null;
-  onSelect: (action: string, state?: string) => void;
-  pinnedCount: number;
-};
-
-function QuickActions({ active, onSelect, pinnedCount }: QuickActionsProps) {
+function QuickActions({ active, onSelect, pinnedCount }: { active: string | null; onSelect: (action: string, state?: string) => void; pinnedCount: number }) {
+  const { isDark } = useTheme();
   const [stateOpen, setStateOpen] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
 
@@ -269,9 +292,11 @@ function QuickActions({ active, onSelect, pinnedCount }: QuickActionsProps) {
   }, []);
 
   const base = "rounded-full border text-xs font-medium px-3.5 py-1.5 transition-all flex items-center gap-1.5";
-  const normal = "border-white/20 bg-white/10 backdrop-blur-sm text-white/80 hover:bg-white/20 hover:border-white/30 hover:text-white";
-  const activeStyle = "bg-white/25 border-white/40 text-white";
-  const disabled = "border-white/10 bg-white/5 text-white/30 cursor-not-allowed";
+  const normal = isDark
+    ? "border-white/20 bg-white/10 backdrop-blur-sm text-white/80 hover:bg-white/20 hover:border-white/30 hover:text-white"
+    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 shadow-sm";
+  const activeStyle = isDark ? "bg-white/25 border-white/40 text-white" : "bg-slate-800 border-slate-800 text-white shadow-sm";
+  const disabled = isDark ? "border-white/10 bg-white/5 text-white/30 cursor-not-allowed" : "border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed";
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 mb-3 max-w-2xl w-full">
@@ -341,41 +366,55 @@ function CohiResponseCard({ answer }: { answer: string }) {
 // ─── ProductMiniBar ───────────────────────────────────────────────────────────
 
 function ProductMiniBar({ products, color }: { products: InstitutionResult["products"]; color: InstitutionResult["color"] }) {
+  const { isDark } = useTheme();
   const total = products.p30 + products.p15 + products.pArm;
   const c = COLOR_MAP[color];
   return (
-    <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-slate-100 mt-2">
+    <div className={cn("flex h-1.5 w-full overflow-hidden rounded-full mt-2", isDark ? "bg-white/15" : "bg-slate-100")}>
       <div className={cn(c.bar, "h-full")} style={{ width: pct(products.p30, total) }} title={`30FRM: ${pct(products.p30, total)}`} />
-      <div className="h-full bg-slate-300" style={{ width: pct(products.p15, total) }} title={`15FRM: ${pct(products.p15, total)}`} />
+      <div className={cn("h-full", isDark ? "bg-white/30" : "bg-slate-300")} style={{ width: pct(products.p15, total) }} title={`15FRM: ${pct(products.p15, total)}`} />
       {products.pArm > 0 && (
-        <div className="h-full bg-slate-400" style={{ width: pct(products.pArm, total) }} title={`ARM: ${pct(products.pArm, total)}`} />
+        <div className={cn("h-full", isDark ? "bg-white/20" : "bg-slate-400")} style={{ width: pct(products.pArm, total) }} title={`ARM: ${pct(products.pArm, total)}`} />
       )}
     </div>
   );
 }
 
-// ─── InstitutionCardList ──────────────────────────────────────────────────────
+// ─── Stat ─────────────────────────────────────────────────────────────────────
 
-function fmtAssets(n: number): string {
-  if (n >= 1e12) return `$${(n / 1e12).toFixed(1)}T`;
-  if (n >= 1e9)  return `$${(n / 1e9).toFixed(0)}B`;
-  return `$${(n / 1e6).toFixed(0)}M`;
+function Stat({ label, value }: { label: string; value: string }) {
+  const { isDark } = useTheme();
+  return (
+    <span className="text-xs">
+      <span className={isDark ? "text-white/40" : "text-slate-400"}>{label} </span>
+      <span className={cn("font-semibold", isDark ? "text-white/80" : "text-slate-700")}>{value}</span>
+    </span>
+  );
 }
+
+// ─── InstitutionCardList ──────────────────────────────────────────────────────
 
 function InstitutionCardList({
   inst, pinned, onPin, onView,
 }: { inst: InstitutionResult; pinned: boolean; onPin: () => void; onView: () => void }) {
+  const { isDark } = useTheme();
   const c = COLOR_MAP[inst.color];
   const isBuyer = inst.kind === "buyer";
+
   return (
-    <div className={cn("rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow p-4", c.border)}>
+    <div className={cn(
+      "transition-all p-4",
+      isDark
+        ? cn("rounded-2xl bg-white/10 hover:bg-white/[0.15] backdrop-blur-sm border-l-4", c.leftBorder)
+        : cn("rounded-xl bg-white border shadow-sm hover:shadow-md", c.border),
+    )}>
       <div className="flex items-center gap-3">
         <div className={cn("flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-white font-bold text-sm shadow-sm", c.accent)}>
           {isBuyer ? <Building2 className="h-4 w-4" /> : inst.name[0]}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-slate-800 text-sm">{inst.name}</span>
+            <span className={cn("font-semibold text-sm", isDark ? "text-white" : "text-slate-800")}>{inst.name}</span>
             <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", c.light, c.text)}>
               {isBuyer ? (inst.institutionType ?? "Buyer") : "Loan Seller"}
             </span>
@@ -384,7 +423,7 @@ function InstitutionCardList({
             <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
               <Stat label="Total Assets" value={fmtAssets(inst.assets ?? 0)} />
               <Stat label="HQ" value={inst.hq ?? "—"} />
-              <span className="text-[11px] text-slate-400 truncate max-w-xs">{inst.description}</span>
+              <span className={cn("text-[11px] truncate max-w-xs", isDark ? "text-white/40" : "text-slate-400")}>{inst.description}</span>
             </div>
           ) : (
             <>
@@ -404,7 +443,11 @@ function InstitutionCardList({
             onClick={onPin}
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full border transition-all",
-              pinned ? cn(c.accent, "text-white border-transparent shadow-sm") : "border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600",
+              pinned
+                ? cn(c.accent, "text-white border-transparent shadow-sm")
+                : isDark
+                  ? "border-white/20 text-white/40 hover:border-white/40 hover:text-white/70"
+                  : "border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600",
             )}
             title={pinned ? "Unpin" : "Pin to compare"}
           >
@@ -412,22 +455,18 @@ function InstitutionCardList({
           </button>
           <button
             onClick={onView}
-            className={cn("flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all hover:shadow-sm", c.border, c.text, c.light)}
+            className={cn(
+              "flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all",
+              isDark
+                ? "bg-white/10 border-white/15 text-white/70 hover:bg-white/20 hover:text-white"
+                : cn("hover:shadow-sm", c.border, c.text, c.light),
+            )}
           >
             <Eye className="h-3 w-3" /> View Profile
           </button>
         </div>
       </div>
     </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <span className="text-xs text-slate-500">
-      <span className="text-slate-400">{label} </span>
-      <span className="font-semibold text-slate-700">{value}</span>
-    </span>
   );
 }
 
@@ -436,23 +475,30 @@ function Stat({ label, value }: { label: string; value: string }) {
 function InstitutionCardGrid({
   inst, pinned, onPin, onView,
 }: { inst: InstitutionResult; pinned: boolean; onPin: () => void; onView: () => void }) {
+  const { isDark } = useTheme();
   const c = COLOR_MAP[inst.color];
   const isBuyer = inst.kind === "buyer";
   const kpis = isBuyer
     ? [
         { label: "Total Assets", value: fmtAssets(inst.assets ?? 0) },
-        { label: "Type", value: inst.institutionType?.split(" ")[0] ?? "Buyer" },
-        { label: "HQ", value: inst.hq ?? "—" },
-        { label: "Status", value: "Active" },
+        { label: "Type",         value: inst.institutionType?.split(" ")[0] ?? "Buyer" },
+        { label: "HQ City",      value: (inst.hq ?? "—").split(",")[0] },
+        { label: "Status",       value: "Active" },
       ]
     : [
-        { label: "Loans", value: inst.count.toLocaleString() },
-        { label: "UPB", value: fmt(inst.upb) },
-        { label: "WAC", value: inst.waRate.toFixed(2) + "%" },
+        { label: "Loans",   value: inst.count.toLocaleString() },
+        { label: "UPB",     value: fmt(inst.upb) },
+        { label: "WAC",     value: inst.waRate.toFixed(2) + "%" },
         { label: "WA FICO", value: inst.waFico.toString() },
       ];
+
   return (
-    <div className={cn("rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden w-72 flex flex-col", c.border)}>
+    <div className={cn(
+      "overflow-hidden w-64 flex flex-col transition-all",
+      isDark
+        ? "rounded-2xl bg-white/10 hover:bg-white/[0.15] backdrop-blur-sm"
+        : cn("rounded-xl bg-white border shadow-sm hover:shadow-md", c.border),
+    )}>
       <div className={cn("px-4 py-3", c.accent)}>
         <div className="flex items-center gap-2">
           {isBuyer && <Building2 className="h-3.5 w-3.5 text-white/80" />}
@@ -460,38 +506,47 @@ function InstitutionCardGrid({
         </div>
         <div className="text-white/70 text-[11px]">{isBuyer ? (inst.institutionType ?? "Buyer") : "Loan Seller"}</div>
       </div>
-      <div className="grid grid-cols-2 gap-px bg-slate-100 flex-1">
+      <div className={cn("grid grid-cols-2 gap-px flex-1", isDark ? "bg-white/10" : "bg-slate-100")}>
         {kpis.map(({ label, value }) => (
-          <div key={label} className="bg-white px-3 py-2.5">
-            <div className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</div>
-            <div className="font-bold text-slate-800 text-sm tabular-nums truncate">{value}</div>
+          <div key={label} className={cn("px-3 py-2.5", isDark ? "bg-transparent" : "bg-white")}>
+            <div className={cn("text-[10px] uppercase tracking-wide", isDark ? "text-white/40" : "text-slate-400")}>{label}</div>
+            <div className={cn("font-bold text-sm tabular-nums truncate", isDark ? "text-white" : "text-slate-800")}>{value}</div>
           </div>
         ))}
       </div>
       {isBuyer && inst.description && (
-        <div className="px-3 pt-2 bg-white">
-          <p className="text-[10px] text-slate-400 leading-relaxed line-clamp-2">{inst.description}</p>
+        <div className={cn("px-3 pt-2", isDark ? "" : "bg-white")}>
+          <p className={cn("text-[10px] leading-relaxed line-clamp-2", isDark ? "text-white/40" : "text-slate-400")}>{inst.description}</p>
         </div>
       )}
       {!isBuyer && (
-        <div className="px-3 pt-2 bg-white">
+        <div className={cn("px-3 pt-2", isDark ? "" : "bg-white")}>
           <ProductMiniBar products={inst.products} color={inst.color} />
         </div>
       )}
-      <div className="px-3 pb-2 pt-2 bg-white">
+      <div className={cn("px-3 pb-3 pt-2", isDark ? "" : "bg-white")}>
         <div className="flex items-center gap-2">
           <button
             onClick={onPin}
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-full border transition-all",
-              pinned ? cn(c.accent, "text-white border-transparent") : "border-slate-200 text-slate-400 hover:text-slate-600",
+              pinned
+                ? cn(c.accent, "text-white border-transparent")
+                : isDark
+                  ? "border-white/20 text-white/40 hover:text-white/70"
+                  : "border-slate-200 text-slate-400 hover:text-slate-600",
             )}
           >
             <Pin className={cn("h-3 w-3", pinned && "fill-current")} />
           </button>
           <button
             onClick={onView}
-            className={cn("flex-1 flex items-center justify-center gap-1 rounded-lg border py-1.5 text-xs font-medium transition-all", c.border, c.text, c.light)}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-1 rounded-lg border py-1.5 text-xs font-medium transition-all",
+              isDark
+                ? "bg-white/10 border-white/15 text-white/70 hover:bg-white/20 hover:text-white"
+                : cn(c.border, c.text, c.light),
+            )}
           >
             <Eye className="h-3 w-3" /> View Profile
           </button>
@@ -501,7 +556,7 @@ function InstitutionCardGrid({
   );
 }
 
-// ─── ResultsPanel ─────────────────────────────────────────────────────────────
+// ─── ResultsPanel (with filter tabs + pagination) ─────────────────────────────
 
 type ResultsPanelProps = {
   results: InstitutionResult[];
@@ -515,42 +570,118 @@ type ResultsPanelProps = {
 };
 
 function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoading, pinned, onPin, onView }: ResultsPanelProps) {
+  const { isDark } = useTheme();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
+  const [page, setPage] = useState(0);
+
+  useEffect(() => { setActiveFilter("all"); setPage(0); }, [results]);
+
+  const counts: Record<FilterCategory, number> = {
+    all:          results.length,
+    seller:       results.filter((i) => i.kind === "seller").length,
+    bank:         results.filter((i) => i.kind === "buyer" && i.buyerType === "bank").length,
+    credit_union: results.filter((i) => i.kind === "buyer" && i.buyerType === "credit_union").length,
+    insurance:    results.filter((i) => i.kind === "buyer" && i.buyerType === "insurance").length,
+    gse:          results.filter((i) => i.kind === "buyer" && i.buyerType === "gse").length,
+  };
+
+  const filtered = applyFilter(results, activeFilter);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const pageItems = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  const handleFilterChange = (f: FilterCategory) => {
+    setActiveFilter(f);
+    setPage(0);
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  };
+
+  const handlePageChange = (p: number) => {
+    setPage(p);
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  };
+
+  const rangeStart = filtered.length === 0 ? 0 : page * PAGE_SIZE + 1;
+  const rangeEnd = Math.min((page + 1) * PAGE_SIZE, filtered.length);
+
   const hasContent = isLoading || cohiResponse || results.length > 0;
   if (!hasContent) return null;
 
   return (
     <div className="max-w-2xl w-full mb-3 animate-fade-in-up">
-      <div className="rounded-2xl border border-slate-200/80 bg-white shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
-          <span className="text-xs font-medium text-slate-500">
-            {isLoading ? "Searching…" : `${results.length} institution${results.length !== 1 ? "s" : ""}`}
+      <div className={cn(
+        "rounded-2xl overflow-hidden",
+        isDark ? "bg-white/[0.06] backdrop-blur-xl" : "bg-white shadow-xl border border-slate-100",
+      )}>
+        {/* Header */}
+        <div className={cn(
+          "flex items-center justify-between px-4 py-2.5 border-b",
+          isDark ? "bg-white/[0.04] border-white/[0.08]" : "bg-slate-50/50 border-slate-100",
+        )}>
+          <span className={cn("text-xs font-medium", isDark ? "text-white/50" : "text-slate-500")}>
+            {isLoading ? "Searching…" : filtered.length === 0 ? "No results" : `Showing ${rangeStart}–${rangeEnd} of ${filtered.length} institution${filtered.length !== 1 ? "s" : ""}`}
           </span>
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => onViewModeChange("list")}
-              className={cn("flex h-6 w-6 items-center justify-center rounded transition-colors", viewMode === "list" ? "bg-slate-200 text-slate-700" : "text-slate-400 hover:text-slate-600")}
-            >
-              <LayoutList className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => onViewModeChange("grid")}
-              className={cn("flex h-6 w-6 items-center justify-center rounded transition-colors", viewMode === "grid" ? "bg-slate-200 text-slate-700" : "text-slate-400 hover:text-slate-600")}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-            </button>
+            {[
+              { mode: "list" as const, Icon: LayoutList },
+              { mode: "grid" as const, Icon: LayoutGrid },
+            ].map(({ mode, Icon }) => (
+              <button
+                key={mode}
+                onClick={() => onViewModeChange(mode)}
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center rounded transition-colors",
+                  viewMode === mode
+                    ? isDark ? "bg-white/15 text-white" : "bg-slate-200 text-slate-700"
+                    : isDark ? "text-white/40 hover:text-white/70" : "text-slate-400 hover:text-slate-600",
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="max-h-[52vh] overflow-y-auto p-3 space-y-2">
+        {/* Filter chips */}
+        <div className={cn("flex gap-1.5 px-3 py-2 overflow-x-auto border-b scrollbar-none", isDark ? "border-white/[0.06]" : "border-slate-100")}>
+          {FILTER_CHIPS.map(({ id, label }) => {
+            const count = counts[id];
+            const isActive = activeFilter === id;
+            return (
+              <button
+                key={id}
+                onClick={() => handleFilterChange(id)}
+                className={cn(
+                  "flex-shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium transition-all whitespace-nowrap",
+                  isActive
+                    ? "bg-sky-600 border-sky-600 text-white shadow-sm"
+                    : isDark
+                      ? "border-white/15 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80"
+                      : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700",
+                )}
+              >
+                {label} <span className={cn("ml-0.5", isActive ? "opacity-80" : "opacity-60")}>({count})</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Card list */}
+        <div ref={scrollRef} className="max-h-[60vh] overflow-y-auto p-3 space-y-2">
           {isLoading && (
             <div className="flex items-center gap-3 px-3 py-4">
               <div className="h-5 w-5 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-              <span className="text-sm text-slate-500">Cohi is thinking…</span>
+              <span className={cn("text-sm", isDark ? "text-white/60" : "text-slate-500")}>Cohi is thinking…</span>
             </div>
           )}
           {cohiResponse && <CohiResponseCard answer={cohiResponse} />}
-          {viewMode === "list" ? (
-            results.map((inst) => (
+
+          {filtered.length === 0 && !isLoading ? (
+            <div className="py-8 text-center">
+              <p className={cn("text-sm", isDark ? "text-white/40" : "text-slate-400")}>No institutions match this filter.</p>
+            </div>
+          ) : viewMode === "list" ? (
+            pageItems.map((inst) => (
               <InstitutionCardList
                 key={inst.id} inst={inst}
                 pinned={pinned.has(inst.id)}
@@ -560,7 +691,7 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
             ))
           ) : (
             <div className="flex flex-wrap gap-3 justify-center">
-              {results.map((inst) => (
+              {pageItems.map((inst) => (
                 <InstitutionCardGrid
                   key={inst.id} inst={inst}
                   pinned={pinned.has(inst.id)}
@@ -568,6 +699,52 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
                   onView={() => onView(inst)}
                 />
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className={cn("flex items-center justify-center gap-1.5 pt-3 pb-1 border-t mt-2", isDark ? "border-white/[0.08]" : "border-slate-100")}>
+              <button
+                onClick={() => handlePageChange(page - 1)}
+                disabled={page === 0}
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-lg transition-colors",
+                  page === 0
+                    ? isDark ? "text-white/20 cursor-not-allowed" : "text-slate-200 cursor-not-allowed"
+                    : isDark ? "text-white/50 hover:bg-white/10 hover:text-white" : "text-slate-400 hover:bg-slate-100",
+                )}
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => handlePageChange(i)}
+                  className={cn(
+                    "h-7 min-w-[28px] px-2 rounded-lg text-xs font-medium transition-colors",
+                    i === page
+                      ? "bg-sky-600 text-white shadow-sm"
+                      : isDark ? "text-white/50 hover:bg-white/10 hover:text-white" : "text-slate-400 hover:bg-slate-100",
+                  )}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() => handlePageChange(page + 1)}
+                disabled={page === totalPages - 1}
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-lg transition-colors",
+                  page === totalPages - 1
+                    ? isDark ? "text-white/20 cursor-not-allowed" : "text-slate-200 cursor-not-allowed"
+                    : isDark ? "text-white/50 hover:bg-white/10 hover:text-white" : "text-slate-400 hover:bg-slate-100",
+                )}
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
             </div>
           )}
         </div>
@@ -578,9 +755,7 @@ function ResultsPanel({ results, viewMode, onViewModeChange, cohiResponse, isLoa
 
 // ─── InstitutionCompareModal ──────────────────────────────────────────────────
 
-function InstitutionCompareModal({
-  institutions, onClose,
-}: { institutions: InstitutionResult[]; onClose: () => void }) {
+function InstitutionCompareModal({ institutions, onClose }: { institutions: InstitutionResult[]; onClose: () => void }) {
   const rows: { label: string; getValue: (i: InstitutionResult) => string; better: "high" | "low" | null }[] = [
     { label: "Loan Count",   getValue: (i) => i.count.toLocaleString(),         better: "high" },
     { label: "Total UPB",   getValue: (i) => fmt(i.upb),                        better: "high" },
@@ -597,8 +772,7 @@ function InstitutionCompareModal({
   ];
 
   function numericVal(row: typeof rows[0], inst: InstitutionResult): number {
-    const raw = row.getValue(inst);
-    return parseFloat(raw.replace(/[$%,BMK]/g, "")) || 0;
+    return parseFloat(row.getValue(inst).replace(/[$%,BMK]/g, "")) || 0;
   }
 
   function highlight(row: typeof rows[0], inst: InstitutionResult): string {
@@ -680,9 +854,7 @@ function PoolsManager({ onClose }: { onClose: () => void }) {
         </button>
       </div>
       <div className="max-h-72 overflow-y-auto p-2 space-y-1.5">
-        {pools.length === 0 && (
-          <p className="text-center py-6 text-sm text-slate-400">No loan pools saved yet</p>
-        )}
+        {pools.length === 0 && <p className="text-center py-6 text-sm text-slate-400">No loan pools saved yet</p>}
         {pools.map((pool) => (
           <div key={pool.id} className="rounded-xl border border-slate-200 p-3 bg-white hover:border-slate-300 transition-colors">
             <div className="flex items-center gap-2">
@@ -693,18 +865,10 @@ function PoolsManager({ onClose }: { onClose: () => void }) {
                   value={editing[pool.id]}
                   onChange={(e) => setEditing((prev) => ({ ...prev, [pool.id]: e.target.value }))}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      renamePool(pool.id, editing[pool.id] || pool.name);
-                      setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; });
-                    }
-                    if (e.key === "Escape") {
-                      setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; });
-                    }
+                    if (e.key === "Enter") { renamePool(pool.id, editing[pool.id] || pool.name); setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; }); }
+                    if (e.key === "Escape") { setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; }); }
                   }}
-                  onBlur={() => {
-                    renamePool(pool.id, editing[pool.id] || pool.name);
-                    setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; });
-                  }}
+                  onBlur={() => { renamePool(pool.id, editing[pool.id] || pool.name); setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; }); }}
                   className="flex-1 text-sm font-semibold text-slate-800 border-b border-indigo-300 outline-none bg-transparent"
                 />
               ) : (
@@ -712,27 +876,15 @@ function PoolsManager({ onClose }: { onClose: () => void }) {
               )}
               <div className="flex items-center gap-1">
                 {editing[pool.id] !== undefined ? (
-                  <button
-                    onClick={() => {
-                      renamePool(pool.id, editing[pool.id] || pool.name);
-                      setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; });
-                    }}
-                    className="p-1 rounded hover:bg-emerald-100 text-emerald-600 transition-colors"
-                  >
+                  <button onClick={() => { renamePool(pool.id, editing[pool.id] || pool.name); setEditing((prev) => { const n = { ...prev }; delete n[pool.id]; return n; }); }} className="p-1 rounded hover:bg-emerald-100 text-emerald-600 transition-colors">
                     <Check className="h-3.5 w-3.5" />
                   </button>
                 ) : (
-                  <button
-                    onClick={() => setEditing((prev) => ({ ...prev, [pool.id]: pool.name }))}
-                    className="p-1 rounded hover:bg-slate-100 text-slate-400 transition-colors"
-                  >
+                  <button onClick={() => setEditing((prev) => ({ ...prev, [pool.id]: pool.name }))} className="p-1 rounded hover:bg-slate-100 text-slate-400 transition-colors">
                     <Pencil className="h-3 w-3" />
                   </button>
                 )}
-                <button
-                  onClick={() => deletePool(pool.id)}
-                  className="p-1 rounded hover:bg-rose-100 text-slate-400 hover:text-rose-600 transition-colors"
-                >
+                <button onClick={() => deletePool(pool.id)} className="p-1 rounded hover:bg-rose-100 text-slate-400 hover:text-rose-600 transition-colors">
                   <Trash2 className="h-3 w-3" />
                 </button>
               </div>
@@ -742,11 +894,7 @@ function PoolsManager({ onClose }: { onClose: () => void }) {
                 const inst = ALL_INSTITUTIONS.find((i) => i.id === id);
                 if (!inst) return null;
                 const c = COLOR_MAP[inst.color];
-                return (
-                  <span key={id} className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", c.light, c.text)}>
-                    {inst.name}
-                  </span>
-                );
+                return <span key={id} className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", c.light, c.text)}>{inst.name}</span>;
               })}
             </div>
           </div>
@@ -758,61 +906,35 @@ function PoolsManager({ onClose }: { onClose: () => void }) {
 
 // ─── CompareBar ───────────────────────────────────────────────────────────────
 
-function CompareBar({
-  pinnedIds, onCompare, onClear, onSavePool, onOpenPools, poolCount,
-}: {
-  pinnedIds: string[];
-  onCompare: () => void;
-  onClear: () => void;
-  onSavePool: () => void;
-  onOpenPools: () => void;
-  poolCount: number;
+function CompareBar({ pinnedIds, onCompare, onClear, onSavePool, poolCount }: {
+  pinnedIds: string[]; onCompare: () => void; onClear: () => void; onSavePool: () => void; poolCount: number;
 }) {
   const [poolsOpen, setPoolsOpen] = useState(false);
-
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-md px-4 py-3 shadow-2xl">
-      <span className="text-sm font-medium text-slate-700">
-        {pinnedIds.length} institution{pinnedIds.length !== 1 ? "s" : ""} selected
-      </span>
+      <span className="text-sm font-medium text-slate-700">{pinnedIds.length} selected</span>
       <div className="flex items-center gap-1.5">
         {pinnedIds.map((id) => {
           const inst = ALL_INSTITUTIONS.find((i) => i.id === id);
           if (!inst) return null;
           const c = COLOR_MAP[inst.color];
-          return (
-            <span key={id} className={cn("rounded-full px-2.5 py-1 text-xs font-medium", c.light, c.text)}>
-              {inst.name}
-            </span>
-          );
+          return <span key={id} className={cn("rounded-full px-2.5 py-1 text-xs font-medium", c.light, c.text)}>{inst.name}</span>;
         })}
       </div>
       <div className="h-5 w-px bg-slate-200" />
-      <button
-        onClick={onCompare}
-        className="flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition-colors"
-      >
+      <button onClick={onCompare} className="flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700 transition-colors">
         <ArrowUpRight className="h-3.5 w-3.5" /> Compare
       </button>
-      <button
-        onClick={onSavePool}
-        className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 transition-colors"
-      >
-        <Plus className="h-3 w-3" /> Save as Loan Pool
+      <button onClick={onSavePool} className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">
+        <Plus className="h-3 w-3" /> Save as Pool
       </button>
       <div className="relative">
-        <button
-          onClick={() => { setPoolsOpen((v) => !v); onOpenPools(); }}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-        >
-          <Layers className="h-3 w-3" /> Loan Pools {poolCount > 0 && `(${poolCount})`}
+        <button onClick={() => setPoolsOpen((v) => !v)} className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+          <Layers className="h-3 w-3" /> Pools {poolCount > 0 && `(${poolCount})`}
         </button>
         {poolsOpen && <PoolsManager onClose={() => setPoolsOpen(false)} />}
       </div>
-      <button
-        onClick={onClear}
-        className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-      >
+      <button onClick={onClear} className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
         <X className="h-4 w-4" />
       </button>
     </div>
@@ -822,6 +944,7 @@ function CompareBar({
 // ─── HeroSection ─────────────────────────────────────────────────────────────
 
 function HeroSection() {
+  const { isDark } = useTheme();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<InstitutionResult[]>(ALL_INSTITUTIONS);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
@@ -857,7 +980,7 @@ function HeroSection() {
         const matched = INSTITUTIONS.filter((i) => lower.includes(i.name.toLowerCase()) || lower.includes(i.id));
         setResults(matched.length > 0 ? matched : INSTITUTIONS);
       } catch {
-        setCohiResponse("Sorry, I couldn't connect to Cohi right now. Here's a portfolio summary: 7,052 loans, $1.86B UPB, WA FICO 744, WA Rate 3.50%, WA LTV 71.42%.");
+        setCohiResponse("Sorry, Cohi couldn't connect. Portfolio summary: 7,052 loans, $1.86B UPB, WA FICO 744, WA Rate 3.50%, WA LTV 71.42%.");
         setResults(INSTITUTIONS);
       } finally {
         setIsLoading(false);
@@ -881,7 +1004,6 @@ function HeroSection() {
     setActiveAction(action);
     setCohiResponse(null);
     setQuery("");
-
     if (action === "top") {
       const sellers = [...INSTITUTIONS].sort((a, b) => b.waFico - a.waFico || a.waRate - b.waRate);
       setResults([...sellers, ...BUYERS]);
@@ -889,19 +1011,12 @@ function HeroSection() {
       const sellers = [...INSTITUTIONS].sort((a, b) => a.waLtv - b.waLtv);
       setResults([...sellers, ...BUYERS]);
     } else if (action === "new") {
-      const ranked = INSTITUTIONS.map((i) => ({
-        ...i,
-        count: Math.round(i.count * 0.28),
-        upb: Math.round(i.upb * 0.28),
-      })).sort((a, b) => b.count - a.count);
+      const ranked = INSTITUTIONS.map((i) => ({ ...i, count: Math.round(i.count * 0.28), upb: Math.round(i.upb * 0.28) })).sort((a, b) => b.count - a.count);
       setResults([...ranked, ...BUYERS]);
     } else if (action === "state" && state) {
       const ranked = [...INSTITUTIONS]
-        .map((i) => {
-          const stateCount = (SELLER_STATE_COUNTS[i.id] ?? {})[state] ?? 0;
-          return { ...i, _stateCount: stateCount };
-        })
-        .sort((a, b) => (b as any)._stateCount - (a as any)._stateCount);
+        .map((i) => ({ ...i, _sc: (SELLER_STATE_COUNTS[i.id] ?? {})[state] ?? 0 }))
+        .sort((a, b) => (b as any)._sc - (a as any)._sc);
       setResults([...ranked, ...BUYERS]);
     } else if (action === "compare") {
       setCompareOpen(true);
@@ -911,79 +1026,49 @@ function HeroSection() {
   const handlePin = useCallback((id: string) => {
     setPinned((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }, []);
 
   const handleMicToggle = useCallback(() => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-      return;
-    }
+    if (isListening) { recognitionRef.current?.stop(); setIsListening(false); return; }
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) { alert("Speech recognition is not supported in this browser."); return; }
+    if (!SR) { alert("Speech recognition not supported in this browser."); return; }
     const r = new SR();
-    r.lang = "en-US";
-    r.interimResults = false;
-    r.onresult = (e: any) => {
-      const transcript: string = e.results[0][0].transcript;
-      setQuery(transcript);
-      setIsListening(false);
-      handleSearch(transcript, cohiMode);
-    };
+    r.lang = "en-US"; r.interimResults = false;
+    r.onresult = (e: any) => { const t: string = e.results[0][0].transcript; setQuery(t); setIsListening(false); handleSearch(t, cohiMode); };
     r.onerror = () => setIsListening(false);
     r.onend = () => setIsListening(false);
-    recognitionRef.current = r;
-    r.start();
-    setIsListening(true);
+    recognitionRef.current = r; r.start(); setIsListening(true);
   }, [isListening, cohiMode, handleSearch]);
+
+  const handleView = useCallback((inst: InstitutionResult) => {
+    if (inst.kind === "buyer") setBuyerModalId(inst.buyerId ?? inst.id);
+    else setModalInstitution(inst);
+  }, []);
 
   const pinnedIds = Array.from(pinned);
   const pinnedInstitutions = ALL_INSTITUTIONS.filter((i) => pinned.has(i.id));
 
-  const handleView = useCallback((inst: InstitutionResult) => {
-    if (inst.kind === "buyer") {
-      setBuyerModalId(inst.buyerId ?? inst.id);
-    } else {
-      setModalInstitution(inst);
-    }
-  }, []);
-
   return (
     <section className="flex flex-col items-center justify-end pb-16 flex-1 relative px-4 pt-20">
       <ResultsPanel
-        results={results}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        cohiResponse={cohiResponse}
-        isLoading={isLoading}
-        pinned={pinned}
-        onPin={handlePin}
-        onView={handleView}
+        results={results} viewMode={viewMode} onViewModeChange={setViewMode}
+        cohiResponse={cohiResponse} isLoading={isLoading}
+        pinned={pinned} onPin={handlePin} onView={handleView}
       />
 
-      <QuickActions
-        active={activeAction}
-        onSelect={handleQuickAction}
-        pinnedCount={pinnedIds.length}
-      />
+      <QuickActions active={activeAction} onSelect={handleQuickAction} pinnedCount={pinnedIds.length} />
 
       <SearchBar
-        query={query}
-        onQueryChange={setQuery}
-        onSubmit={handleSubmit}
-        cohiMode={cohiMode}
-        onCohiToggle={() => setCohiMode((v) => !v)}
-        isListening={isListening}
-        onMicToggle={handleMicToggle}
-        isLoading={isLoading}
+        query={query} onQueryChange={setQuery} onSubmit={handleSubmit}
+        cohiMode={cohiMode} onCohiToggle={() => setCohiMode((v) => !v)}
+        isListening={isListening} onMicToggle={handleMicToggle} isLoading={isLoading}
       />
 
-      <p className="mt-3 text-xs text-white/40">
-        Search loan sellers, states, or ask Cohi a question
+      <p className={cn("mt-3 text-xs", isDark ? "text-white/40" : "text-slate-400")}>
+        Search {ALL_INSTITUTIONS.length} institutions · Filter by category · Ask Cohi a question
       </p>
 
       {pinnedIds.length >= 2 && (
@@ -992,49 +1077,60 @@ function HeroSection() {
           onCompare={() => setCompareOpen(true)}
           onClear={() => setPinned(new Set())}
           onSavePool={() => createPool(pinnedIds)}
-          onOpenPools={() => {}}
           poolCount={pools.length}
         />
       )}
 
       {modalInstitution && (
-        <LenderDrilldownModal
-          lender={modalInstitution.name}
-          onClose={() => setModalInstitution(null)}
-        />
+        <LenderDrilldownModal lender={modalInstitution.name} onClose={() => setModalInstitution(null)} />
       )}
 
       {buyerModalId && (
-        <BuyerModal
-          buyerId={buyerModalId}
-          onClose={() => setBuyerModalId(null)}
-        />
+        <BuyerModal buyerId={buyerModalId} onClose={() => setBuyerModalId(null)} />
       )}
 
       {compareOpen && pinnedInstitutions.length >= 2 && (
-        <InstitutionCompareModal
-          institutions={pinnedInstitutions}
-          onClose={() => setCompareOpen(false)}
-        />
+        <InstitutionCompareModal institutions={pinnedInstitutions} onClose={() => setCompareOpen(false)} />
       )}
     </section>
   );
 }
 
-// ─── Landing (default export) ─────────────────────────────────────────────────
+// ─── Landing ──────────────────────────────────────────────────────────────────
 
 export default function Landing() {
+  const [isDark, setIsDark] = useState(() => {
+    try { return localStorage.getItem("sx-theme") === "dark"; } catch { return false; }
+  });
+
+  const toggle = useCallback(() => {
+    setIsDark((d) => {
+      const next = !d;
+      try { localStorage.setItem("sx-theme", next ? "dark" : "light"); } catch {}
+      return next;
+    });
+  }, []);
+
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 flex flex-col overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-        style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 120%, rgba(14,165,233,0.12) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 0%, rgba(99,102,241,0.10) 0%, transparent 60%)",
-        }}
-      />
-      <LandingNav />
-      <HeroSection />
-    </div>
+    <ThemeCtx.Provider value={{ isDark, toggle }}>
+      <div className={cn(
+        "relative min-h-screen flex flex-col overflow-hidden transition-colors duration-300",
+        isDark
+          ? "bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950"
+          : "bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-50",
+      )}>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          style={{
+            background: isDark
+              ? "radial-gradient(ellipse 80% 50% at 50% 120%, rgba(14,165,233,0.12) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 0%, rgba(99,102,241,0.10) 0%, transparent 60%)"
+              : "radial-gradient(ellipse 80% 50% at 50% 120%, rgba(14,165,233,0.06) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 0%, rgba(99,102,241,0.05) 0%, transparent 60%)",
+          }}
+        />
+        <LandingNav />
+        <HeroSection />
+      </div>
+    </ThemeCtx.Provider>
   );
 }
