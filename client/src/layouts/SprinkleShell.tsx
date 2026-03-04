@@ -41,7 +41,9 @@ export function SprinkleShell({
   sliderState?: SliderState;
   onSliderChange?: (field: string, range: [number, number]) => void;
 }) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    try { return localStorage.getItem("sprinklex_sidebar") !== "open"; } catch { return true; }
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const step = steps.find((s) => s.id === stepId);
@@ -50,12 +52,13 @@ export function SprinkleShell({
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (stepId !== "1") return;
-    setSidebarCollapsed(false);
-    const t = setTimeout(() => setSidebarCollapsed(true), 3500);
-    return () => clearTimeout(t);
-  }, [stepId]);
+  const toggleSidebar = () => {
+    setSidebarCollapsed(c => {
+      const next = !c;
+      try { localStorage.setItem("sprinklex_sidebar", next ? "closed" : "open"); } catch {}
+      return next;
+    });
+  };
 
   const hasFilters = (filters?.length ?? 0) > 0 || (sliders?.length ?? 0) > 0;
 
@@ -63,7 +66,7 @@ export function SprinkleShell({
     <div className={cn("min-h-screen transition-colors duration-300", className)} style={{ background: "hsl(var(--app-bg))" }}>
       <Sidebar
         collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed((c) => !c)}
+        onToggle={toggleSidebar}
       />
 
       <div
