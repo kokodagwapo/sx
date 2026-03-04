@@ -11,6 +11,7 @@ import {
   List,
   FileBarChart,
   ChevronDown,
+  ChevronLeft,
   LayoutDashboard,
   Menu,
   Upload,
@@ -74,18 +75,25 @@ export function Sidebar({
             <SprinkleXLogo size="md" showText={true} />
           </Link>
         )}
-        <button
-          type="button"
-          onClick={onToggle}
-          className={cn(
-            "rounded-lg p-2 transition-colors",
-            collapsed
-              ? "text-amber-400 hover:bg-sky-500 animate-pulse"
-              : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+        <div className="flex items-center gap-0.5">
+          {!collapsed && (
+            <span className="animate-pulse text-sky-400/70 pointer-events-none select-none">
+              <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </span>
           )}
-        >
-          <Menu className="h-5 w-5" strokeWidth={2} />
-        </button>
+          <button
+            type="button"
+            onClick={onToggle}
+            className={cn(
+              "rounded-lg p-2 transition-colors",
+              collapsed
+                ? "text-amber-400 hover:bg-sky-500 animate-pulse"
+                : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            )}
+          >
+            <Menu className="h-5 w-5" strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
       {/* Main Menu */}
@@ -116,19 +124,19 @@ export function Sidebar({
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                           collapsed
                             ? isActive
-                              ? "justify-center bg-white/15"
-                              : "justify-center hover:bg-white/10"
+                              ? "justify-center bg-white/25"
+                              : "justify-center hover:bg-white/15"
                             : isActive
-                              ? "bg-amber-50 text-slate-800"
-                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                              ? "bg-sky-100 text-sky-900"
+                              : "text-slate-600 hover:bg-sky-50 hover:text-sky-700"
                         )}
                       >
                         <Icon
                           className={cn(
                             "h-4 w-4 shrink-0 transition-colors",
                             collapsed
-                              ? isActive ? "text-amber-400" : "text-white"
-                              : isActive ? "text-amber-400" : "text-slate-400"
+                              ? isActive ? "text-white" : "text-white/80"
+                              : isActive ? "text-sky-600" : "text-slate-400"
                           )}
                           strokeWidth={2}
                         />
@@ -156,19 +164,19 @@ export function Sidebar({
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                     collapsed
                       ? isActive
-                        ? "justify-center bg-white/15"
-                        : "justify-center hover:bg-white/10"
+                        ? "justify-center bg-white/25"
+                        : "justify-center hover:bg-white/15"
                       : isActive
-                        ? "bg-amber-50 text-slate-800"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        ? "bg-sky-100 text-sky-900"
+                        : "text-slate-600 hover:bg-sky-50 hover:text-sky-700"
                   )}
                 >
                   <Landmark
                     className={cn(
                       "h-4 w-4 shrink-0",
                       collapsed
-                        ? isActive ? "text-amber-400" : "text-white"
-                        : isActive ? "text-amber-400" : "text-slate-400"
+                        ? isActive ? "text-white" : "text-white/80"
+                        : isActive ? "text-sky-600" : "text-slate-400"
                     )}
                     strokeWidth={2}
                   />
@@ -212,19 +220,19 @@ export function Sidebar({
                           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
                           collapsed
                             ? isActive
-                              ? "justify-center bg-white/15"
-                              : "justify-center hover:bg-white/10"
+                              ? "justify-center bg-white/25"
+                              : "justify-center hover:bg-white/15"
                             : isActive
-                              ? "bg-amber-50 text-slate-800"
-                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                              ? "bg-sky-100 text-sky-900"
+                              : "text-slate-600 hover:bg-sky-50 hover:text-sky-700"
                         )}
                       >
                         <Icon
                           className={cn(
                             "h-4 w-4 shrink-0",
                             collapsed
-                              ? isActive ? "text-amber-400" : "text-white"
-                              : isActive ? "text-amber-400" : "text-slate-400"
+                              ? isActive ? "text-white" : "text-white/80"
+                              : isActive ? "text-sky-600" : "text-slate-400"
                           )}
                           strokeWidth={2}
                         />
