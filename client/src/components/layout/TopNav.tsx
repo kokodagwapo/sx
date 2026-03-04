@@ -346,7 +346,7 @@ export function TopNav({
             <button
               type="button"
               onClick={startTour}
-              className="relative hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-800 transition-colors hover:bg-sky-50 hover:text-sky-600"
+              className="relative hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-normal text-slate-800 transition-colors hover:bg-sky-50 hover:text-sky-600"
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
               <span className="hidden sm:inline">Guided Tour</span>
