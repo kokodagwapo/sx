@@ -313,10 +313,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const openai = new OpenAI({ apiKey });
       const response = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
-        voice: "nova",
+        voice: "shimmer",
         input: text,
         speed: 0.95,
-        instructions: "You are Cohi, a brilliant and charismatic female AI mortgage analyst. Speak with warm confidence and natural feminine energy — clear, articulate, and authoritative without being stiff. Use genuine enthusiasm when highlighting key insights. Pace yourself naturally, with light emphasis on numbers and financial terms.",
+        instructions: "Speak in a warm, friendly, and approachable tone — like a knowledgeable colleague walking someone through something important. Be natural and conversational, with gentle emphasis on key numbers. Keep it calm and confident without being formal or stiff.",
       } as any);
       const buffer = Buffer.from(await response.arrayBuffer());
       res.set("Content-Type", "audio/mpeg");
