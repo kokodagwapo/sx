@@ -339,7 +339,7 @@ export function TopNav({
               className="relative inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-sky-50 hover:text-sky-600"
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
-              <span className="hidden sm:inline">Cohi Tour</span>
+              <span className="hidden sm:inline">Start Cohi Tour</span>
             </button>
           </Tooltip>
           <div data-tour="notif-bell" className="relative" ref={notifRef}>

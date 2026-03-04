@@ -356,7 +356,7 @@ export function CohiTourPanel() {
               )}
             </button>
             <span className="text-[10px] text-slate-400 italic">
-              {isLoadingTts ? "shimmer · loading…" : isSpeaking ? "shimmer · OpenAI TTS" : cohiReply ? "AI reply · shimmer" : "voiced by Cohi AI"}
+              {isLoadingTts ? "nova · loading…" : isSpeaking ? "nova · OpenAI TTS" : cohiReply ? "AI reply · nova" : "voiced by Cohi AI"}
             </span>
           </div>
 

@@ -146,11 +146,6 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
     }
   }, [stopSpeaking]);
 
-  const navigateToStop = useCallback((idx: number) => {
-    const stop = COHI_TOUR_STOPS[idx];
-    if (stop) navigate(stop.route);
-  }, [navigate]);
-
   const startTour = useCallback(() => {
     stopSpeaking();
     setCohiReply(null);
@@ -175,15 +170,13 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
     setStopIndex(prev => {
       const next = prev + 1;
       if (next >= COHI_TOUR_STOPS.length) {
-        setIsActive(false);
         persist(-1, false);
         return -1;
       }
       persist(next, true);
-      navigateToStop(next);
       return next;
     });
-  }, [navigateToStop, persist, stopSpeaking]);
+  }, [persist, stopSpeaking]);
 
   const goPrev = useCallback(() => {
     stopSpeaking();
@@ -191,14 +184,22 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
     setStopIndex(prev => {
       const next = Math.max(0, prev - 1);
       persist(next, true);
-      navigateToStop(next);
       return next;
     });
-  }, [navigateToStop, persist, stopSpeaking]);
+  }, [persist, stopSpeaking]);
 
   useEffect(() => {
     return () => { stopSpeaking(); };
   }, [stopSpeaking]);
+
+  useEffect(() => {
+    if (!isActive || stopIndex < 0 || stopIndex >= COHI_TOUR_STOPS.length) return;
+    navigate(COHI_TOUR_STOPS[stopIndex].route);
+  }, [isActive, stopIndex, navigate]);
+
+  useEffect(() => {
+    if (stopIndex === -1) setIsActive(false);
+  }, [stopIndex]);
 
   const currentStop = (isActive && stopIndex >= 0 && stopIndex < COHI_TOUR_STOPS.length)
     ? COHI_TOUR_STOPS[stopIndex]
@@ -223,9 +224,3 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
 
 export function useTour() { return useContext(CohiTourCtx); }
 
-export function clearTourStorage() {
-  try { sessionStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(ACTIVE_KEY); } catch {}
-}
-export function dismissTourStep(_key: string) {}
-export function dismissAllTours() { clearTourStorage(); }
-export function isTourStepDismissed(_key: string) { return false; }
