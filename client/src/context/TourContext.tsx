@@ -15,6 +15,8 @@ export type CohiTourContextValue = {
   goNext: () => void;
   goPrev: () => void;
   isSpeaking: boolean;
+  isLoadingTts: boolean;
+  timeLeft: number;
   isThinking: boolean;
   cohiReply: string | null;
   speakCurrent: () => void;
@@ -30,30 +32,46 @@ const CohiTourCtx = createContext<CohiTourContextValue>({
   isActive: false, stopIndex: -1, totalStops: COHI_TOUR_STOPS.length,
   currentStop: null,
   startTour: () => {}, endTour: () => {}, goNext: () => {}, goPrev: () => {},
-  isSpeaking: false, isThinking: false, cohiReply: null,
+  isSpeaking: false, isLoadingTts: false, timeLeft: 0, isThinking: false, cohiReply: null,
   speakCurrent: () => {}, stopSpeaking: () => {},
   askCohi: async () => {}, clearReply: () => {},
   tourVersion: 0, tourActive: false, restartTour: () => {},
 });
 
-async function playTts(text: string, audioRef: React.MutableRefObject<HTMLAudioElement | null>, setIsSpeaking: (v: boolean) => void) {
+async function playTts(
+  text: string,
+  audioRef: React.MutableRefObject<HTMLAudioElement | null>,
+  setIsSpeaking: (v: boolean) => void,
+  setIsLoadingTts: (v: boolean) => void,
+  setTimeLeft: (v: number) => void,
+) {
   try {
+    setIsLoadingTts(true);
     const res = await fetch("/api/cohi/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-    if (!res.ok) return false;
+    if (!res.ok) { setIsLoadingTts(false); return false; }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     audioRef.current = audio;
+    setIsLoadingTts(false);
     setIsSpeaking(true);
-    audio.onended = () => { setIsSpeaking(false); URL.revokeObjectURL(url); };
-    audio.onerror = () => { setIsSpeaking(false); URL.revokeObjectURL(url); };
-    audio.play().catch(() => setIsSpeaking(false));
+    audio.onloadedmetadata = () => {
+      setTimeLeft(Math.ceil(audio.duration));
+    };
+    audio.ontimeupdate = () => {
+      const left = Math.ceil(audio.duration - audio.currentTime);
+      setTimeLeft(left > 0 ? left : 0);
+    };
+    audio.onended = () => { setIsSpeaking(false); setTimeLeft(0); URL.revokeObjectURL(url); };
+    audio.onerror = () => { setIsSpeaking(false); setIsLoadingTts(false); setTimeLeft(0); URL.revokeObjectURL(url); };
+    audio.play().catch(() => { setIsSpeaking(false); setIsLoadingTts(false); setTimeLeft(0); });
     return true;
   } catch {
+    setIsLoadingTts(false);
     return false;
   }
 }
@@ -68,6 +86,8 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
     try { return sessionStorage.getItem(ACTIVE_KEY) === "1"; } catch { return false; }
   });
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isLoadingTts, setIsLoadingTts] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [isThinking, setIsThinking] = useState(false);
   const [cohiReply, setCohiReply] = useState<string | null>(null);
   const [tourVersion, setTourVersion] = useState(0);
@@ -83,6 +103,8 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
   const stopSpeaking = useCallback(() => {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     setIsSpeaking(false);
+    setIsLoadingTts(false);
+    setTimeLeft(0);
   }, []);
 
   const clearReply = useCallback(() => setCohiReply(null), []);
@@ -91,7 +113,7 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
     if (stopIndex < 0 || stopIndex >= COHI_TOUR_STOPS.length) return;
     stopSpeaking();
     const stop = COHI_TOUR_STOPS[stopIndex];
-    await playTts(stop.script, audioRef, setIsSpeaking);
+    await playTts(stop.script, audioRef, setIsSpeaking, setIsLoadingTts, setTimeLeft);
   }, [stopIndex, stopSpeaking]);
 
   const askCohi = useCallback(async (query: string) => {
@@ -116,7 +138,7 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
       }
 
       setCohiReply(answer);
-      await playTts(answer, audioRef, setIsSpeaking);
+      await playTts(answer, audioRef, setIsSpeaking, setIsLoadingTts, setTimeLeft);
     } catch {
       setCohiReply("Hmm, I couldn't reach my AI brain. Check that the OpenAI API key is configured!");
     } finally {
@@ -186,7 +208,7 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
     <CohiTourCtx.Provider value={{
       isActive, stopIndex, totalStops: COHI_TOUR_STOPS.length,
       currentStop, startTour, endTour, goNext, goPrev,
-      isSpeaking, isThinking, cohiReply,
+      isSpeaking, isLoadingTts, timeLeft, isThinking, cohiReply,
       speakCurrent, stopSpeaking, askCohi, clearReply,
       tourVersion, tourActive: isActive, restartTour: startTour,
     }}>
