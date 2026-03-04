@@ -243,15 +243,15 @@ function BuyerDetailModal({
   ];
 
   return createPortal(
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop — nearly transparent, minimal blur */}
       <div className="absolute inset-0 bg-black/[0.12] backdrop-blur-[3px]" onClick={onClose} />
 
       {/* Panel — frosted glass */}
-      <div className="relative z-10 flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/70 bg-white/[0.82] shadow-2xl shadow-black/[0.08] backdrop-blur-xl">
+      <div className="relative z-10 flex max-h-[92vh] sm:max-h-[90vh] w-full sm:max-w-4xl flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl border border-white/70 bg-white/[0.82] shadow-2xl shadow-black/[0.08] backdrop-blur-xl">
 
         {/* Header */}
-        <div className={cn("flex items-center justify-between gap-3 border-b border-black/[0.06] px-6 py-4 bg-white/40")}>
+        <div className={cn("flex items-center justify-between gap-3 border-b border-black/[0.06] px-4 sm:px-6 py-4 bg-white/40")}>
           <div className="flex items-center gap-3 min-w-0">
             <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border", colors.border, "bg-white")}>
               <Building2 className={cn("h-5 w-5", colors.text)} strokeWidth={2} />
@@ -275,7 +275,7 @@ function BuyerDetailModal({
 
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto bg-white/[0.15]">
-          <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 p-4 sm:gap-6 sm:p-6 md:grid-cols-2">
 
             {/* ── Left column ── */}
             <div className="space-y-5">

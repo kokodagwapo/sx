@@ -46,10 +46,10 @@ export function KpiStrip({
       <div className="container-page">
         <div
           className={cn(
-            "grid w-full gap-4",
+            "grid w-full gap-3 sm:gap-4",
             compact
-              ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-[repeat(6,minmax(163px,1fr))]"
-              : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-[repeat(6,minmax(163px,1fr))]"
+              ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
+              : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
           )}
         >
           {items.map((kpi, idx) => {
@@ -63,11 +63,11 @@ export function KpiStrip({
                 onClick={onItemClick ? () => onItemClick(kpi, idx) : undefined}
                 onKeyDown={onItemClick ? (e) => e.key === "Enter" && onItemClick(kpi, idx) : undefined}
                 className={cn(
-                  "flex min-h-[88px] min-w-[163px] flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+                  "flex min-h-[72px] sm:min-h-[88px] flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
                   onItemClick && "cursor-pointer"
                 )}
               >
-                <div className={cn("flex flex-1 flex-col justify-center", compact ? "px-3.5 py-2.5" : "px-4 py-3")}>
+                <div className={cn("flex flex-1 flex-col justify-center", compact ? "px-2.5 py-2 sm:px-3.5 sm:py-2.5" : "px-3 py-2.5 sm:px-4 sm:py-3")}>
                   <div className="flex items-center gap-2">
                     {kpi.icon && (
                       <div
@@ -93,7 +93,7 @@ export function KpiStrip({
                   <div
                     className={cn(
                       "mt-1 font-semibold tracking-tight tabular-nums text-slate-800 [font-family:var(--font-display)]",
-                      compact ? "text-lg" : "text-[22px]"
+                      compact ? "text-base sm:text-lg" : "text-lg sm:text-[22px]"
                     )}
                   >
                     {animate && isNumericValue(kpi.value) ? (

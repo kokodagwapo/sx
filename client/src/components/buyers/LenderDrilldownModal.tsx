@@ -147,13 +147,13 @@ export function LenderDrilldownModal({
   ];
 
   return createPortal(
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-white/30 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative z-10 flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/60 bg-white shadow-[0_32px_80px_rgba(0,0,0,0.18)]">
+      <div className="relative z-10 flex max-h-[92vh] sm:max-h-[90vh] w-full sm:max-w-4xl flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl border border-white/60 bg-white shadow-[0_32px_80px_rgba(0,0,0,0.18)]">
 
         {/* Header */}
-        <div className={cn("flex items-center justify-between gap-3 px-6 py-5", theme.headerBg, theme.headerBorder)}>
+        <div className={cn("flex items-center justify-between gap-3 px-4 sm:px-6 py-4 sm:py-5", theme.headerBg, theme.headerBorder)}>
           <div className="flex items-center gap-3.5">
             <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl shadow-sm", theme.avatarBg)}>
               <Building2 className={cn("h-5 w-5", theme.avatarText)} strokeWidth={2} />
@@ -179,7 +179,7 @@ export function LenderDrilldownModal({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto bg-slate-50/30">
-          <div className="grid grid-cols-1 gap-5 p-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 p-4 sm:p-6 md:grid-cols-2">
 
             {/* ── Left column ── */}
             <div className="space-y-5">
@@ -272,8 +272,8 @@ export function LenderDrilldownModal({
               {/* Top loans table */}
               <div>
                 <p className="mb-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Top Loans by UPB</p>
-                <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
-                  <table className="w-full text-[11px]">
+                <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white">
+                  <table className="w-full min-w-[480px] text-[11px]">
                     <thead>
                       <tr className={cn("border-b", theme.sectionBorder, theme.sectionBg)}>
                         <th className={cn("px-3 py-2.5 text-left font-bold uppercase tracking-wider text-[9px]", theme.sectionLabel)}>Loan ID</th>

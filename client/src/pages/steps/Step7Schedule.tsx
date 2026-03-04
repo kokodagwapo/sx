@@ -399,7 +399,7 @@ export default function Step7Schedule() {
         <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
         <p className="mt-1">Teraverde Financial LLC. 2026. All rights reserved.</p>
       </footer>
-      <div data-tour="schedule-maturity" className="mt-4 grid grid-cols-3 gap-3">
+      <div data-tour="schedule-maturity" className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: "WA Duration", value: "6.80 yrs", sub: "Avg sensitivity to rate changes" },
           { label: "WA Remaining Term", value: "~25 yrs", sub: "Most loans maturing 2035–2040" },

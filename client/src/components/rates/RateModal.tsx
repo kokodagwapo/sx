@@ -119,15 +119,15 @@ export function RateModal({ data, onClose }: { data: RatesData; onClose: () => v
   ];
 
   return createPortal(
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col"
+        className="relative w-full sm:max-w-3xl max-h-[92vh] sm:max-h-[90vh] overflow-hidden rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+        <div className="flex items-start justify-between px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500 text-white shrink-0">
               <TrendingUp className="h-5 w-5" strokeWidth={2} />
             </div>
             <div>
@@ -140,21 +140,21 @@ export function RateModal({ data, onClose }: { data: RatesData; onClose: () => v
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 px-6">
+        <div className="flex overflow-x-auto scrollbar-none border-b border-slate-200 px-4 sm:px-6">
           {tabs.map(({ id, label }) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
               className={cn(
-                "px-4 py-3 text-sm font-medium border-b-2 transition-colors",
+                "shrink-0 px-3 sm:px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
                 tab === id
                   ? "border-sky-500 text-sky-700 bg-sky-50/40"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
@@ -170,10 +170,10 @@ export function RateModal({ data, onClose }: { data: RatesData; onClose: () => v
           {/* Rate Indices */}
           {tab === "indices" && (
             <div>
-              <div className="grid grid-cols-3 divide-x divide-y divide-slate-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 divide-slate-100 [&>*]:border-b [&>*]:border-r sm:[&>*:nth-child(2n)]:border-r-0 md:[&>*:nth-child(2n)]:border-r md:[&>*:nth-child(3n)]:border-r-0">
                 {data.products.map((p) => <RateCard key={p.label} product={p} />)}
               </div>
-              <div className="border-t border-slate-100 px-6 py-3 grid grid-cols-2 gap-4 bg-slate-50/40">
+              <div className="border-t border-slate-100 px-4 sm:px-6 py-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-slate-50/40">
                 {[
                   { label: "10-YR TREASURY", ...data.treasury10 },
                   { label: "30-YR CONFORMING (FRED)", ...data.mortgage30 },
@@ -201,7 +201,7 @@ export function RateModal({ data, onClose }: { data: RatesData; onClose: () => v
 
           {/* Credit and LTV */}
           {tab === "credit" && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="mb-3 text-sm text-slate-600">
                 Rate spread adjustments (in %) by FICO score and LTV bucket over the 30-YR conforming base rate of{" "}
                 <strong className="text-sky-700">{data.products[0]?.rate.toFixed(3)}%</strong>. Based on Fannie Mae LLPA matrix.
@@ -238,7 +238,7 @@ export function RateModal({ data, onClose }: { data: RatesData; onClose: () => v
 
           {/* Rate Trends */}
           {tab === "trends" && (
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6">
               <TrendChart
                 label="30-YR Conforming Mortgage (FRED MORTGAGE30US)"
                 trend={data.mortgage30.trend}

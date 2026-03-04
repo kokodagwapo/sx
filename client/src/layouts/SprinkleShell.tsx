@@ -7,6 +7,7 @@ import { KpiStrip, type KpiItem } from "@/components/step/KpiStrip";
 import { type StepId, steps } from "@/app/steps";
 import { FilterRail, type FilterGroup, type FilterState, type SliderGroup, type SliderState } from "@/components/filters/FilterRail";
 import { cn } from "@/lib/utils";
+import { SlidersHorizontal } from "lucide-react";
 
 export function SprinkleShell({
   stepId,
@@ -45,11 +46,13 @@ export function SprinkleShell({
     try { return localStorage.getItem("sprinklex_sidebar") !== "open"; } catch { return true; }
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const location = useLocation();
   const step = steps.find((s) => s.id === stepId);
 
   useEffect(() => {
     setMobileMenuOpen(false);
+    setMobileFilterOpen(false);
   }, [location.pathname]);
 
   const toggleSidebar = () => {
@@ -100,6 +103,8 @@ export function SprinkleShell({
                     sliders={sliders}
                     sliderState={sliderState}
                     onSliderChange={onSliderChange}
+                    mobileOpen={mobileFilterOpen}
+                    onMobileClose={() => setMobileFilterOpen(false)}
                   />
                 </div>
               ) : null}
@@ -107,6 +112,24 @@ export function SprinkleShell({
             </div>
           </div>
         </div>
+
+        {hasFilters && (
+          <div className="fixed bottom-5 right-5 z-[900] lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileFilterOpen(true)}
+              className="flex items-center gap-2 rounded-full bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition-all hover:bg-sky-700 active:scale-95"
+            >
+              <SlidersHorizontal className="h-4 w-4" strokeWidth={2} />
+              <span>Filters</span>
+              {Object.values(filterState ?? {}).flat().length > 0 && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[11px] font-bold text-sky-600">
+                  {Object.values(filterState ?? {}).flat().length}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       {mobileMenuOpen && (

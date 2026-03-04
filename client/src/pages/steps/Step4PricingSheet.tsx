@@ -191,8 +191,8 @@ function LlpaCalculator({ rows }: { rows: PricingRow[] }) {
           </div>
 
           {/* Waterfall table */}
-          <div className="overflow-hidden rounded-xl border border-slate-200/70">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-xl border border-slate-200/70">
+            <table className="w-full min-w-[480px] text-sm">
               <thead>
                 <tr className="border-b border-slate-200/70 bg-slate-50/80">
                   <th className="py-2.5 pl-4 pr-2 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Adjustment</th>

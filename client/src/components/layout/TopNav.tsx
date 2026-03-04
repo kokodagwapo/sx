@@ -310,12 +310,12 @@ export function TopNav({
 
 
       {/* Center: Page title — absolutely centered in header */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <h1 className="hidden sm:flex items-center gap-2 select-none">
-          <span className="text-[13px] font-bold tracking-[-0.02em] bg-gradient-to-r from-slate-700 via-sky-600 to-indigo-500 bg-clip-text text-transparent whitespace-nowrap">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-24 sm:px-0">
+        <h1 className="flex items-center gap-2 select-none min-w-0">
+          <span className="text-[12px] sm:text-[13px] font-bold tracking-[-0.02em] bg-gradient-to-r from-slate-700 via-sky-600 to-indigo-500 bg-clip-text text-transparent truncate">
             {title}
           </span>
-          <span className="hidden md:block h-1 w-1 rounded-full bg-sky-400/60" />
+          <span className="hidden md:block h-1 w-1 shrink-0 rounded-full bg-sky-400/60" />
           <span className="hidden md:block text-[10px] font-medium text-slate-400 tracking-widest uppercase whitespace-nowrap">
             SprinkleX Analytics
           </span>
@@ -323,8 +323,8 @@ export function TopNav({
       </div>
 
       {/* Right: Notifications, Profile */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded · click to re-import` : "Upload loan tape (CSV / Excel)"} side="bottom">
             <button
               type="button"
@@ -346,7 +346,7 @@ export function TopNav({
             <button
               type="button"
               onClick={startTour}
-              className="relative inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-sky-50 hover:text-sky-600"
+              className="relative hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-sky-50 hover:text-sky-600"
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
               <span className="hidden sm:inline">Start Cohi Tour</span>
@@ -373,8 +373,8 @@ export function TopNav({
 
             {notifOpen && createPortal(
               <div
-                className="fixed z-[1100] w-96 rounded-2xl border border-slate-200/80 bg-white shadow-[0_16px_60px_rgba(0,0,0,0.18)] overflow-hidden animate-fade-in-up"
-                style={{ top: 60, right: 16 }}
+                className="fixed z-[1100] rounded-2xl border border-slate-200/80 bg-white shadow-[0_16px_60px_rgba(0,0,0,0.18)] overflow-hidden animate-fade-in-up"
+                style={{ top: 60, right: 16, left: 16, maxWidth: 384, marginLeft: "auto" }}
                 ref={notifRef}
               >
                 {/* Header */}
@@ -475,15 +475,15 @@ export function TopNav({
               document.body,
             )}
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-3 py-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-500 text-white">
-              <User className="h-4 w-4" strokeWidth={2} />
+          <div className="flex items-center gap-2 rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-2 sm:px-3 py-2">
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-sky-500 text-white shrink-0">
+              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} />
             </div>
             <div className="hidden sm:block">
               <div className="text-sm font-medium text-slate-800">Hey, Maylin</div>
               <div className="text-xs text-slate-500">Business Profile</div>
             </div>
-            <ChevronDown className="h-4 w-4 text-slate-400" strokeWidth={2} />
+            <ChevronDown className="hidden sm:block h-4 w-4 text-slate-400" strokeWidth={2} />
           </div>
         </div>
       </div>
