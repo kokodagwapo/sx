@@ -11,8 +11,8 @@ export const COHI_TOUR_STOPS: CohiStop[] = [
   {
     route: "/step/1",
     target: "sidebar-main-menu",
-    title: "Welcome to SprinkleX! 👋",
-    script: "Hey there! I'm Cohi, your AI mortgage analyst! Welcome to SprinkleX — the smartest way to analyze loan portfolios. You're looking at 7,052 real loans worth $1.86 billion. Let's explore together!",
+    title: "Welcome",
+    script: "7,052 loans. $1.86 billion in UPB. Everything you need to underwrite, price, and match this pool to the right buyer — all in one place. Let's walk through it.",
     icon: "sparkles",
   },
   {
