@@ -74,7 +74,7 @@ export function SprinkleShell({
 
       <div
         className={cn(
-          "min-h-screen w-full overflow-x-hidden transition-all duration-300",
+          "min-h-screen overflow-x-hidden transition-all duration-300",
           sidebarCollapsed ? "lg:ml-[72px]" : "lg:ml-[220px]"
         )}
       >
