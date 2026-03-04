@@ -315,8 +315,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         model: "gpt-4o-mini-tts",
         voice: "shimmer",
         input: text,
-        speed: 1.15,
-        instructions: "Speak with energy and confidence — upbeat but not rushed. You're excited to show someone something impressive. Punch key numbers and insights with a slight lift. Keep it crisp, clear, and engaging — like a sharp presenter who knows the audience's time is valuable.",
+        speed: 1.0,
+        instructions: "Read the text naturally at a normal conversational pace. Clear and easy to follow.",
       } as any);
       const buffer = Buffer.from(await response.arrayBuffer());
       res.set("Content-Type", "audio/mpeg");

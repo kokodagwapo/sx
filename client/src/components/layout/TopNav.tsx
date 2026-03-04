@@ -342,14 +342,14 @@ export function TopNav({
               )}
             </button>
           </Tooltip>
-          <Tooltip content="Start guided Cohi tour" side="bottom">
+          <Tooltip content="Start guided tour" side="bottom">
             <button
               type="button"
               onClick={startTour}
               className="relative hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-sky-50 hover:text-sky-600"
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
-              <span className="hidden sm:inline">Start Cohi Tour</span>
+              <span className="hidden sm:inline">Guided Tour</span>
             </button>
           </Tooltip>
           <div data-tour="notif-bell" className="relative hidden sm:block" ref={notifRef}>
