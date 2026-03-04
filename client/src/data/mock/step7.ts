@@ -1,5 +1,5 @@
 import type { LoanStatus } from "@/data/types/loanRecord";
-import step7SampleRaw from "@/data/real/step7Sample.json";
+import step7SampleRaw from "@/data/real/realLoans.json";
 
 export type ScheduleRow = {
   tvm: string;
