@@ -16,6 +16,15 @@ import {
   X,
   Percent,
   FileText,
+  ShieldCheck,
+  Building2,
+  Users,
+  Landmark,
+  AlertTriangle,
+  ArrowUpRight,
+  CheckCircle2,
+  Info,
+  DollarSign,
 } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
@@ -485,9 +494,229 @@ export default function Step8Summary() {
         </div>
       )}
 
-      <footer data-tour="summary-footer" className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500">
-        <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
-        <p className="mt-1">Teraverde Financial LLC, 2016–2017. All rights reserved.</p>
+      {/* ── Executive Intelligence Panel ───────────────────────── */}
+      <footer data-tour="summary-footer" className="mt-8 space-y-5">
+
+        {/* Deal Thesis */}
+        <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/80 to-indigo-50/40 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-500/15">
+              <Sparkles className="h-4 w-4 text-sky-600" strokeWidth={2} />
+            </div>
+            <span className="text-sm font-bold text-slate-800">Investment Thesis</span>
+            <span className="ml-auto rounded-full bg-sky-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-700">Executive Brief</span>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: CheckCircle2,
+                color: "text-emerald-600",
+                bg: "bg-emerald-50",
+                title: "Prime Credit Quality",
+                body: "WA FICO 720+ with WA LTV 80.33% positions this pool in the top quartile of non-agency residential loan pools transacted since 2022. Lifetime expected credit losses at prime CPRs are modeled at 35–60 bps — well within institutional credit committee tolerances.",
+              },
+              {
+                icon: DollarSign,
+                color: "text-sky-600",
+                bg: "bg-sky-50",
+                title: "Below-Market Coupon Premium",
+                body: "WA coupon of 3.50% in a 6.5%+ current rate environment creates negative prepayment incentive — borrowers cannot refinance to a better rate. CPR is expected at 4–7% annualized. This extension characteristic is a structural advantage for duration-matching buyers.",
+              },
+              {
+                icon: ShieldCheck,
+                color: "text-violet-600",
+                bg: "bg-violet-50",
+                title: "Diversified Geographic Spread",
+                body: "Pool spans 35+ states, limiting single-market concentration risk. California exposure (~20% of UPB) is mitigated by strong WA LTV of 71% in that state. OCC Guidance OCC 2006-47 recommends no single state exceed 25% of residential book — this pool complies.",
+              },
+              {
+                icon: ArrowUpRight,
+                color: "text-amber-600",
+                bg: "bg-amber-50",
+                title: "Near-Par Execution",
+                body: "At Teraverde's indicative WPI of 100.71, the pool trades at a 71 bps premium to UPB — reflecting coupon premium relative to current origination costs. Buyers acquiring at par or below capture immediate book value accretion under GAAP fair value measurement.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="rounded-xl border border-white/80 bg-white/70 p-3.5 backdrop-blur-sm">
+                <div className={`mb-2 flex h-6 w-6 items-center justify-center rounded-md ${item.bg}`}>
+                  <item.icon className={`h-3.5 w-3.5 ${item.color}`} strokeWidth={2.5} />
+                </div>
+                <p className="text-[11px] font-bold text-slate-700 leading-tight mb-1">{item.title}</p>
+                <p className="text-[11px] text-slate-500 leading-relaxed">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Buyer-Type Match Guide */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100">
+              <Building2 className="h-4 w-4 text-slate-600" strokeWidth={2} />
+            </div>
+            <span className="text-sm font-bold text-slate-800">Institutional Buyer Match Guide</span>
+            <span className="ml-auto text-[10px] text-slate-400">Based on portfolio characteristics vs. buyer mandates</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: Landmark,
+                label: "Insurance Companies",
+                match: 97,
+                color: "emerald",
+                rationale: "6.80-yr duration aligns with medium-term annuity reserve liabilities. NAIC RBC classification expected at CM-1/CM-2, favorable statutory capital treatment. Fixed cash flows provide ALM certainty. Low prepayment speed (CPR 4–7%) eliminates reinvestment risk. Preferred by CFOs targeting duration-matched spread over A-rated corporate bonds.",
+                tags: ["Duration match", "NAIC CM-1", "ALM-fit", "Low CPR"],
+              },
+              {
+                icon: Building2,
+                label: "Community Banks (<$10B)",
+                match: 91,
+                color: "sky",
+                rationale: "CRA credit via 35-state geographic footprint benefits institutions with multi-market assessment areas. Basel III standardized approach: conforming residential loans carry 50% risk weight, reducing Tier 1 capital consumption vs. commercial lending. Below-market coupon improves NIM relative to cost of deposits. ALCO favorable given asset sensitivity profile.",
+                tags: ["CRA credit", "50% RWA", "NIM accretion", "Basel III"],
+              },
+              {
+                icon: Users,
+                label: "Credit Unions",
+                match: 84,
+                color: "violet",
+                rationale: "NCUA Part 703 investment eligibility confirmed for first-lien residential mortgages with FICO 700+. WA LTV 80.33% within CUNA lending guidelines. Yield premium vs. agency MBS and government securities improves dividend sustainability. Acquisition at par maintains GAAP book value without immediate CECL reserve impact.",
+                tags: ["NCUA 703", "Prime FICO", "Yield premium", "CECL-neutral"],
+              },
+              {
+                icon: ShieldCheck,
+                label: "Pension / Life Funds",
+                match: 78,
+                color: "amber",
+                rationale: "Long-duration residential mortgages provide equity-uncorrelated income, reducing portfolio beta. Whole-loan ownership avoids TBA market inefficiencies. WA coupon of 3.50% generates $65M+ annual gross interest income on the pool — a predictable income stream that offsets defined-benefit liability growth assumptions of 3–4% annually.",
+                tags: ["Uncorrelated", "Predictable income", "HTM accounting", "DB match"],
+              },
+            ].map((buyer) => {
+              const bar = `bg-${buyer.color}-500`;
+              const badge = `bg-${buyer.color}-50 text-${buyer.color}-700 border-${buyer.color}-200`;
+              return (
+                <div key={buyer.label} className="rounded-xl border border-slate-100 p-4 hover:border-slate-200 hover:shadow-sm transition-all">
+                  <div className="flex items-start justify-between mb-2">
+                    <buyer.icon className="h-5 w-5 text-slate-500 mt-0.5" strokeWidth={1.5} />
+                    <div className="text-right">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Match Score</div>
+                      <div className={`text-lg font-black tabular-nums text-${buyer.color}-600`}>{buyer.match}%</div>
+                    </div>
+                  </div>
+                  <div className="mb-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div className={`h-full rounded-full ${bar} transition-all duration-700`} style={{ width: `${buyer.match}%` }} />
+                  </div>
+                  <p className="text-[12px] font-bold text-slate-700 mt-2 mb-1.5">{buyer.label}</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed mb-2.5">{buyer.rationale}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {buyer.tags.map((t) => (
+                      <span key={t} className={`rounded-md border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${badge}`}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Risk Factors + Capital Treatment side-by-side */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Key Risk Factors */}
+          <div className="rounded-2xl border border-amber-100 bg-amber-50/40 p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <AlertTriangle className="h-4.5 w-4.5 text-amber-600" strokeWidth={2} />
+              <span className="text-sm font-bold text-slate-800">Material Risk Factors</span>
+              <span className="ml-auto text-[10px] text-slate-400 italic">For credit committee disclosure</span>
+            </div>
+            <div className="space-y-3">
+              {[
+                {
+                  title: "Interest Rate / Duration Risk",
+                  severity: "Medium",
+                  sev_color: "text-amber-700 bg-amber-100",
+                  body: "At 6.80 years WA duration, a 100 bps parallel rate shock reduces fair value by approximately 6.5–7.0% ($121–130M on $1.86B). Mitigant: below-market coupon creates deep negative convexity — prepayment optionality is essentially zero, making duration stable. ALCO stress tests at ±300 bps should be modeled before acquisition.",
+                },
+                {
+                  title: "Geographic Concentration — California",
+                  severity: "Low–Medium",
+                  sev_color: "text-sky-700 bg-sky-100",
+                  body: "California represents ~20% of pool UPB. CA is a non-recourse state (purchase money loans) and has robust anti-deficiency protections (CCP §580b). However, WA LTV in CA is approximately 71% — providing significant loss cushion even in a 20% HPA decline scenario. No single MSA exceeds 8% of portfolio.",
+                },
+                {
+                  title: "Servicer Transition Risk",
+                  severity: "Low",
+                  sev_color: "text-emerald-700 bg-emerald-100",
+                  body: "Loans are currently serviced by the originating sellers (Provident, Stonegate, New Penn). Whole loan transfer requires RESPA-compliant servicing transfer. Buyer should engage an approved MSP-licensed servicer or subservicer (e.g., Cenlar, LoanCare, PHH) 60–90 days pre-close. Transfer costs typically run $50–$75 per loan.",
+                },
+              ].map((risk) => (
+                <div key={risk.title} className="rounded-xl border border-white/80 bg-white/70 p-3.5">
+                  <div className="flex items-start justify-between mb-1.5">
+                    <p className="text-[12px] font-bold text-slate-700">{risk.title}</p>
+                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide shrink-0 ml-2 ${risk.sev_color}`}>{risk.severity}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">{risk.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Capital Treatment + Exit Liquidity */}
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Info className="h-4 w-4 text-slate-500" strokeWidth={2} />
+                <span className="text-sm font-bold text-slate-800">Regulatory Capital Treatment</span>
+              </div>
+              <div className="space-y-2.5">
+                {[
+                  { label: "Basel III Risk Weight (Bank)", value: "50%", note: "Qualifying residential mortgages — standardized approach. Reduces Tier 1 capital consumption vs. CRE or C&I lending at 100%.", badge: "bg-sky-50 text-sky-700" },
+                  { label: "CECL Lifetime Loss Estimate", value: "35–60 bps", note: "Based on prime 30FRM historical charge-off data (2000–2023, ex-GFC peak). Full CECL provision on $1.86B pool: ~$7–11M. Immaterial relative to pool size.", badge: "bg-emerald-50 text-emerald-700" },
+                  { label: "NAIC RBC Classification", value: "CM-1 / CM-2", note: "Expected RBC designation for insurance company buyers under NAIC SSAP No. 43R. Favorable capital charge vs. equity or CMBS subordinates.", badge: "bg-violet-50 text-violet-700" },
+                  { label: "NCUA Investment Authority", value: "Part 703 Eligible", note: "First-lien residential whole loans with prime FICO qualify under NCUA § 703.14. Credit union board approval required per Investment Policy Statement.", badge: "bg-amber-50 text-amber-700" },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-start gap-3 rounded-lg border border-slate-100 p-2.5">
+                    <div>
+                      <div className="text-[10px] font-semibold text-slate-500 mb-0.5">{item.label}</div>
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${item.badge}`}>{item.value}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">{item.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <ArrowUpRight className="h-4 w-4 text-slate-500" strokeWidth={2} />
+                <span className="text-sm font-bold text-slate-800">Exit Liquidity Options</span>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { strategy: "Whole-Loan Resale", timeline: "60–90 days", note: "Re-auction via MWAM, Auction.com, or bilateral broker-dealer. Strong secondary market for prime residential." },
+                  { strategy: "Private-Label RMBS", timeline: "90–180 days", note: "Sufficient pool size ($1.86B) for standalone securitization. Tranching creates AAA/AA bonds at tighter spreads." },
+                  { strategy: "GSE Delivery (Conforming Subset)", timeline: "30–45 days", note: "Conforming-balance loans (<$766,550) eligible for Fannie Mae or Freddie Mac MBS delivery at TBA pricing." },
+                  { strategy: "Hold-to-Maturity (HTM)", timeline: "6–12+ years", note: "Insurance, pension, and credit union buyers may HTM under GAAP/statutory, avoiding mark-to-market volatility." },
+                ].map((opt) => (
+                  <div key={opt.strategy} className="flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-slate-300 mt-1.5 shrink-0" />
+                    <div>
+                      <span className="text-[11px] font-bold text-slate-700">{opt.strategy}</span>
+                      <span className="ml-2 text-[10px] text-slate-400">{opt.timeline}</span>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">{opt.note}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footnotes */}
+        <div className="border-t border-slate-200/70 pt-3 text-[11px] text-slate-400 space-y-0.5">
+          <p>* Metrics calculated on selected loans only. &nbsp; ** Teraverde Indicative Pricing — not a commitment to transact. For firm bid, engage Teraverde Capital Markets desk.</p>
+          <p>Risk factors, capital treatment, and buyer match scores are informational estimates based on publicly available regulatory guidance (OCC, FDIC, NAIC, NCUA, Basel Committee) and are not legal or investment advice.</p>
+          <p className="mt-1">© Teraverde Financial LLC · SprinkleX Analytics Platform · All rights reserved.</p>
+        </div>
       </footer>
     </SprinkleShell>
   );

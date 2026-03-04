@@ -9,12 +9,18 @@ type CompareContextType = {
   removeFromCompare: (id: string) => void;
   clearCompare: () => void;
   isInCompare: (id: string) => boolean;
+  pool1: Step2Loan[];
+  pool2: Step2Loan[];
+  saveAsPool: (poolNum: 1 | 2) => void;
+  clearPool: (poolNum: 1 | 2) => void;
 };
 
 const CompareContext = createContext<CompareContextType | null>(null);
 
 export function CompareProvider({ children }: { children: React.ReactNode }) {
   const [compareList, setCompareList] = useState<Step2Loan[]>([]);
+  const [pool1, setPool1] = useState<Step2Loan[]>([]);
+  const [pool2, setPool2] = useState<Step2Loan[]>([]);
 
   const addToCompare = useCallback((loan: Step2Loan) => {
     setCompareList((prev) => {
@@ -35,8 +41,23 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
     [compareList],
   );
 
+  const saveAsPool = useCallback((poolNum: 1 | 2) => {
+    if (compareList.length === 0) return;
+    if (poolNum === 1) setPool1([...compareList]);
+    else setPool2([...compareList]);
+    setCompareList([]);
+  }, [compareList]);
+
+  const clearPool = useCallback((poolNum: 1 | 2) => {
+    if (poolNum === 1) setPool1([]);
+    else setPool2([]);
+  }, []);
+
   return (
-    <CompareContext.Provider value={{ compareList, addToCompare, removeFromCompare, clearCompare, isInCompare }}>
+    <CompareContext.Provider value={{
+      compareList, addToCompare, removeFromCompare, clearCompare, isInCompare,
+      pool1, pool2, saveAsPool, clearPool,
+    }}>
       {children}
     </CompareContext.Provider>
   );
