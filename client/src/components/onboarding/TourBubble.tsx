@@ -226,19 +226,6 @@ export function CohiTourPanel() {
 
           {/* Header */}
           <div className="flex items-center gap-2.5 px-4 pt-3.5 pb-2">
-            <div className="relative shrink-0">
-              <div className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 text-white font-bold text-[13px] select-none shadow-md",
-                (isSpeaking || isThinking) && "ring-2 ring-sky-300 ring-offset-1"
-              )}>
-                Co
-              </div>
-              {(isSpeaking || isThinking) && (
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-amber-400 ring-1 ring-white">
-                  <span className="h-1.5 w-1.5 animate-ping rounded-full bg-amber-300" />
-                </span>
-              )}
-            </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-bold text-sky-600 uppercase tracking-wide">Cohi</span>
