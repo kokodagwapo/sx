@@ -195,7 +195,7 @@ function StatusSummaryBar({
             type="button"
             onClick={() => onStatusClick(s)}
             className={cn(
-              "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-all duration-150 hover:scale-[1.02] hover:shadow-sm",
+              "flex items-center gap-1.5 sm:gap-2 rounded-lg border px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-150 hover:scale-[1.02] hover:shadow-sm",
               cfg.badge,
               isSelected ? "ring-2 ring-offset-1 ring-current shadow-sm" : "opacity-80 hover:opacity-100"
             )}

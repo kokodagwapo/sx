@@ -101,6 +101,11 @@ Preferred communication style: Simple, everyday language.
 - **Card value scaling**: All metric cards scale `text-base sm:text-xl` or `text-lg sm:text-2xl` with `break-words` on labels
 - **Step8 donuts**: `col-span-6` on mobile (2 per row) vs `col-span-12` before; Investment Thesis + Buyer Match stacks vertically on mobile
 - **Code splitting**: All 14 pages lazy-loaded via `React.lazy` in `router.tsx`
+- **Pinch-to-zoom**: Viewport meta allows `maximum-scale=5.0, user-scalable=yes`; body `touch-action: pan-x pan-y pinch-zoom`
+- **TopNav title**: Mobile uses `px-16` (not `px-[120px]`), `text-[11px]`, `line-clamp-1` to prevent truncation
+- **Step1 cards**: "Click for drilldown" hidden on mobile (`hidden sm:block`) so Total Loans & WAC cards match height
+- **State pin buttons**: Compact on mobile (`text-[10px]`, short format showing only loan count)
+- **Risk exposure cards**: Responsive font sizes (`text-lg sm:text-2xl` for values, `text-[10px] sm:text-xs` for labels)
 
 ### Key Files
 - `client/src/styles/chartPalette.ts` — canonical color palette

@@ -130,12 +130,12 @@ function DrilldownPanel({
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Definition</div>
             <p className="mt-2 text-sm text-slate-700 leading-relaxed">{c.definition}</p>
           </div>
-          <div className="text-2xl font-black text-blue-600 tabular-nums drop-shadow-sm">{c.value}</div>
+          <div className="text-xl sm:text-2xl font-black text-blue-600 tabular-nums drop-shadow-sm break-words">{c.value}</div>
           <ul className="space-y-2">
             {c.insights.map((insight, i) => (
-              <li key={i} className="flex gap-2 text-sm text-slate-700 bg-white/50 p-2 rounded-lg border border-blue-100/50">
+              <li key={i} className="flex gap-2 text-xs sm:text-sm text-slate-700 bg-white/50 p-2 rounded-lg border border-blue-100/50 min-w-0">
                 <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
-                <span>{insight}</span>
+                <span className="min-w-0 break-words">{insight}</span>
               </li>
             ))}
           </ul>
@@ -174,9 +174,9 @@ function DrilldownPanel({
           </div>
           <ul className="space-y-2">
             {w.insights.map((insight, i) => (
-              <li key={i} className="flex gap-2 text-sm text-slate-700 bg-white/50 p-2 rounded-lg border border-blue-100/50">
+              <li key={i} className="flex gap-2 text-xs sm:text-sm text-slate-700 bg-white/50 p-2 rounded-lg border border-blue-100/50 min-w-0">
                 <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
-                <span>{insight}</span>
+                <span className="min-w-0 break-words">{insight}</span>
               </li>
             ))}
           </ul>

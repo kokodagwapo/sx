@@ -162,7 +162,7 @@ export default function Step9Cohorts() {
             title="Avg Balance vs WAC"
             subtitle="Bubble size = loan count"
           >
-            <div className="h-[280px]">
+            <div className="h-[240px] sm:h-[280px]">
               <ScatterPlot
                 data={scatterData}
                 xLabel="WAC (%)"
@@ -193,9 +193,9 @@ export default function Step9Cohorts() {
             ];
             const cls = colors[i % colors.length];
             return (
-              <div key={c.label} className={cn("rounded-xl border bg-gradient-to-b to-white p-4 shadow-sm", cls)}>
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{c.label}</div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
+              <div key={c.label} className={cn("rounded-xl border bg-gradient-to-b to-white p-3 sm:p-4 shadow-sm", cls)}>
+                <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5 sm:mb-2 truncate">{c.label}</div>
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-xs sm:text-sm">
                   <div>
                     <div className="text-[10px] text-slate-400 uppercase tracking-wide">Loans</div>
                     <div className="font-bold text-slate-800">{c.loanCount.toLocaleString()}</div>

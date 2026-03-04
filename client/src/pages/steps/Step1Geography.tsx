@@ -527,7 +527,7 @@ export default function Step1Geography() {
       kpiCompact
     >
       {/* Top: Left = KPIs + filter + narrative | Right = Map (prominent) */}
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,356px)_1fr] lg:items-start">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-[minmax(0,356px)_1fr] lg:items-start">
         {/* Left column: metrics + controls + insights */}
         <div className="flex flex-col gap-4 order-2 lg:order-1">
           {/* KPI cards */}
@@ -557,7 +557,7 @@ export default function Step1Geography() {
                   <div className="mt-0.5 sm:mt-1 text-[13px] sm:text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)] truncate">
                     {totalLoans.toLocaleString()}
                   </div>
-                  <div className="mt-0.5 text-[8px] sm:text-[9px] text-sky-600 font-medium">Click for drilldown</div>
+                  <div className="mt-0.5 text-[8px] sm:text-[9px] text-sky-600 font-medium hidden sm:block">Click for drilldown</div>
                 </button>
               </Tooltip>
               <Tooltip content="Weighted Average Coupon — the average interest rate of loans weighted by unpaid principal balance." wrapperClassName="w-full min-w-0">
@@ -780,15 +780,15 @@ export default function Step1Geography() {
                 const pctUpb = totalUPB > 0 ? (exposure.upb / totalUPB * 100) : 0;
                 const fill = riskLayer === "flood" ? RISK_COLORS[level].fill : WILDFIRE_COLORS[level].fill;
                 return (
-                  <div key={level} className={cn("rounded-xl border p-4", cfg.badge)}>
-                    <div className="flex items-center gap-2 mb-2">
+                  <div key={level} className={cn("rounded-xl border p-3 sm:p-4", cfg.badge)}>
+                    <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
                       <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: fill }} />
-                      <span className="text-xs font-bold uppercase tracking-wider">{level} Risk</span>
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">{level} Risk</span>
                     </div>
-                    <div className="text-2xl font-bold tabular-nums">{exposure.loans.toLocaleString()}</div>
-                    <div className="text-xs opacity-70 mt-0.5">loans · {pctLoans.toFixed(0)}% of pool</div>
-                    <div className="text-sm font-semibold mt-1">${(exposure.upb / 1_000_000).toFixed(0)}M UPB</div>
-                    <div className="text-xs opacity-60">{pctUpb.toFixed(1)}% of total UPB</div>
+                    <div className="text-lg sm:text-2xl font-bold tabular-nums">{exposure.loans.toLocaleString()}</div>
+                    <div className="text-[10px] sm:text-xs opacity-70 mt-0.5">loans · {pctLoans.toFixed(0)}% of pool</div>
+                    <div className="text-xs sm:text-sm font-semibold mt-1">${(exposure.upb / 1_000_000).toFixed(0)}M UPB</div>
+                    <div className="text-[10px] sm:text-xs opacity-60">{pctUpb.toFixed(1)}% of total UPB</div>
                     <div className="mt-2 h-1.5 rounded-full bg-current/20">
                       <div className="h-full rounded-full bg-current transition-all" style={{ width: `${pctUpb}%` }} />
                     </div>
@@ -797,9 +797,9 @@ export default function Step1Geography() {
               })}
             </div>
             {riskExposure.High.loans > 0 && (
-              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50/60 px-3 py-2.5 text-sm text-red-700">
+              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50/60 px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm text-red-700 min-w-0">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>
+                <span className="min-w-0 break-words">
                   <strong>{riskExposure.High.loans.toLocaleString()} loans</strong> (${(riskExposure.High.upb / 1_000_000).toFixed(0)}M UPB) are in FEMA {riskLayer === "flood" ? "high flood-risk" : "high wildfire-risk"} zones — consider insurance and concentration risk review.
                 </span>
               </div>
@@ -850,19 +850,20 @@ export default function Step1Geography() {
                       type="button"
                       onClick={() => togglePin(state)}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-all",
+                        "inline-flex items-center gap-1.5 sm:gap-2 rounded-lg border px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium transition-all",
                         isPinned
                           ? "border-sky-500/60 bg-sky-500/15 text-sky-800 shadow-sm"
                           : "border-slate-200/80 bg-slate-50/60 text-slate-600 hover:border-sky-300/60 hover:bg-sky-50/40"
                       )}
                     >
                       {isPinned ? (
-                        <Pin className="h-3.5 w-3.5 text-sky-600" />
+                        <Pin className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-sky-600" />
                       ) : (
-                        <PinOff className="h-3.5 w-3.5 text-slate-400" />
+                        <PinOff className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-slate-400" />
                       )}
                       <span className="font-semibold">{state}</span>
-                      <span className="text-slate-500">({loans.toLocaleString()} loans, ${(upb / 1_000_000).toFixed(1)}M UPB)</span>
+                      <span className="text-slate-500 hidden sm:inline">({loans.toLocaleString()} loans, ${(upb / 1_000_000).toFixed(1)}M UPB)</span>
+                      <span className="text-slate-500 sm:hidden">({loans.toLocaleString()})</span>
                     </button>
                   );
                 })}

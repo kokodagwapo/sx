@@ -45,7 +45,13 @@
 .container-page {
   width: min(1320px, 100%);
   margin-inline: auto;
-  padding-inline: 12px;
+  padding-inline: 10px;
+}
+
+@media (min-width: 375px) {
+  .container-page {
+    padding-inline: 12px;
+  }
 }
 
 @media (min-width: 640px) {
@@ -75,6 +81,8 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  touch-action: pan-x pan-y pinch-zoom;
+  -webkit-text-size-adjust: 100%;
 }
 
 *::-webkit-scrollbar {

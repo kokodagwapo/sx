@@ -110,7 +110,7 @@ export default function Step3CreditMetrics() {
               <div className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-500 truncate">
                 {m.label}
               </div>
-              <div className="mt-1 sm:mt-1.5 text-base sm:text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
+              <div className="mt-1 sm:mt-1.5 text-base sm:text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)] truncate">
                 {m.value}
               </div>
             </div>

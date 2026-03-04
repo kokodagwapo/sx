@@ -34,7 +34,7 @@ function BigNumber({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 px-3 sm:px-4 py-2.5 sm:py-3 transition-colors hover:bg-slate-50">
       <div className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-500 break-words">{label}</div>
-      <div className="mt-1 sm:mt-1.5 text-base sm:text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
+      <div className="mt-1 sm:mt-1.5 text-base sm:text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)] break-words">
         {value}
       </div>
     </div>
