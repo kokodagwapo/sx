@@ -148,7 +148,7 @@ export function LenderDrilldownModal({
 
   return createPortal(
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+      <div className="absolute inset-0 bg-white/30 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative z-10 flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/60 bg-white shadow-[0_32px_80px_rgba(0,0,0,0.18)]">
 
