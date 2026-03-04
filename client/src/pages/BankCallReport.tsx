@@ -377,7 +377,7 @@ function ResultCard({ inst, isExpanded, onToggle }: {
           <p className="text-[11px] text-slate-500">{inst.CITY}, {inst.STNAME} · {fmtM(inst.ASSET)} assets</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold", inst.ACTIVE ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600")}>
+          <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold", inst.ACTIVE ? "bg-emerald-100 text-emerald-700 animate-pulse" : "bg-red-100 text-red-600")}>
             {inst.ACTIVE ? "Active" : "Inactive"}
           </span>
           {isExpanded ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
