@@ -77,8 +77,8 @@ export function Sidebar({
         )}
         <div className="flex items-center gap-0.5">
           {!collapsed && (
-            <span className="animate-pulse text-sky-400/70 pointer-events-none select-none">
-              <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.5} />
+            <span className="pointer-events-none select-none flex items-center gap-0 rounded-full bg-sky-100 px-1.5 py-1 animate-bounce">
+              <ChevronLeft className="h-4 w-4 text-sky-600" strokeWidth={3} />
             </span>
           )}
           <button
