@@ -1,9 +1,9 @@
-import { useState, useLayoutEffect, useRef } from "react";
+import { useState, useLayoutEffect, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   Volume2, VolumeX, ChevronLeft, ChevronRight, X,
   Lightbulb, Map, LayoutList, BellDot, UploadCloud, BarChart3,
-  Sparkles, DollarSign, Building2, ShieldCheck,
+  Sparkles, DollarSign, Building2, ShieldCheck, SendHorizonal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTour } from "@/context/TourContext";
@@ -103,6 +103,20 @@ function Arrow({ side, arrowX, arrowY }: { side: Side; arrowX?: number; arrowY?:
   return                        <div className={cn(base, "border-t border-r -right-1.5")} style={{ top: (arrowY ?? 40) - 6 }} />;
 }
 
+function ThinkingDots() {
+  return (
+    <span className="inline-flex items-center gap-0.5 ml-1">
+      {[0, 1, 2].map(i => (
+        <span
+          key={i}
+          className="h-1.5 w-1.5 rounded-full bg-sky-400 animate-bounce"
+          style={{ animationDelay: `${i * 0.15}s`, animationDuration: "0.8s" }}
+        />
+      ))}
+    </span>
+  );
+}
+
 const ICON_MAP = {
   lightbulb: Lightbulb,
   map:        Map,
@@ -119,10 +133,19 @@ const ICON_MAP = {
 const DOT_WINDOW = 7;
 
 export function CohiTourPanel() {
-  const { isActive, stopIndex, totalStops, currentStop, goNext, goPrev, endTour, isSpeaking, speakCurrent, stopSpeaking } = useTour();
+  const {
+    isActive, stopIndex, totalStops, currentStop,
+    goNext, goPrev, endTour,
+    isSpeaking, isThinking, cohiReply,
+    speakCurrent, stopSpeaking, askCohi, clearReply,
+  } = useTour();
+
   const [pos, setPos] = useState<ComputedPos | null>(null);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [chatInput, setChatInput] = useState("");
   const panelRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const replyEndRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (!isActive || !currentStop?.target) { setPos(null); setTargetRect(null); return; }
@@ -133,7 +156,7 @@ export function CohiTourPanel() {
       setTargetRect(tRect);
       if (!panelRef.current) return;
       const bRect = panelRef.current.getBoundingClientRect();
-      setPos(computePosition(tRect, bRect.width || 384, bRect.height || 280));
+      setPos(computePosition(tRect, bRect.width || 384, bRect.height || 360));
     }
     const t = setTimeout(measure, 120);
     window.addEventListener("resize", measure);
@@ -144,6 +167,16 @@ export function CohiTourPanel() {
       window.removeEventListener("scroll", measure, true);
     };
   }, [isActive, currentStop?.target, stopIndex]);
+
+  useEffect(() => {
+    setChatInput("");
+  }, [stopIndex]);
+
+  useEffect(() => {
+    if (cohiReply) {
+      replyEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [cohiReply]);
 
   if (!isActive || !currentStop) return null;
 
@@ -157,9 +190,20 @@ export function CohiTourPanel() {
     ? { position: "fixed", top: pos.top, left: pos.left }
     : { position: "fixed", bottom: 216, right: 24 };
 
-  const halfWin  = (typeof window !== "undefined" ? window.innerWidth : 1200) / 2;
   const dotStart = Math.max(0, Math.min(stopIndex - Math.floor(DOT_WINDOW / 2), totalStops - DOT_WINDOW));
   const dotEnd   = Math.min(totalStops, dotStart + DOT_WINDOW);
+
+  async function handleSend() {
+    const q = chatInput.trim();
+    if (!q || isThinking) return;
+    setChatInput("");
+    await askCohi(q);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") { e.preventDefault(); handleSend(); }
+    if (e.key === "Escape") { clearReply(); setChatInput(""); }
+  }
 
   return (
     <>
@@ -182,15 +226,14 @@ export function CohiTourPanel() {
 
           {/* Header */}
           <div className="flex items-center gap-2.5 px-4 pt-3.5 pb-2">
-            {/* Cohi avatar */}
             <div className="relative shrink-0">
               <div className={cn(
                 "flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 text-white font-bold text-[13px] select-none shadow-md",
-                isSpeaking && "ring-2 ring-sky-300 ring-offset-1"
+                (isSpeaking || isThinking) && "ring-2 ring-sky-300 ring-offset-1"
               )}>
                 Co
               </div>
-              {isSpeaking && (
+              {(isSpeaking || isThinking) && (
                 <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-amber-400 ring-1 ring-white">
                   <span className="h-1.5 w-1.5 animate-ping rounded-full bg-amber-300" />
                 </span>
@@ -199,7 +242,7 @@ export function CohiTourPanel() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-bold text-sky-600 uppercase tracking-wide">Cohi</span>
-                <span className="text-[10px] text-slate-400">· AI Tour Guide</span>
+                <span className="text-[10px] text-slate-400">· AI Guide</span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <div className="flex h-4 w-4 items-center justify-center rounded-md bg-sky-500/15">
@@ -221,9 +264,59 @@ export function CohiTourPanel() {
             </div>
           </div>
 
-          {/* Script text */}
-          <div className="px-4 pb-3">
+          {/* Tour script */}
+          <div className="px-4 pb-2">
             <p className="text-[12px] leading-relaxed text-slate-600">{currentStop.script}</p>
+          </div>
+
+          {/* Cohi AI reply bubble */}
+          {(cohiReply || isThinking) && (
+            <div className="mx-4 mb-2 rounded-xl bg-gradient-to-br from-sky-50 to-indigo-50/60 border border-sky-100 px-3 py-2.5">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+                <span className="text-[10px] font-bold text-sky-600 uppercase tracking-wide">Cohi says</span>
+              </div>
+              {isThinking ? (
+                <div className="flex items-center gap-1 text-[12px] text-slate-500">
+                  Thinking<ThinkingDots />
+                </div>
+              ) : (
+                <p className="text-[12px] leading-relaxed text-slate-700">{cohiReply}</p>
+              )}
+              <div ref={replyEndRef} />
+            </div>
+          )}
+
+          {/* Chat input */}
+          <div className="px-4 pb-3">
+            <div className={cn(
+              "flex items-center gap-2 rounded-xl border bg-slate-50/60 px-3 py-2 transition-all",
+              isThinking ? "border-sky-200 bg-sky-50/40" : "border-slate-100 focus-within:border-sky-300 focus-within:bg-white focus-within:shadow-sm"
+            )}>
+              <input
+                ref={inputRef}
+                type="text"
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask Cohi anything…"
+                disabled={isThinking}
+                className="flex-1 bg-transparent text-[12px] text-slate-700 placeholder:text-slate-400 outline-none disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={handleSend}
+                disabled={!chatInput.trim() || isThinking}
+                className={cn(
+                  "shrink-0 rounded-lg p-1.5 transition-all",
+                  chatInput.trim() && !isThinking
+                    ? "bg-sky-500 text-white hover:bg-sky-600 active:scale-95 shadow-sm"
+                    : "text-slate-300 cursor-not-allowed"
+                )}
+              >
+                <SendHorizonal className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
 
           {/* Voice button row */}
@@ -231,18 +324,23 @@ export function CohiTourPanel() {
             <button
               type="button"
               onClick={isSpeaking ? stopSpeaking : speakCurrent}
+              disabled={isThinking}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
                 isSpeaking
                   ? "bg-amber-100 text-amber-700 hover:bg-amber-200 animate-pulse"
-                  : "bg-sky-50 text-sky-700 hover:bg-sky-100"
+                  : isThinking
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                    : "bg-sky-50 text-sky-700 hover:bg-sky-100 active:scale-95"
               )}
             >
               {isSpeaking
                 ? <><VolumeX className="h-3.5 w-3.5" /> Stop</>
                 : <><Volume2 className="h-3.5 w-3.5" /> Hear Cohi</>}
             </button>
-            <span className="text-[10px] text-slate-400 italic">voiced by Cohi AI </span>
+            <span className="text-[10px] text-slate-400 italic">
+              {isSpeaking ? "shimmer · OpenAI TTS" : cohiReply ? "AI reply · shimmer" : "voiced by Cohi AI"}
+            </span>
           </div>
 
           {/* Nav footer */}
@@ -263,7 +361,6 @@ export function CohiTourPanel() {
                 Prev
               </button>
 
-              {/* Dot indicators */}
               <div className="flex items-center gap-1">
                 {Array.from({ length: dotEnd - dotStart }, (_, i) => {
                   const realIdx = dotStart + i;
