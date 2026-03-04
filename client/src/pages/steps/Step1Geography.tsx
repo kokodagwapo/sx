@@ -567,7 +567,7 @@ export default function Step1Geography() {
             </div>
 
           {/* State filter */}
-          <div className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-1">
+          <div data-tour="filter-rail" className="opacity-0 animate-fade-in-up animate-fade-in-up-delay-1">
             <label className="mb-1.5 block text-xs font-medium text-slate-600">Filter by State</label>
             <input
               type="text"

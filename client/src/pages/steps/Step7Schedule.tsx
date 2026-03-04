@@ -399,7 +399,19 @@ export default function Step7Schedule() {
         <p>* Selected Loans &nbsp; ** Teraverde Indicative Pricing</p>
         <p className="mt-1">Teraverde Financial LLC. 2026. All rights reserved.</p>
       </footer>
-      <div data-tour="schedule-maturity" className="hidden" />
+      <div data-tour="schedule-maturity" className="mt-4 grid grid-cols-3 gap-3">
+        {[
+          { label: "WA Duration", value: "6.80 yrs", sub: "Avg sensitivity to rate changes" },
+          { label: "WA Remaining Term", value: "~25 yrs", sub: "Most loans maturing 2035–2040" },
+          { label: "Investor Horizon", value: "10–15 yr", sub: "Ideal for insurance portfolios" },
+        ].map(({ label, value, sub }) => (
+          <div key={label} className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</p>
+            <p className="mt-1 text-lg font-bold text-slate-800 tabular-nums">{value}</p>
+            <p className="mt-0.5 text-[10px] text-slate-400">{sub}</p>
+          </div>
+        ))}
+      </div>
     </SprinkleShell>
   );
 }
