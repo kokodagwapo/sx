@@ -245,7 +245,7 @@ export function TopNav({
   );
 
   return (
-    <header className="sticky top-0 z-[999] flex h-14 items-center justify-between border-b border-white/50 bg-white/40 backdrop-blur-xl px-4 transition-colors duration-300 shadow-none">
+    <header className="sticky top-0 z-[999] relative flex h-14 items-center justify-between border-b border-white/50 bg-white/40 backdrop-blur-xl px-4 transition-colors duration-300 shadow-none">
       <div className="flex items-center gap-4">
         <button
           type="button"
@@ -309,11 +309,21 @@ export function TopNav({
       </div>
 
 
-      {/* Right: Title, Notifications, Profile */}
-      <div className="flex items-center gap-4">
-        <h1 className="hidden text-base font-semibold text-slate-700 truncate max-w-[200px] sm:block sm:max-w-[240px] md:max-w-none">
-          {title}
+      {/* Center: Page title — absolutely centered in header */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <h1 className="hidden sm:flex items-center gap-2 select-none">
+          <span className="text-[13px] font-bold tracking-[-0.02em] bg-gradient-to-r from-slate-700 via-sky-600 to-indigo-500 bg-clip-text text-transparent whitespace-nowrap">
+            {title}
+          </span>
+          <span className="hidden md:block h-1 w-1 rounded-full bg-sky-400/60" />
+          <span className="hidden md:block text-[10px] font-medium text-slate-400 tracking-widest uppercase whitespace-nowrap">
+            SprinkleX Analytics
+          </span>
         </h1>
+      </div>
+
+      {/* Right: Notifications, Profile */}
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded · click to re-import` : "Upload loan tape (CSV / Excel)"} side="bottom">
             <button
