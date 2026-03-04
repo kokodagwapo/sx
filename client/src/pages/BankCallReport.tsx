@@ -578,7 +578,7 @@ export default function BankCallReport() {
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 text-center mb-3">
                 Buyer Intelligence
               </p>
-              <div data-tour="buyer-intelligence" className="grid grid-cols-2 gap-3">
+              <div data-tour="buyer-intelligence" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Sellers card — from uploaded tape or default real data */}
                 <div className="rounded-2xl border border-rose-100/60 bg-rose-50/60 backdrop-blur-sm p-4 flex flex-col gap-3">
                   <div className="flex items-center gap-2.5">

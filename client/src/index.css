@@ -78,8 +78,7 @@ body {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: break-word;
   background: hsl(var(--app-bg));
   color: hsl(var(--app-fg));
   font-family: var(--font-sans);
