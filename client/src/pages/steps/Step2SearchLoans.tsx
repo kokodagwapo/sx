@@ -857,15 +857,7 @@ export default function Step2SearchLoans() {
           </div>
         </PanelCard>
 
-        {/* Counterparty Intelligence Panel */}
-        <PanelCard
-          className="col-span-12"
-          icon={Building2}
-          title="Counterparty Intelligence"
-          subtitle="Live FDIC Call Report data for each buyer institution"
-        >
-          <CounterpartyPanel loans={filteredLoans} />
-        </PanelCard>
+        {/* Counterparty Intelligence Panel — hidden */}
       </div>
 
       <footer className="mt-8 border-t border-slate-200/70 pt-4 text-xs text-slate-500 [font-family:var(--font-sans)]">
