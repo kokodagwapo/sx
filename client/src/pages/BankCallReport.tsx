@@ -173,10 +173,12 @@ const DEFAULT_REGIONAL: QuickBank[] = [
 
 function fmtM(v?: number) {
   if (v == null) return "—";
+  // FDIC API returns all dollar amounts in thousands ($000)
   const abs = Math.abs(v);
-  if (abs >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}T`;
-  if (abs >= 1_000)     return `$${(v / 1_000).toFixed(1)}B`;
-  return `$${v.toFixed(0)}M`;
+  if (abs >= 1_000_000_000) return `$${(v / 1_000_000_000).toFixed(1)}T`;
+  if (abs >= 1_000_000)     return `$${(v / 1_000_000).toFixed(1)}B`;
+  if (abs >= 1_000)         return `$${(v / 1_000).toFixed(0)}M`;
+  return `$${v.toFixed(0)}K`;
 }
 function fmtPct(v?: number) {
   if (v == null) return "—";
@@ -408,8 +410,8 @@ function applyInstFilter(insts: FdicInst[], f: InstFilter): FdicInst[] {
     case "national":  return insts.filter((i) => i.CLASS === "N");
     case "state":     return insts.filter((i) => i.CLASS === "SM" || i.CLASS === "NM");
     case "savings":   return insts.filter((i) => i.CLASS === "SB" || i.CLASS === "SA");
-    case "community": return insts.filter((i) => (i.ASSET ?? 0) < 1_000);
-    case "large":     return insts.filter((i) => (i.ASSET ?? 0) >= 10_000);
+    case "community": return insts.filter((i) => (i.ASSET ?? 0) < 1_000_000);
+    case "large":     return insts.filter((i) => (i.ASSET ?? 0) >= 10_000_000);
     default:          return insts;
   }
 }

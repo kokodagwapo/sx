@@ -228,13 +228,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Fetch full call report by cert (extended fields)
+  // Merges /banks/institutions (identity + ASSET/DEP/EQ/ROA/ROE) with
+  // /financials (INTINC + LNLSNET which are not always in the institutions endpoint)
   app.get("/api/fdic/report/:cert", async (req, res) => {
     const cert = parseInt(req.params.cert ?? "");
     if (isNaN(cert)) return res.status(400).json({ error: "invalid cert" });
     try {
-      const url = `https://api.fdic.gov/banks/institutions?filters=CERT%3A${cert}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,NETINC,INTINC,NONII,LNLSNET,DEP,EQ,ROA,ROE,NAMEHCR,SPECGRP&limit=1`;
-      const data = await fdicFetch(url, `report:${cert}`);
-      res.json(data);
+      const instUrl = `https://api.fdic.gov/banks/institutions?filters=CERT%3A${cert}&fields=NAME,CERT,CITY,STNAME,ASSET,CLASS,ACTIVE,REPDTE,NETINC,INTINC,NONII,LNLSNET,DEP,EQ,ROA,ROE,NAMEHCR,SPECGRP&limit=1`;
+      const finUrl  = `https://api.fdic.gov/banks/financials?filters=CERT%3A${cert}&fields=CERT,INTINC,LNLSNET,NETINC,NONII,DEP,EQ&limit=1&sort_by=REPDTE&sort_order=DESC`;
+
+      const [instData, finData] = await Promise.allSettled([
+        fdicFetch(instUrl, `report:${cert}`),
+        fdicFetch(finUrl,  `fin:${cert}`),
+      ]);
+
+      const inst = instData.status === "fulfilled" ? instData.value as { data?: { data: Record<string, unknown> }[] } : null;
+      const fin  = finData.status  === "fulfilled" ? finData.value  as { data?: { data: Record<string, unknown> }[] } : null;
+
+      if (!inst?.data?.[0]) {
+        res.status(502).json({ error: "FDIC API unavailable" });
+        return;
+      }
+
+      // Merge financials into institution record — prefer financials values for income fields.
+      // Both /institutions and /financials return values in thousands of dollars ($000).
+      // The client-side fmtM formatter handles the thousands unit directly.
+      const finRow = fin?.data?.[0]?.data ?? {};
+      const merged = {
+        ...inst.data[0].data,
+        INTINC:  finRow["INTINC"]  ?? inst.data[0].data["INTINC"],
+        LNLSNET: finRow["LNLSNET"] ?? inst.data[0].data["LNLSNET"],
+        NETINC:  finRow["NETINC"]  ?? inst.data[0].data["NETINC"],
+        NONII:   finRow["NONII"]   ?? inst.data[0].data["NONII"],
+        DEP:     finRow["DEP"]     ?? inst.data[0].data["DEP"],
+        EQ:      finRow["EQ"]      ?? inst.data[0].data["EQ"],
+        ROA:     inst.data[0].data["ROA"],
+        ROE:     inst.data[0].data["ROE"],
+      };
+
+      res.json({ data: [{ data: merged }], meta: (inst as { meta?: unknown }).meta });
     } catch {
       res.status(502).json({ error: "FDIC API unavailable" });
     }
