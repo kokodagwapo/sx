@@ -47,6 +47,8 @@ function computePosition(targetRect: DOMRect, bubbleW: number, bubbleH: number):
   const PAD = 12;
   const winW = window.innerWidth;
   const winH = window.innerHeight;
+  const mobile = winW < 640;
+  const effectiveW = mobile ? winW - PAD * 2 : bubbleW;
   const spaceBelow = winH - targetRect.bottom;
   const spaceAbove = targetRect.top;
   const spaceRight = winW - targetRect.right;
@@ -55,32 +57,39 @@ function computePosition(targetRect: DOMRect, bubbleW: number, bubbleH: number):
   let side: Side;
   if      (spaceBelow >= bubbleH + GAP) side = "bottom";
   else if (spaceAbove >= bubbleH + GAP) side = "top";
-  else if (spaceRight >= bubbleW + GAP) side = "right";
-  else if (spaceLeft  >= bubbleW + GAP) side = "left";
+  else if (!mobile && spaceRight >= effectiveW + GAP) side = "right";
+  else if (!mobile && spaceLeft  >= effectiveW + GAP) side = "left";
   else side = spaceAbove >= spaceBelow ? "top" : "bottom";
 
   const cx = targetRect.left + targetRect.width / 2;
   const cy = targetRect.top + targetRect.height / 2;
   let top: number, left: number;
 
-  if (side === "bottom") {
+  if (mobile) {
+    left = PAD;
+    if (side === "bottom") {
+      top = targetRect.bottom + GAP;
+    } else {
+      top = targetRect.top - bubbleH - GAP;
+    }
+  } else if (side === "bottom") {
     top  = targetRect.bottom + GAP;
-    left = clamp(cx - bubbleW / 2, PAD, winW - bubbleW - PAD);
+    left = clamp(cx - effectiveW / 2, PAD, winW - effectiveW - PAD);
   } else if (side === "top") {
     top  = targetRect.top - bubbleH - GAP;
-    left = clamp(cx - bubbleW / 2, PAD, winW - bubbleW - PAD);
+    left = clamp(cx - effectiveW / 2, PAD, winW - effectiveW - PAD);
   } else if (side === "right") {
     left = targetRect.right + GAP;
     top  = clamp(cy - bubbleH / 2, PAD, winH - bubbleH - PAD);
   } else {
-    left = targetRect.left - bubbleW - GAP;
+    left = targetRect.left - effectiveW - GAP;
     top  = clamp(cy - bubbleH / 2, PAD, winH - bubbleH - PAD);
   }
 
   top  = clamp(top,  PAD, winH - bubbleH - PAD);
-  left = clamp(left, PAD, winW - bubbleW - PAD);
+  left = clamp(left, PAD, winW - effectiveW - PAD);
 
-  const arrowX = (side === "bottom" || side === "top") ? clamp(cx - left, 16, bubbleW - 16) : undefined;
+  const arrowX = (side === "bottom" || side === "top") ? clamp(cx - left, 16, effectiveW - 16) : undefined;
   const arrowY = (side === "left"   || side === "right") ? clamp(cy - top, 16, bubbleH - 16) : undefined;
   return { top, left, side, arrowX, arrowY };
 }
@@ -203,9 +212,10 @@ export function CohiTourPanel() {
   const progress = ((stopIndex + 1) / totalStops) * 100;
 
   const hasTarget = !!currentStop.target;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
   const style: React.CSSProperties = hasTarget && pos
-    ? { position: "fixed", top: pos.top, left: pos.left }
-    : { position: "fixed", bottom: 216, right: 24 };
+    ? { position: "fixed", top: pos.top, left: isMobile ? 12 : pos.left }
+    : { position: "fixed", bottom: 216, right: isMobile ? 12 : 24, left: isMobile ? 12 : "auto" };
 
   const dotStart = Math.max(0, Math.min(stopIndex - Math.floor(DOT_WINDOW / 2), totalStops - DOT_WINDOW));
   const dotEnd   = Math.min(totalStops, dotStart + DOT_WINDOW);
@@ -228,7 +238,7 @@ export function CohiTourPanel() {
       {createPortal(
         <div
           ref={panelRef}
-          className="z-[1050] w-96 rounded-2xl border border-slate-200/80 bg-white overflow-hidden shadow-[0_8px_48px_rgba(56,189,248,0.28)] animate-fade-in-up"
+          className="z-[1050] w-[calc(100vw-24px)] sm:w-96 max-w-96 rounded-2xl border border-slate-200/80 bg-white overflow-hidden shadow-[0_8px_48px_rgba(56,189,248,0.28)] animate-fade-in-up"
           style={style}
         >
           {hasTarget && pos && <Arrow side={pos.side} arrowX={pos.arrowX} arrowY={pos.arrowY} />}
