@@ -475,6 +475,13 @@ export function TopNav({
               document.body,
             )}
           </div>
+          <button
+            type="button"
+            onClick={startTour}
+            className="sm:hidden flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors"
+          >
+            <Sparkles className="h-4 w-4" strokeWidth={2} />
+          </button>
           <div className="flex items-center gap-2 rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-2 sm:px-3 py-2">
             <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-sky-500 text-white shrink-0">
               <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} />
