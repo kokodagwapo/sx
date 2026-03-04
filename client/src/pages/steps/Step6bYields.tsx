@@ -172,12 +172,12 @@ function Big({
       onClick={onClick}
       onKeyDown={onClick ? (e) => e.key === "Enter" && onClick() : undefined}
       className={cn(
-        "rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 transition-all hover:border-violet-200/70 hover:bg-violet-50/40",
+        "rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 sm:px-4 py-2.5 sm:py-3 transition-all hover:border-violet-200/70 hover:bg-violet-50/40",
         onClick && "cursor-pointer"
       )}
     >
-      <div className="text-xs font-medium text-slate-600">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
+      <div className="text-[11px] sm:text-xs font-medium text-slate-600 break-words">{label}</div>
+      <div className="mt-0.5 sm:mt-1 text-lg sm:text-2xl font-semibold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
         {value}
       </div>
     </div>
@@ -241,7 +241,7 @@ export default function Step6bYields() {
           title="Historical Loan Yields — Last Five Quarters"
           subtitle="Total Loans and Leases • Click a data point for drilldown"
         >
-          <div className="h-[420px]">
+          <div className="h-[280px] sm:h-[360px] lg:h-[420px]">
             <AreaTrendChart
               data={step6bYieldTrend}
               gradientId="step6b-trendFill"

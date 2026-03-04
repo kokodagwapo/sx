@@ -54,13 +54,13 @@ export default function Step6aLoanComposition() {
           title="Loan Composition with Selections"
           subtitle="As of Last Quarter vs. Projected with Selected Loans"
         >
-          <div className="space-y-4 text-sm leading-relaxed text-slate-700">
-            <p>{NARRATIVE_BULLETS[0]}</p>
-            <ul className="space-y-1.5 pl-4">
+          <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700">
+            <p className="break-words">{NARRATIVE_BULLETS[0]}</p>
+            <ul className="space-y-1.5 pl-0 sm:pl-4">
               {NARRATIVE_BULLETS.slice(1).map((b, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="text-sky-500">•</span>
-                  <span>{b}</span>
+                <li key={i} className="flex gap-1.5 sm:gap-2 min-w-0">
+                  <span className="text-sky-500 shrink-0">•</span>
+                  <span className="break-words min-w-0">{b}</span>
                 </li>
               ))}
             </ul>
@@ -96,7 +96,7 @@ export default function Step6aLoanComposition() {
             title="Loan Composition with Selections"
             subtitle="Dollars in Thousands • Click a bar for drilldown"
           >
-            <div className="h-[400px]">
+            <div className="h-[300px] sm:h-[400px]">
               <ComparisonHorizontalBarChart
                 data={step6aComposition}
                 currentLabel="As of Last Quarter"

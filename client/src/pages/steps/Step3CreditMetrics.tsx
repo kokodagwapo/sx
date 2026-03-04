@@ -105,12 +105,12 @@ export default function Step3CreditMetrics() {
           {FOOTER_METRICS.map((m) => (
             <div
               key={m.label}
-              className="rounded-xl border border-slate-200/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm opacity-0 animate-fade-in-up [animation-delay:520ms]"
+              className="rounded-xl border border-slate-200/80 bg-white/80 px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm backdrop-blur-sm opacity-0 animate-fade-in-up [animation-delay:520ms]"
             >
-              <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
+              <div className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-500 truncate">
                 {m.label}
               </div>
-              <div className="mt-1.5 text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
+              <div className="mt-1 sm:mt-1.5 text-base sm:text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
                 {m.value}
               </div>
             </div>

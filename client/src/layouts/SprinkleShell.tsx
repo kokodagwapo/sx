@@ -135,10 +135,10 @@ export function SprinkleShell({
       {mobileMenuOpen && (
         <>
           <div
-            className="fixed inset-0 z-[999] bg-black/50 lg:hidden"
+            className="fixed inset-0 z-[999] bg-white/60 backdrop-blur-sm lg:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="fixed left-0 top-0 z-[1001] h-full w-[220px] lg:hidden">
+          <div className="fixed left-0 top-0 z-[1001] h-full w-[260px] lg:hidden shadow-xl shadow-slate-200/50">
             <Sidebar
               forceShow
               collapsed={false}

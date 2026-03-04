@@ -32,9 +32,9 @@ const INCOME_STATEMENT = [
 
 function BigNumber({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 px-4 py-3 transition-colors hover:bg-slate-50">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">{label}</div>
-      <div className="mt-1.5 text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
+    <div className="rounded-xl border border-slate-200/60 bg-slate-50/50 px-3 sm:px-4 py-2.5 sm:py-3 transition-colors hover:bg-slate-50">
+      <div className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-500 break-words">{label}</div>
+      <div className="mt-1 sm:mt-1.5 text-base sm:text-xl font-bold tracking-tight text-slate-900 tabular-nums [font-family:var(--font-display)]">
         {value}
       </div>
     </div>
@@ -49,7 +49,8 @@ export default function Step5FinancialMetrics() {
         <PanelCard
           className="col-span-1 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1 lg:col-span-4"
           icon={Scale}
-          title="Balance Sheet Considerations"
+          title="Balance Sheet"
+          subtitle="Considerations"
         >
           <div className="space-y-4">
             {BALANCE_SHEET.map((item) => (

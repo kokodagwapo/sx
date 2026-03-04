@@ -205,12 +205,12 @@ function KpiBlock({
       onClick={onClick}
       onKeyDown={onClick ? (e) => e.key === "Enter" && onClick() : undefined}
       className={cn(
-        "rounded-xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 transition-all hover:border-emerald-200/70 hover:bg-emerald-50/40",
+        "rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 sm:px-4 py-2.5 sm:py-3 transition-all hover:border-emerald-200/70 hover:bg-emerald-50/40",
         onClick && "cursor-pointer"
       )}
     >
-      <div className="text-xs font-medium text-slate-600">{label}</div>
-      <div className="mt-1 text-xl font-semibold tracking-tight text-emerald-700 tabular-nums [font-family:var(--font-display)]">
+      <div className="text-[11px] sm:text-xs font-medium text-slate-600 break-words">{label}</div>
+      <div className="mt-0.5 sm:mt-1 text-base sm:text-xl font-semibold tracking-tight text-emerald-700 tabular-nums [font-family:var(--font-display)]">
         {value}
       </div>
     </div>

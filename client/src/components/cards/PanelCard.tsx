@@ -23,20 +23,20 @@ export function PanelCard({
   contentClassName?: string;
 }) {
   const headerContent = (
-    <div className="min-w-0 flex items-start gap-2.5">
+    <div className="min-w-0 flex items-start gap-2 sm:gap-2.5">
       {Icon && (
-        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#4285F4]/10 text-[#4285F4]">
-          <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+        <div className="mt-0.5 flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-lg bg-[#4285F4]/10 text-[#4285F4]">
+          <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} />
         </div>
       )}
       <div className="min-w-0">
         {title && (
-          <div className="text-sm font-semibold tracking-tight text-slate-900">
+          <div className="text-xs sm:text-sm font-semibold tracking-tight text-slate-900 break-words">
             {title}
           </div>
         )}
         {subtitle && (
-          <div className="mt-0.5 text-xs text-slate-500">{subtitle}</div>
+          <div className="mt-0.5 text-[10px] sm:text-xs text-slate-500 break-words">{subtitle}</div>
         )}
       </div>
     </div>

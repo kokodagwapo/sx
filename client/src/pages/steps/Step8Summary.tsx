@@ -233,12 +233,12 @@ function Small({
       onClick={onClick}
       onKeyDown={onClick ? (e) => e.key === "Enter" && onClick() : undefined}
       className={cn(
-        "rounded-xl border border-blue-100 bg-white px-4 py-3 transition-all hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-sm",
+        "rounded-xl border border-blue-100 bg-white px-3 sm:px-4 py-2.5 sm:py-3 transition-all hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-sm",
         onClick && "cursor-pointer"
       )}
     >
-      <div className="text-xs font-medium text-slate-500">{label}</div>
-      <div className="mt-1 text-xl font-semibold tracking-tight text-blue-600 tabular-nums [font-family:var(--font-display)]">
+      <div className="text-[11px] sm:text-xs font-medium text-slate-500 break-words">{label}</div>
+      <div className="mt-0.5 sm:mt-1 text-base sm:text-xl font-semibold tracking-tight text-blue-600 tabular-nums [font-family:var(--font-display)]">
         {value}
       </div>
     </div>
@@ -340,14 +340,14 @@ export default function Step8Summary() {
 
   return (
     <SprinkleShell stepId="8" kpis={STEP8_KPIS} animateKpis onKpiClick={(item) => item.id && handleKpiClick(item)}>
-      <div data-tour="summary-header" className="grid grid-cols-12 gap-4">
+      <div data-tour="summary-header" className="grid grid-cols-12 gap-3 sm:gap-4">
         <PanelCard
-          className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1 lg:col-span-3"
+          className="col-span-6 sm:col-span-6 lg:col-span-3 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1"
           icon={PieChart}
-          title="Product Type Composition"
-          subtitle="TOTAL 100% • Click segment for drilldown"
+          title="Product Type"
+          subtitle="Click segment"
         >
-          <div className="h-[240px]">
+          <div className="h-[180px] sm:h-[240px]">
             <DonutChart
               data={step8ProductType}
               onSegmentClick={(name) => handleCompositionClick("productType", name)}
@@ -355,12 +355,12 @@ export default function Step8Summary() {
           </div>
         </PanelCard>
         <PanelCard
-          className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-2 lg:col-span-3"
+          className="col-span-6 sm:col-span-6 lg:col-span-3 opacity-0 animate-fade-in-up animate-fade-in-up-delay-2"
           icon={Home}
-          title="Occupancy Composition"
-          subtitle="TOTAL 100% • Click segment for drilldown"
+          title="Occupancy"
+          subtitle="Click segment"
         >
-          <div className="h-[240px]">
+          <div className="h-[180px] sm:h-[240px]">
             <DonutChart
               data={step8Occupancy}
               onSegmentClick={(name) => handleCompositionClick("occupancy", name)}
@@ -368,12 +368,12 @@ export default function Step8Summary() {
           </div>
         </PanelCard>
         <PanelCard
-          className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-3 lg:col-span-3"
+          className="col-span-6 sm:col-span-6 lg:col-span-3 opacity-0 animate-fade-in-up animate-fade-in-up-delay-3"
           icon={Target}
-          title="Purpose Composition"
-          subtitle="TOTAL 100% • Click segment for drilldown"
+          title="Purpose"
+          subtitle="Click segment"
         >
-          <div className="h-[240px]">
+          <div className="h-[180px] sm:h-[240px]">
             <DonutChart
               data={step8Purpose}
               onSegmentClick={(name) => handleCompositionClick("purpose", name)}
@@ -381,12 +381,12 @@ export default function Step8Summary() {
           </div>
         </PanelCard>
         <PanelCard
-          className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-4 lg:col-span-3"
+          className="col-span-6 sm:col-span-6 lg:col-span-3 opacity-0 animate-fade-in-up animate-fade-in-up-delay-4"
           icon={MapPinned}
-          title="Selected Loans by State"
-          subtitle="TOTAL 100% • Click segment for drilldown"
+          title="By State"
+          subtitle="Click segment"
         >
-          <div className="h-[240px]">
+          <div className="h-[180px] sm:h-[240px]">
             <DonutChart
               data={step8States}
               onSegmentClick={(name) => handleCompositionClick("states", name)}
@@ -395,12 +395,12 @@ export default function Step8Summary() {
         </PanelCard>
 
         <PanelCard
-          className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-5 lg:col-span-3"
+          className="col-span-12 sm:col-span-6 lg:col-span-3 opacity-0 animate-fade-in-up animate-fade-in-up-delay-5"
           icon={LayoutDashboard}
           title="Credit Summary"
           subtitle="Click metric for drilldown"
         >
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-1 gap-2 sm:gap-3">
             {CREDIT_ITEMS.map((item) => (
               <Small
                 key={item.key}
@@ -412,12 +412,12 @@ export default function Step8Summary() {
           </div>
         </PanelCard>
         <PanelCard
-          className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-5 lg:col-span-5"
+          className="col-span-12 sm:col-span-6 lg:col-span-5 opacity-0 animate-fade-in-up animate-fade-in-up-delay-5"
           icon={ScatterChart}
-          title="What is the WAC for each Product Type?"
-          subtitle="# of Loans (blue) • Weighted Avg Coupon (red) • Click for drilldown"
+          title="WAC by Product Type"
+          subtitle="Loans (blue) • WAC (red) • Click for drilldown"
         >
-          <div className="h-[260px]">
+          <div className="h-[220px] sm:h-[260px]">
             <WacByProductChart
               data={step8WacByProduct}
               onBarClick={handleWacClick}
@@ -427,7 +427,7 @@ export default function Step8Summary() {
         </PanelCard>
         <PanelCard
           data-tour="summary-table"
-          className="col-span-12 opacity-0 animate-fade-in-up animate-fade-in-up-delay-6 lg:col-span-4"
+          className="col-span-12 lg:col-span-4 opacity-0 animate-fade-in-up animate-fade-in-up-delay-6"
           icon={Table2}
           title="Loan Term"
           subtitle="Click row for drilldown"
@@ -495,18 +495,18 @@ export default function Step8Summary() {
       )}
 
       {/* ── Executive Intelligence Panel ───────────────────────── */}
-      <footer data-tour="summary-footer" className="mt-8 space-y-5">
+      <footer data-tour="summary-footer" className="mt-6 sm:mt-8 space-y-4 sm:space-y-5">
 
         {/* Deal Thesis */}
-        <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/80 to-indigo-50/40 p-5">
+        <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/80 to-indigo-50/40 p-3.5 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-500/15">
-              <Sparkles className="h-4 w-4 text-sky-600" strokeWidth={2} />
+            <div className="flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-lg bg-sky-500/15">
+              <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-600" strokeWidth={2} />
             </div>
-            <span className="text-sm font-bold text-slate-800">Investment Thesis</span>
-            <span className="ml-auto rounded-full bg-sky-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-700">Executive Brief</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800">Investment Thesis</span>
+            <span className="ml-auto rounded-full bg-sky-100 px-2 sm:px-2.5 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-sky-700 shrink-0">Brief</span>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: CheckCircle2,
@@ -537,27 +537,27 @@ export default function Step8Summary() {
                 body: "At Teraverde's indicative WPI of 100.71, the pool trades at a 71 bps premium to UPB — reflecting coupon premium relative to current origination costs. Buyers acquiring at par or below capture immediate book value accretion under GAAP fair value measurement.",
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-xl border border-white/80 bg-white/70 p-3.5 backdrop-blur-sm">
-                <div className={`mb-2 flex h-6 w-6 items-center justify-center rounded-md ${item.bg}`}>
-                  <item.icon className={`h-3.5 w-3.5 ${item.color}`} strokeWidth={2.5} />
+              <div key={item.title} className="rounded-xl border border-white/80 bg-white/70 p-3 sm:p-3.5 backdrop-blur-sm">
+                <div className={`mb-1.5 sm:mb-2 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-md ${item.bg}`}>
+                  <item.icon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${item.color}`} strokeWidth={2.5} />
                 </div>
-                <p className="text-[11px] font-bold text-slate-700 leading-tight mb-1">{item.title}</p>
-                <p className="text-[11px] text-slate-500 leading-relaxed">{item.body}</p>
+                <p className="text-[11px] font-bold text-slate-700 leading-tight mb-0.5 sm:mb-1">{item.title}</p>
+                <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed break-words">{item.body}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Buyer-Type Match Guide */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100">
-              <Building2 className="h-4 w-4 text-slate-600" strokeWidth={2} />
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-5">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4">
+            <div className="flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+              <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600" strokeWidth={2} />
             </div>
-            <span className="text-sm font-bold text-slate-800">Institutional Buyer Match Guide</span>
-            <span className="ml-auto text-[10px] text-slate-400">Based on portfolio characteristics vs. buyer mandates</span>
+            <span className="text-xs sm:text-sm font-bold text-slate-800">Buyer Match Guide</span>
+            <span className="ml-auto text-[9px] sm:text-[10px] text-slate-400 hidden sm:inline">Based on portfolio vs. buyer mandates</span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: Landmark,
@@ -595,22 +595,22 @@ export default function Step8Summary() {
               const bar = `bg-${buyer.color}-500`;
               const badge = `bg-${buyer.color}-50 text-${buyer.color}-700 border-${buyer.color}-200`;
               return (
-                <div key={buyer.label} className="rounded-xl border border-slate-100 p-4 hover:border-slate-200 hover:shadow-sm transition-all">
-                  <div className="flex items-start justify-between mb-2">
-                    <buyer.icon className="h-5 w-5 text-slate-500 mt-0.5" strokeWidth={1.5} />
+                <div key={buyer.label} className="rounded-xl border border-slate-100 p-3 sm:p-4 hover:border-slate-200 hover:shadow-sm transition-all">
+                  <div className="flex items-start justify-between mb-1.5 sm:mb-2">
+                    <buyer.icon className="h-4 w-4 sm:h-5 sm:w-5 text-slate-500 mt-0.5 shrink-0" strokeWidth={1.5} />
                     <div className="text-right">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Match Score</div>
-                      <div className={`text-lg font-black tabular-nums text-${buyer.color}-600`}>{buyer.match}%</div>
+                      <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Match</div>
+                      <div className={`text-base sm:text-lg font-black tabular-nums text-${buyer.color}-600`}>{buyer.match}%</div>
                     </div>
                   </div>
                   <div className="mb-1 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                     <div className={`h-full rounded-full ${bar} transition-all duration-700`} style={{ width: `${buyer.match}%` }} />
                   </div>
-                  <p className="text-[12px] font-bold text-slate-700 mt-2 mb-1.5">{buyer.label}</p>
-                  <p className="text-[11px] text-slate-500 leading-relaxed mb-2.5">{buyer.rationale}</p>
+                  <p className="text-[11px] sm:text-[12px] font-bold text-slate-700 mt-1.5 sm:mt-2 mb-1">{buyer.label}</p>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed mb-2 break-words">{buyer.rationale}</p>
                   <div className="flex flex-wrap gap-1">
                     {buyer.tags.map((t) => (
-                      <span key={t} className={`rounded-md border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${badge}`}>{t}</span>
+                      <span key={t} className={`rounded-md border px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wide ${badge}`}>{t}</span>
                     ))}
                   </div>
                 </div>
@@ -622,11 +622,11 @@ export default function Step8Summary() {
         {/* Risk Factors + Capital Treatment side-by-side */}
         <div className="grid gap-4 lg:grid-cols-2">
           {/* Key Risk Factors */}
-          <div className="rounded-2xl border border-amber-100 bg-amber-50/40 p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="h-4.5 w-4.5 text-amber-600" strokeWidth={2} />
-              <span className="text-sm font-bold text-slate-800">Material Risk Factors</span>
-              <span className="ml-auto text-[10px] text-slate-400 italic">For credit committee disclosure</span>
+          <div className="rounded-2xl border border-amber-100 bg-amber-50/40 p-3.5 sm:p-5">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" strokeWidth={2} />
+              <span className="text-xs sm:text-sm font-bold text-slate-800">Material Risk Factors</span>
+              <span className="ml-auto text-[9px] sm:text-[10px] text-slate-400 italic hidden sm:inline">For credit committee disclosure</span>
             </div>
             <div className="space-y-3">
               {[
@@ -649,12 +649,12 @@ export default function Step8Summary() {
                   body: "Loans are currently serviced by the originating sellers (Provident, Stonegate, New Penn). Whole loan transfer requires RESPA-compliant servicing transfer. Buyer should engage an approved MSP-licensed servicer or subservicer (e.g., Cenlar, LoanCare, PHH) 60–90 days pre-close. Transfer costs typically run $50–$75 per loan.",
                 },
               ].map((risk) => (
-                <div key={risk.title} className="rounded-xl border border-white/80 bg-white/70 p-3.5">
-                  <div className="flex items-start justify-between mb-1.5">
-                    <p className="text-[12px] font-bold text-slate-700">{risk.title}</p>
-                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide shrink-0 ml-2 ${risk.sev_color}`}>{risk.severity}</span>
+                <div key={risk.title} className="rounded-xl border border-white/80 bg-white/70 p-3 sm:p-3.5">
+                  <div className="flex items-start justify-between gap-2 mb-1 sm:mb-1.5">
+                    <p className="text-[11px] sm:text-[12px] font-bold text-slate-700 min-w-0">{risk.title}</p>
+                    <span className={`rounded-full px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wide shrink-0 ${risk.sev_color}`}>{risk.severity}</span>
                   </div>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">{risk.body}</p>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed break-words">{risk.body}</p>
                 </div>
               ))}
             </div>
@@ -662,10 +662,10 @@ export default function Step8Summary() {
 
           {/* Capital Treatment + Exit Liquidity */}
           <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Info className="h-4 w-4 text-slate-500" strokeWidth={2} />
-                <span className="text-sm font-bold text-slate-800">Regulatory Capital Treatment</span>
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-5">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-500 shrink-0" strokeWidth={2} />
+                <span className="text-xs sm:text-sm font-bold text-slate-800">Capital Treatment</span>
               </div>
               <div className="space-y-2.5">
                 {[
@@ -674,21 +674,21 @@ export default function Step8Summary() {
                   { label: "NAIC RBC Classification", value: "CM-1 / CM-2", note: "Expected RBC designation for insurance company buyers under NAIC SSAP No. 43R. Favorable capital charge vs. equity or CMBS subordinates.", badge: "bg-violet-50 text-violet-700" },
                   { label: "NCUA Investment Authority", value: "Part 703 Eligible", note: "First-lien residential whole loans with prime FICO qualify under NCUA § 703.14. Credit union board approval required per Investment Policy Statement.", badge: "bg-amber-50 text-amber-700" },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-start gap-3 rounded-lg border border-slate-100 p-2.5">
-                    <div>
-                      <div className="text-[10px] font-semibold text-slate-500 mb-0.5">{item.label}</div>
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${item.badge}`}>{item.value}</span>
+                  <div key={item.label} className="flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-3 rounded-lg border border-slate-100 p-2 sm:p-2.5">
+                    <div className="shrink-0">
+                      <div className="text-[9px] sm:text-[10px] font-semibold text-slate-500 mb-0.5">{item.label}</div>
+                      <span className={`rounded px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold ${item.badge}`}>{item.value}</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed mt-0.5">{item.note}</p>
+                    <p className="text-[10px] sm:text-[11px] text-slate-400 leading-relaxed break-words">{item.note}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <ArrowUpRight className="h-4 w-4 text-slate-500" strokeWidth={2} />
-                <span className="text-sm font-bold text-slate-800">Exit Liquidity Options</span>
+            <div className="rounded-2xl border border-slate-200/80 bg-white p-3.5 sm:p-5">
+              <div className="flex items-center gap-2 mb-2.5 sm:mb-3">
+                <ArrowUpRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-500 shrink-0" strokeWidth={2} />
+                <span className="text-xs sm:text-sm font-bold text-slate-800">Exit Liquidity Options</span>
               </div>
               <div className="space-y-2">
                 {[
@@ -697,12 +697,12 @@ export default function Step8Summary() {
                   { strategy: "GSE Delivery (Conforming Subset)", timeline: "30–45 days", note: "Conforming-balance loans (<$766,550) eligible for Fannie Mae or Freddie Mac MBS delivery at TBA pricing." },
                   { strategy: "Hold-to-Maturity (HTM)", timeline: "6–12+ years", note: "Insurance, pension, and credit union buyers may HTM under GAAP/statutory, avoiding mark-to-market volatility." },
                 ].map((opt) => (
-                  <div key={opt.strategy} className="flex items-start gap-2 rounded-lg border border-slate-100 px-3 py-2">
+                  <div key={opt.strategy} className="flex items-start gap-2 rounded-lg border border-slate-100 px-2.5 sm:px-3 py-2">
                     <div className="h-1.5 w-1.5 rounded-full bg-slate-300 mt-1.5 shrink-0" />
-                    <div>
-                      <span className="text-[11px] font-bold text-slate-700">{opt.strategy}</span>
-                      <span className="ml-2 text-[10px] text-slate-400">{opt.timeline}</span>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">{opt.note}</p>
+                    <div className="min-w-0">
+                      <span className="text-[10px] sm:text-[11px] font-bold text-slate-700">{opt.strategy}</span>
+                      <span className="ml-1.5 sm:ml-2 text-[9px] sm:text-[10px] text-slate-400">{opt.timeline}</span>
+                      <p className="text-[10px] sm:text-[11px] text-slate-400 leading-relaxed break-words">{opt.note}</p>
                     </div>
                   </div>
                 ))}

@@ -596,24 +596,24 @@ export default function Step1Geography() {
             title="Geographic Distribution"
             subtitle="State → County → Census Tract"
           >
-            <div className="space-y-3 text-sm leading-relaxed text-slate-700">
+            <div className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm leading-relaxed text-slate-700">
               {narrativeBullets.slice(0, 3).map((bullet, i) => (
-                <p key={i} className="flex gap-2">
-                  <CircleDot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-500/70" strokeWidth={2.5} />
-                  <span>{bullet}</span>
+                <p key={i} className="flex gap-2 min-w-0">
+                  <CircleDot className="mt-0.5 h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-sky-500/70" strokeWidth={2.5} />
+                  <span className="min-w-0 break-words">{bullet}</span>
                 </p>
               ))}
               {keyTakeaways.length > 0 && (
-                <div className="rounded-lg bg-emerald-50/60 px-3 py-2.5 border border-emerald-200/50">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800">
-                    <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+                <div className="rounded-lg bg-emerald-50/60 px-2.5 sm:px-3 py-2 sm:py-2.5 border border-emerald-200/50">
+                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-emerald-800">
+                    <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" strokeWidth={2} />
                     Key Takeaways
                   </div>
-                  <ul className="mt-2 space-y-1 text-sm text-emerald-800/90">
+                  <ul className="mt-1.5 sm:mt-2 space-y-1 text-xs sm:text-sm text-emerald-800/90">
                     {keyTakeaways.map((insight, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="text-emerald-500">•</span>
-                        <span>{insight}</span>
+                      <li key={i} className="flex gap-1.5 sm:gap-2 min-w-0">
+                        <span className="text-emerald-500 shrink-0">•</span>
+                        <span className="min-w-0 break-words">{insight}</span>
                       </li>
                     ))}
                   </ul>
@@ -940,8 +940,8 @@ export default function Step1Geography() {
           ) : undefined
         }
       >
-        <div className="h-[320px] min-h-[240px] w-full overflow-y-auto overflow-x-hidden">
-          <div className="w-full" style={{ height: Math.max(320, barData.length * 36) }}>
+        <div className="h-[280px] sm:h-[320px] min-h-[200px] w-full overflow-y-auto overflow-x-hidden">
+          <div className="w-full" style={{ height: Math.max(280, barData.length * 32) }}>
             <HorizontalBarChart
               data={barData}
               onBarClick={(name) => setChartBarSelected((prev) => (prev === name ? null : name))}

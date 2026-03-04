@@ -81,15 +81,26 @@ Preferred communication style: Simple, everyday language.
 
 ## Application Structure
 
-### 8-Step Workflow
+### 9-Step Workflow
 1. **Step 1** — Geography (interactive choropleth map, state/county/tract drilldown)
 2. **Step 2** — Search Loans (filter, search, portfolio breakdown)
 3. **Step 3** — Credit Metrics (FICO, LTV, DTI analysis)
 4. **Step 4** — Pricing (rate sheets, WAC, pricing comparison)
-5. **Step 5** — Trends (time series, area charts)
-6. **Step 6a/6b/6c** — Portfolio Analysis (composition, comparison, WAC by product)
-7. **Step 7** — Loan List (full loan data table)
-8. **Step 8** — Summary (executive overview)
+5. **Step 5** — Financial Metrics (balance sheet, income statement, bar charts)
+6. **Step 6a/6b/6c** — Portfolio Analysis (composition, yields, concentration)
+7. **Step 7** — Loan Schedule (full loan detail table)
+8. **Step 8** — Summary (executive overview, investment thesis, buyer match guide)
+9. **Step 9** — Cohorts (cohort analysis by dimension, scatter plot, detail cards)
+
+### Mobile-First Responsive Design
+- **Global overflow containment**: `overflow-x: hidden` on body, shell root, and inner wrapper
+- **PanelCard**: Responsive header icons (`h-6 sm:h-7`), title text (`text-xs sm:text-sm`), subtitle (`text-[10px] sm:text-xs`), padding (`px-3 sm:px-4 py-2.5 sm:py-3`), all text uses `break-words`
+- **KpiStrip**: Tooltip wrappers always have `wrapperClassName="w-full min-w-0"`, equal-height cards with `h-full`, font scaling `9px→11px` labels, `13px→18px→22px` values
+- **Mobile sidebar**: Light overlay `bg-white/60 backdrop-blur-sm` (no dark filter), sidebar uses solid `bg-white` when `forceShow`
+- **Chart heights**: All charts use responsive heights: `h-[180px] sm:h-[240px]` (donuts), `h-[280px] sm:h-[320px]` (bar), `h-[280px] sm:h-[360px] lg:h-[420px]` (trend)
+- **Card value scaling**: All metric cards scale `text-base sm:text-xl` or `text-lg sm:text-2xl` with `break-words` on labels
+- **Step8 donuts**: `col-span-6` on mobile (2 per row) vs `col-span-12` before; Investment Thesis + Buyer Match stacks vertically on mobile
+- **Code splitting**: All 14 pages lazy-loaded via `React.lazy` in `router.tsx`
 
 ### Key Files
 - `client/src/styles/chartPalette.ts` — canonical color palette
