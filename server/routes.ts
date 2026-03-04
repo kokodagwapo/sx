@@ -281,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const openai = new OpenAI({ apiKey });
       const response = await openai.audio.speech.create({
         model: "tts-1",
-        voice: "nova",
+        voice: "shimmer",
         input: text,
         speed: 1.1,
       });
