@@ -93,10 +93,13 @@ Preferred communication style: Simple, everyday language.
 9. **Step 9** — Cohorts (cohort analysis by dimension, scatter plot, detail cards)
 
 ### Mobile-First Responsive Design
-- **Global overflow containment**: `overflow-x: hidden` on body, shell root, and inner wrapper
-- **PanelCard**: Responsive header icons (`h-6 sm:h-7`), title text (`text-xs sm:text-sm`), subtitle (`text-[10px] sm:text-xs`), padding (`px-3 sm:px-4 py-2.5 sm:py-3`), all text uses `break-words`
-- **KpiStrip**: Tooltip wrappers always have `wrapperClassName="w-full min-w-0"`, equal-height cards with `h-full`, font scaling `9px→11px` labels, `13px→18px→22px` values
-- **Mobile sidebar**: Light overlay `bg-white/60 backdrop-blur-sm` (no dark filter), sidebar uses solid `bg-white` when `forceShow`
+- **Global overflow containment**: `html { overflow-x: hidden; width: 100% }`, `body { width: 100%; max-width: 100vw; overflow-x: hidden; overflow-wrap: anywhere; word-break: break-word }`, shell uses `w-full overflow-x-hidden`
+- **Container page**: `width: 100%; max-width: 1320px; overflow: hidden; padding-inline: 12px` (sm: 20px) — `overflow: hidden` is critical to clip any children that try to escape
+- **PanelCard**: `overflow-hidden` on `<section>`, `min-w-0` on header/content; responsive header icons (`h-6 sm:h-7`), title text (`text-xs sm:text-sm`), subtitle (`text-[10px] sm:text-xs`)
+- **Tooltip wrapper**: Always use `wrapperClassName="w-full min-w-0 overflow-hidden"` to prevent inline-flex from expanding beyond grid cells
+- **KpiStrip**: Cards `w-full min-w-0 overflow-hidden`, equal-height with `h-full`, font scaling `9px→11px` labels, `13px→18px→22px` values
+- **TopNav**: `w-full overflow-hidden px-3 sm:px-4` to prevent sticky header from pushing page wider
+- **Mobile sidebar**: `w-[260px]` (not `w-full`) when `forceShow`, light overlay `bg-white/60 backdrop-blur-sm`
 - **Chart heights**: All charts use responsive heights: `h-[180px] sm:h-[240px]` (donuts), `h-[280px] sm:h-[320px]` (bar), `h-[280px] sm:h-[360px] lg:h-[420px]` (trend)
 - **Card value scaling**: All metric cards scale `text-base sm:text-xl` or `text-lg sm:text-2xl` with `break-words` on labels
 - **Step8 donuts**: `col-span-6` on mobile (2 per row) vs `col-span-12` before; Investment Thesis + Buyer Match stacks vertically on mobile

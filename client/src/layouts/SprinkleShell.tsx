@@ -66,7 +66,7 @@ export function SprinkleShell({
   const hasFilters = (filters?.length ?? 0) > 0 || (sliders?.length ?? 0) > 0;
 
   return (
-    <div className={cn("min-h-screen max-w-[100vw] overflow-x-hidden transition-colors duration-300", className)} style={{ background: "hsl(var(--app-bg))" }}>
+    <div className={cn("min-h-screen w-full overflow-x-hidden transition-colors duration-300", className)} style={{ background: "hsl(var(--app-bg))" }}>
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={toggleSidebar}
@@ -74,7 +74,7 @@ export function SprinkleShell({
 
       <div
         className={cn(
-          "min-h-screen overflow-x-hidden transition-all duration-300",
+          "min-h-screen w-full overflow-x-hidden transition-all duration-300",
           sidebarCollapsed ? "lg:ml-[72px]" : "lg:ml-[220px]"
         )}
       >
@@ -85,8 +85,8 @@ export function SprinkleShell({
 
         <KpiStrip items={kpis} animate={animateKpis} onItemClick={onKpiClick} compact={kpiCompact} />
 
-        <div className="">
-          <div className="container-page py-5">
+        <div className="w-full">
+          <div className="container-page py-4 sm:py-5">
             <div
               className={cn(
                 "grid gap-4",

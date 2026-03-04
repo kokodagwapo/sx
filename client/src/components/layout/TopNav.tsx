@@ -245,7 +245,7 @@ export function TopNav({
   );
 
   return (
-    <header className="sticky top-0 z-[999] relative flex h-14 items-center justify-between border-b border-white/50 bg-white/40 backdrop-blur-xl px-4 transition-colors duration-300 shadow-none">
+    <header className="sticky top-0 z-[999] relative flex h-14 w-full items-center justify-between border-b border-white/50 bg-white/40 backdrop-blur-xl px-3 sm:px-4 transition-colors duration-300 shadow-none overflow-hidden">
       <div className="flex items-center gap-4">
         <button
           type="button"

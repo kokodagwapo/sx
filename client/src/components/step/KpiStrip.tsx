@@ -41,7 +41,7 @@ export function KpiStrip({
   return (
     <div className={cn("border-b border-white/50 bg-white/20 backdrop-blur-sm py-3 sm:py-4", className)}>
       <div className="container-page">
-        <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6 lg:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6 lg:gap-4">
           {items.map((kpi, idx) => {
             const colors = KPI_CARD_COLORS[idx % KPI_CARD_COLORS.length];
             const tooltipContent = kpi.tooltip ?? kpi.helper ?? (onItemClick ? "Click for details" : kpi.label);
@@ -53,7 +53,7 @@ export function KpiStrip({
                 onClick={onItemClick ? () => onItemClick(kpi, idx) : undefined}
                 onKeyDown={onItemClick ? (e) => e.key === "Enter" && onItemClick(kpi, idx) : undefined}
                 className={cn(
-                  "flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+                  "flex h-full w-full min-w-0 flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
                   onItemClick && "cursor-pointer"
                 )}
               >
@@ -98,7 +98,7 @@ export function KpiStrip({
               </div>
             );
             return (
-              <Tooltip key={kpi.label} content={tooltipContent} wrapperClassName="w-full min-w-0">
+              <Tooltip key={kpi.label} content={tooltipContent} wrapperClassName="w-full min-w-0 overflow-hidden">
                 {card}
               </Tooltip>
             );

@@ -63,7 +63,7 @@ export function Sidebar({
         collapsed
           ? "w-[72px] bg-sky-600 border-sky-500"
           : forceShow
-            ? "w-full border-white/50 bg-white shadow-none"
+            ? "w-[260px] border-white/50 bg-white shadow-none"
             : "w-[220px] border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
       )}
     >
