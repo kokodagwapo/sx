@@ -11,8 +11,8 @@ export const COHI_TOUR_STOPS: CohiStop[] = [
   {
     route: "/step/1",
     target: "sidebar-main-menu",
-    title: "Hey, I'm Cohi! 👋",
-    script: "Hey there! I'm Cohi, your AI mortgage analyst! Welcome to SprinkleX — the smartest way to analyze a loan portfolio. You're looking at 7,052 real loans worth $1.86 billion from Provident, Stonegate, and New Penn Financial. The sidebar here is your main navigation. Let's explore together — this is going to be fun!",
+    title: "Welcome to SprinkleX",
+    script: "Welcome to SprinkleX — Teraverde's loan portfolio analytics platform. You're looking at 7,052 real loans totaling $1.86 billion from Provident, Stonegate, and New Penn Financial. The sidebar is your main navigation. Let's walk through each step together.",
     icon: "sparkles",
   },
   {
