@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, Bell, User, ChevronDown, Menu, ChevronLeft, ChevronRight, FileUp, AlertTriangle, Info, TrendingUp, CheckCircle2, X, Sparkles } from "lucide-react";
@@ -10,6 +10,7 @@ import { steps, getPrevNext, type StepId } from "@/app/steps";
 import { UploadModal } from "@/components/importExport/UploadModal";
 import { useLoanContext } from "@/context/LoanContext";
 import { useTour } from "@/context/TourContext";
+import { portfolioRiskSummary } from "@/data/riskLookup";
 
 
 type Notif = {
@@ -26,9 +27,17 @@ const NOTIFICATIONS: Notif[] = [
     id: "n1",
     type: "alert",
     title: "High Flood-Risk Concentration",
-    body: "23% of portfolio UPB sits in FEMA High flood-risk zones. Review exposure on Step 1 → Flood Risk layer.",
+    body: "Calculating flood risk…",
     time: "2 min ago",
-    link: "/step/1",
+    link: "/step/2",
+  },
+  {
+    id: "n1b",
+    type: "alert",
+    title: "Wildfire Risk Exposure",
+    body: "Calculating wildfire risk…",
+    time: "5 min ago",
+    link: "/step/2",
   },
   {
     id: "n2",
@@ -124,9 +133,23 @@ export function TopNav({
   const { startTour } = useTour();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const unreadCount = NOTIFICATIONS.filter((n) => !readIds.has(n.id)).length;
+  const riskStats = useMemo(() => portfolioRiskSummary((importedLoans ?? []).map(l => ({
+    state: l.state || "", county: (l as any).county || l.countyName || "", upb: l.upb || 0,
+  }))), [importedLoans]);
 
-  const markAllRead = () => setReadIds(new Set(NOTIFICATIONS.map((n) => n.id)));
+  const liveNotifications = useMemo<Notif[]>(() => NOTIFICATIONS.map(n => {
+    if (n.id === "n1") return { ...n,
+      body: `${riskStats.floodHighPct.toFixed(1)}% of portfolio UPB (${riskStats.floodHighCount.toLocaleString()} loans) sits in FEMA High+ flood-risk zones. Review exposure on Step 1.`,
+    };
+    if (n.id === "n1b") return { ...n,
+      body: `${riskStats.fireHighPct.toFixed(1)}% of portfolio UPB (${riskStats.fireHighCount.toLocaleString()} loans) in High+ wildfire-risk zones based on FEMA NRI data.`,
+    };
+    return n;
+  }), [riskStats]);
+
+  const unreadCount = liveNotifications.filter((n) => !readIds.has(n.id)).length;
+
+  const markAllRead = () => setReadIds(new Set(liveNotifications.map((n) => n.id)));
 
   const dismissNotif = (id: string) =>
     setReadIds((prev) => new Set([...Array.from(prev), id]));
@@ -377,7 +400,7 @@ export function TopNav({
 
                 {/* Notification list */}
                 <div className="max-h-[480px] overflow-y-auto divide-y divide-slate-50">
-                  {NOTIFICATIONS.map((n) => {
+                  {liveNotifications.map((n) => {
                     const isRead = readIds.has(n.id);
                     const Icon = NOTIF_ICON[n.type];
                     const style = NOTIF_STYLE[n.type];

@@ -22,6 +22,17 @@ import type { DonutDatum } from "@/components/charts/DonutChart";
 import { step2Loans, type Step2Loan } from "@/data/mock/step2Loans";
 import { DONUT_REFERENCE_COLORS } from "@/styles/chartPalette";
 import { cn } from "@/lib/utils";
+import { getRisk, RISK_COLORS, type RiskLevel } from "@/data/riskLookup";
+
+function RiskBadge({ level, icon }: { level: RiskLevel; icon: string }) {
+  const c = RISK_COLORS[level];
+  const short = level === "Very High" ? "VH" : level === "High" ? "H" : level === "Medium" ? "M" : level === "Low" ? "L" : "VL";
+  return (
+    <span className={cn("inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-bold border", c.bg, c.text, c.border)}>
+      {icon} {short}
+    </span>
+  );
+}
 
 const STATUS_CONFIG: Record<LoanStatus, { label: string; badge: string; icon: typeof CheckCircle2; dot: string }> = {
   Available:  { label: "Available",  badge: "bg-emerald-100/80 text-emerald-700 border-emerald-200", icon: CheckCircle2, dot: "bg-emerald-500" },
@@ -434,6 +445,15 @@ function StatusDrilldownPanel({
                     ["id",          "Loan ID"],
                     ["product",     "Product"],
                     ["state",       "State"],
+                  ] as [SortKey, string][]).map(([key, label]) => (
+                    <th key={key} className="px-3 py-2 text-left font-semibold text-slate-500">
+                      <button type="button" onClick={() => toggleSort(key)} className="inline-flex items-center gap-1 hover:text-slate-800 transition-colors">
+                        {label}<SortIcon k={key} />
+                      </button>
+                    </th>
+                  ))}
+                  <th className="px-3 py-2 text-left font-semibold text-slate-500">Risk</th>
+                  {([
                     ["upb",         "UPB"],
                     ["coupon",      "Coupon"],
                     ["purpose",     "Purpose"],
@@ -470,6 +490,14 @@ function StatusDrilldownPanel({
                       <td className="px-3 py-2 font-mono text-slate-700">{loan.id}</td>
                       <td className="px-3 py-2 text-slate-700">{loan.product}</td>
                       <td className="px-3 py-2 font-semibold text-slate-700">{loan.state}</td>
+                      <td className="px-3 py-2">
+                        {(() => { const r = getRisk(loan.state, (loan as any).county || ""); return (
+                          <span className="flex items-center gap-1">
+                            <RiskBadge level={r.floodRisk} icon="🌊" />
+                            <RiskBadge level={r.fireRisk}  icon="🔥" />
+                          </span>
+                        ); })()}
+                      </td>
                       <td className="px-3 py-2 tabular-nums text-slate-700">${(loan.upb / 1_000).toFixed(0)}K</td>
                       <td className="px-3 py-2 tabular-nums text-slate-700">{loan.coupon.toFixed(3)}%</td>
                       <td className="px-3 py-2 text-slate-600">{loan.purpose}</td>
