@@ -626,91 +626,95 @@ export default function Step1Geography() {
         {/* Right column: Map — primary visual, top right */}
         <div className="order-1 lg:order-2 opacity-0 animate-fade-in-up animate-fade-in-up-delay-1">
           {/* Risk Layer toggle + inline legend */}
-          <div data-tour="map-layers" className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">Map Layer:</span>
-            {(["loans", "flood", "wildfire"] as RiskLayer[]).map((layer, idx) => {
-              const labels: Record<RiskLayer, string> = { loans: "Loans", flood: "Flood Risk", wildfire: "Wildfire Risk" };
-              const icons: Record<RiskLayer, typeof Globe> = { loans: Globe, flood: Droplets, wildfire: Flame };
-              const active: Record<RiskLayer, string> = {
-                loans: "bg-sky-500 text-white border-sky-500 shadow-sky-200",
-                flood: "bg-blue-600 text-white border-blue-600 shadow-blue-200",
-                wildfire: "bg-orange-500 text-white border-orange-500 shadow-orange-200",
-              };
-              const Icon = icons[layer];
-              return (
-                <button
-                  key={layer}
-                  type="button"
-                  onClick={() => setRiskLayer(layer)}
-                  style={{ animationDelay: `${idx * 0.7}s` }}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors animate-layer-pulse",
-                    riskLayer === layer
-                      ? active[layer]
-                      : "bg-white/50 text-slate-600 border-white/50 hover:bg-slate-50"
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-                  {labels[layer]}
-                </button>
-              );
-            })}
-            {/* Inline color legend — updates with active layer */}
-            <div className="ml-2 flex items-center gap-2 rounded-lg border border-white/60 bg-white/60 backdrop-blur-sm px-3 py-1.5 shadow-sm">
-              {riskLayer === "loans" && (
-                <>
-                  <span className="text-[10px] font-medium text-slate-400 mr-0.5">Low</span>
-                  {["#bfdbfe","#60a5fa","#3b82f6","#1d4ed8","#1e3a8a"].map((c) => (
-                    <div key={c} className="h-3 w-4 rounded-[3px]" style={{ background: c }} />
-                  ))}
-                  <span className="text-[10px] font-medium text-slate-400 ml-0.5">High</span>
-                  <span className="ml-1.5 text-[10px] text-slate-300">|</span>
-                  <div className="h-3 w-4 rounded-[3px] opacity-45" style={{ background: "#d1dae6" }} />
-                  <span className="text-[10px] text-slate-400">No data</span>
-                </>
-              )}
-              {riskLayer === "flood" && (["High","Moderate","Low"] as RiskLevel[]).map((lvl) => (
-                <span key={lvl} className="flex items-center gap-1 text-[10px] text-slate-600 font-medium">
-                  <span className="h-3 w-3 rounded-[3px] shrink-0" style={{ background: RISK_COLORS[lvl].fill }} />
-                  {lvl}
-                </span>
-              ))}
-              {riskLayer === "wildfire" && (["High","Moderate","Low"] as RiskLevel[]).map((lvl) => (
-                <span key={lvl} className="flex items-center gap-1 text-[10px] text-slate-600 font-medium">
-                  <span className="h-3 w-3 rounded-[3px] shrink-0" style={{ background: WILDFIRE_COLORS[lvl].fill }} />
-                  {lvl}
-                </span>
-              ))}
+          <div data-tour="map-layers" className="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">Layer:</span>
+              {(["loans", "flood", "wildfire"] as RiskLayer[]).map((layer, idx) => {
+                const labels: Record<RiskLayer, string> = { loans: "Loans", flood: "Flood", wildfire: "Wildfire" };
+                const icons: Record<RiskLayer, typeof Globe> = { loans: Globe, flood: Droplets, wildfire: Flame };
+                const active: Record<RiskLayer, string> = {
+                  loans: "bg-sky-500 text-white border-sky-500 shadow-sky-200",
+                  flood: "bg-blue-600 text-white border-blue-600 shadow-blue-200",
+                  wildfire: "bg-orange-500 text-white border-orange-500 shadow-orange-200",
+                };
+                const Icon = icons[layer];
+                return (
+                  <button
+                    key={layer}
+                    type="button"
+                    onClick={() => setRiskLayer(layer)}
+                    style={{ animationDelay: `${idx * 0.7}s` }}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors animate-layer-pulse",
+                      riskLayer === layer
+                        ? active[layer]
+                        : "bg-white/50 text-slate-600 border-white/50 hover:bg-slate-50"
+                    )}
+                  >
+                    <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+                    {labels[layer]}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Inline color legend — scrollable on mobile */}
+            <div className="overflow-x-auto">
+              <div className="inline-flex min-w-0 items-center gap-2 rounded-lg border border-white/60 bg-white/60 backdrop-blur-sm px-3 py-1.5 shadow-sm">
+                {riskLayer === "loans" && (
+                  <>
+                    <span className="text-[10px] font-medium text-slate-400 mr-0.5 shrink-0">Low</span>
+                    {["#bfdbfe","#60a5fa","#3b82f6","#1d4ed8","#1e3a8a"].map((c) => (
+                      <div key={c} className="h-3 w-4 shrink-0 rounded-[3px]" style={{ background: c }} />
+                    ))}
+                    <span className="text-[10px] font-medium text-slate-400 ml-0.5 shrink-0">High</span>
+                    <span className="ml-1.5 text-[10px] text-slate-300 shrink-0">|</span>
+                    <div className="h-3 w-4 shrink-0 rounded-[3px] opacity-45" style={{ background: "#d1dae6" }} />
+                    <span className="text-[10px] text-slate-400 shrink-0">No data</span>
+                  </>
+                )}
+                {riskLayer === "flood" && (["High","Moderate","Low"] as RiskLevel[]).map((lvl) => (
+                  <span key={lvl} className="flex shrink-0 items-center gap-1 text-[10px] text-slate-600 font-medium">
+                    <span className="h-3 w-3 rounded-[3px] shrink-0" style={{ background: RISK_COLORS[lvl].fill }} />
+                    {lvl}
+                  </span>
+                ))}
+                {riskLayer === "wildfire" && (["High","Moderate","Low"] as RiskLevel[]).map((lvl) => (
+                  <span key={lvl} className="flex shrink-0 items-center gap-1 text-[10px] text-slate-600 font-medium">
+                    <span className="h-3 w-3 rounded-[3px] shrink-0" style={{ background: WILDFIRE_COLORS[lvl].fill }} />
+                    {lvl}
+                  </span>
+                ))}
 
-              {/* Divider + icon actions */}
-              <span className="ml-1.5 text-[10px] text-slate-300">|</span>
-              <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded — click to re-import` : "Import loan tape (CSV / Excel)"} side="bottom">
-                <button
-                  type="button"
-                  onClick={() => setUploadOpen(true)}
-                  className={cn(
-                    "rounded-md p-1 transition-colors",
-                    importedLoans
-                      ? "text-sky-500 hover:bg-sky-100/60"
-                      : "text-slate-400 hover:bg-slate-200/60 hover:text-slate-600"
-                  )}
-                >
-                  <UploadCloud className="h-3.5 w-3.5" strokeWidth={2} />
-                </button>
-              </Tooltip>
-              <Tooltip content="Export portfolio geography as CSV" side="bottom">
-                <a
-                  href={`data:text/csv;charset=utf-8,${encodeURIComponent(
-                    ["State,County,Tract,Loans,UPB", ...step1LoansByGeo.map(l =>
-                      `${l.stateName},${l.countyName},${l.tractName},${l.loanCount},${l.upb}`
-                    )].join("\n")
-                  )}`}
-                  download="portfolio_geography.csv"
-                  className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-200/60 hover:text-slate-600"
-                >
-                  <FileDown className="h-3.5 w-3.5" strokeWidth={2} />
-                </a>
-              </Tooltip>
+                {/* Divider + icon actions */}
+                <span className="ml-1.5 text-[10px] text-slate-300 shrink-0">|</span>
+                <Tooltip content={importedLoans ? `${importedLoans.length.toLocaleString()} loans loaded — click to re-import` : "Import loan tape (CSV / Excel)"} side="bottom">
+                  <button
+                    type="button"
+                    onClick={() => setUploadOpen(true)}
+                    className={cn(
+                      "shrink-0 rounded-md p-1 transition-colors",
+                      importedLoans
+                        ? "text-sky-500 hover:bg-sky-100/60"
+                        : "text-slate-400 hover:bg-slate-200/60 hover:text-slate-600"
+                    )}
+                  >
+                    <UploadCloud className="h-3.5 w-3.5" strokeWidth={2} />
+                  </button>
+                </Tooltip>
+                <Tooltip content="Export portfolio geography as CSV" side="bottom">
+                  <a
+                    href={`data:text/csv;charset=utf-8,${encodeURIComponent(
+                      ["State,County,Tract,Loans,UPB", ...step1LoansByGeo.map(l =>
+                        `${l.stateName},${l.countyName},${l.tractName},${l.loanCount},${l.upb}`
+                      )].join("\n")
+                    )}`}
+                    download="portfolio_geography.csv"
+                    className="shrink-0 rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-200/60 hover:text-slate-600"
+                  >
+                    <FileDown className="h-3.5 w-3.5" strokeWidth={2} />
+                  </a>
+                </Tooltip>
+              </div>
             </div>
           </div>
 
@@ -726,7 +730,7 @@ export default function Step1Geography() {
             className="border-0 shadow-none bg-transparent [&>header]:hidden"
             contentClassName="!p-0"
           >
-            <div data-tour="geo-map" className="h-[564px] min-h-[464px] overflow-hidden bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_4px_24px_rgba(56,189,248,0.10)] p-0 m-0 outline-none ring-0 rounded-xl flex flex-col">
+            <div data-tour="geo-map" className="h-[300px] sm:h-[420px] lg:h-[564px] overflow-hidden bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_4px_24px_rgba(56,189,248,0.10)] p-0 m-0 outline-none ring-0 rounded-xl flex flex-col">
               <GeoDrilldownMap
                 className="flex-1 w-full p-0 m-0 border-0 outline-none shadow-none"
                 loans={mapLoans}
@@ -872,35 +876,38 @@ export default function Step1Geography() {
 
             {/* Loans table */}
             <div className="rounded-xl border border-white/50 bg-white/30 backdrop-blur-xl overflow-hidden">
-              <div className="flex items-center justify-between border-b border-white/40 px-4 py-2.5 bg-white/20">
-                <div className="flex items-center gap-2">
-                  <Table2 className="h-4 w-4 text-sky-600" />
-                  <span className="text-xs font-semibold text-slate-700">
+              <div className="flex items-center justify-between gap-2 border-b border-white/40 px-3 py-2.5 bg-white/20">
+                <div className="flex min-w-0 items-center gap-2">
+                  <Table2 className="h-4 w-4 shrink-0 text-sky-600" />
+                  <span className="truncate text-xs font-semibold text-slate-700">
                     {pinnedStates.size > 0
-                      ? `Loans in ${Array.from(pinnedStates).join(", ")} — ${loansTableRows.length} ${expandToIndividualLoans ? "loan(s)" : "tract(s)"}`
-                      : `All loans by geography — ${loansTableRows.length} ${expandToIndividualLoans ? "loan(s)" : "tract(s)"}`}
+                      ? `${Array.from(pinnedStates).join(", ")} — ${loansTableRows.length} ${expandToIndividualLoans ? "loans" : "tracts"}`
+                      : `${loansTableRows.length} ${expandToIndividualLoans ? "loans" : "tracts"}`}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setExpandToIndividualLoans((v) => !v)}
                   className={cn(
-                    "rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors",
+                    "shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors",
                     expandToIndividualLoans
                       ? "bg-sky-500/20 text-sky-700"
                       : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
                   )}
                 >
-                  {expandToIndividualLoans ? "Group by tract" : "Expand to individual loans"}
+                  <span className="hidden sm:inline">{expandToIndividualLoans ? "Group by tract" : "Expand to loans"}</span>
+                  <span className="sm:hidden">{expandToIndividualLoans ? "By tract" : "By loan"}</span>
                 </button>
               </div>
-              <DataTable
-                data={loansTableRows}
-                columns={loansTableColumns}
-                height={expandToIndividualLoans ? 480 : 320}
-                stripeRows
-                animateRows
-              />
+              <div className="overflow-x-auto">
+                <DataTable
+                  data={loansTableRows}
+                  columns={loansTableColumns}
+                  height={expandToIndividualLoans ? 480 : 320}
+                  stripeRows
+                  animateRows
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -957,15 +964,16 @@ export default function Step1Geography() {
                 <p className="text-xs text-slate-500">{chartBarDrilldown.subtitle}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {"sourceLoans" in chartBarDrilldown && chartBarDrilldown.sourceLoans && (
                 <button
                   type="button"
                   onClick={() => setDrilldownExpandToLoans((v) => !v)}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-sky-600 hover:bg-sky-100 transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-sky-600 hover:bg-sky-100 transition-colors"
                 >
-                  <Table2 className="h-4 w-4" />
-                  {drilldownExpandToLoans ? "Collapse" : "Expand to individual loans"}
+                  <Table2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{drilldownExpandToLoans ? "Collapse" : "Expand loans"}</span>
+                  <span className="sm:hidden">{drilldownExpandToLoans ? "Collapse" : "Loans"}</span>
                 </button>
               )}
               <button
@@ -974,9 +982,9 @@ export default function Step1Geography() {
                   setChartBarSelected(null);
                   setDrilldownExpandToLoans(false);
                 }}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-200/60 hover:text-slate-700 transition-colors"
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-200/60 hover:text-slate-700 transition-colors"
               >
-                <X className="h-4 w-4" /> Close
+                <X className="h-3.5 w-3.5" /> Close
               </button>
             </div>
           </div>
@@ -1033,8 +1041,8 @@ export default function Step1Geography() {
                     <span className="text-sky-600 font-medium">{pinnedLoans.size} pinned to compare</span>
                   )}
                 </div>
-                <div className="max-h-64 overflow-y-auto">
-                  <table className="w-full text-sm">
+                <div className="max-h-64 overflow-auto">
+                  <table className="w-full min-w-[540px] text-sm">
                     <thead className="sticky top-0 bg-white/60 backdrop-blur-sm">
                       <tr>
                         <th className="px-3 py-2 text-left font-medium text-slate-600 w-8"></th>
