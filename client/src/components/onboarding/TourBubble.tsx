@@ -152,7 +152,8 @@ export function CohiTourPanel() {
   const {
     isActive, stopIndex, totalStops, currentStop,
     goNext, goPrev, goToStop, endTour,
-    isSpeaking, isLoadingTts, timeLeft, isThinking, cohiReply,
+    isSpeaking, isLoadingTts, isPreloaded, isPreloading,
+    timeLeft, audioDuration, isThinking, cohiReply,
     speakCurrent, stopSpeaking, askCohi, clearReply,
   } = useTour();
 
@@ -323,57 +324,89 @@ export function CohiTourPanel() {
           </div>
 
           {/* Voice button row */}
-          <div className="px-4 pb-3 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={isLoadingTts ? undefined : isSpeaking ? stopSpeaking : speakCurrent}
-              disabled={isThinking || isLoadingTts}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all duration-200",
-                isSpeaking
-                  ? "bg-rose-50 text-rose-600 hover:bg-rose-100 active:scale-95 ring-1 ring-rose-200"
-                  : isLoadingTts
-                    ? "bg-sky-50 text-sky-500 cursor-wait"
-                    : isThinking
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                      : "bg-sky-50 text-sky-700 hover:bg-sky-100 active:scale-95"
-              )}
-            >
-              {isLoadingTts ? (
-                <>
-                  <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="40 60" strokeLinecap="round" />
-                  </svg>
-                  <span>Generating…</span>
-                </>
-              ) : isSpeaking ? (
-                <>
-                  <span className="flex items-end gap-[2px] h-3.5">
-                    {[0.6, 1.0, 0.75, 0.9].map((h, i) => (
-                      <span
-                        key={i}
-                        className="inline-block w-[3px] rounded-full bg-rose-500 animate-bounce"
-                        style={{ height: `${h * 100}%`, animationDelay: `${i * 0.12}s`, animationDuration: "0.65s" }}
-                      />
-                    ))}
-                  </span>
-                  <span>
-                    {timeLeft > 0
-                      ? `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, "0")} left`
-                      : "Stop"}
-                  </span>
-                  <VolumeX className="h-3 w-3 opacity-60" />
-                </>
-              ) : (
-                <>
-                  <Volume2 className="h-3.5 w-3.5" />
-                  <span>Hear Cohi</span>
-                </>
-              )}
-            </button>
-            <span className="text-[10px] text-slate-400 italic">
-              {isLoadingTts ? "loading…" : isSpeaking ? "shimmer · OpenAI" : cohiReply ? "AI reply" : "voice guide"}
-            </span>
+          <div className="px-4 pb-3">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={isLoadingTts ? undefined : isSpeaking ? stopSpeaking : speakCurrent}
+                disabled={isThinking || isLoadingTts}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all duration-200",
+                  isSpeaking
+                    ? "bg-rose-50 text-rose-600 hover:bg-rose-100 active:scale-95 ring-1 ring-rose-200"
+                    : isLoadingTts
+                      ? "bg-sky-50 text-sky-500 cursor-wait"
+                      : isThinking
+                        ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        : isPreloaded
+                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 active:scale-95 ring-1 ring-emerald-200"
+                          : "bg-sky-50 text-sky-700 hover:bg-sky-100 active:scale-95"
+                )}
+              >
+                {isLoadingTts ? (
+                  <>
+                    <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="40 60" strokeLinecap="round" />
+                    </svg>
+                    <span>Generating…</span>
+                  </>
+                ) : isSpeaking ? (
+                  <>
+                    <span className="flex items-end gap-[2px] h-3.5">
+                      {[0.6, 1.0, 0.75, 0.9].map((h, i) => (
+                        <span
+                          key={i}
+                          className="inline-block w-[3px] rounded-full bg-rose-500 animate-bounce"
+                          style={{ height: `${h * 100}%`, animationDelay: `${i * 0.12}s`, animationDuration: "0.65s" }}
+                        />
+                      ))}
+                    </span>
+                    <span>
+                      {timeLeft > 0
+                        ? `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, "0")} left`
+                        : "Stop"}
+                    </span>
+                    <VolumeX className="h-3 w-3 opacity-60" />
+                  </>
+                ) : isPreloaded ? (
+                  <>
+                    <Volume2 className="h-3.5 w-3.5" />
+                    <span>Play</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-3.5 w-3.5" />
+                    <span>Hear Cohi</span>
+                  </>
+                )}
+              </button>
+              <span className="text-[10px] text-slate-400 italic">
+                {isLoadingTts
+                  ? "generating audio…"
+                  : isSpeaking
+                    ? `shimmer · ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, "0")} remaining`
+                    : isPreloading
+                      ? "preloading…"
+                      : isPreloaded
+                        ? "ready to play"
+                        : cohiReply
+                          ? "AI reply"
+                          : "voice guide"}
+              </span>
+            </div>
+            {isSpeaking && audioDuration > 0 && (
+              <div className="mt-1.5 h-1 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-rose-400 to-rose-500 transition-all duration-300 ease-linear rounded-full"
+                  style={{ width: `${((audioDuration - timeLeft) / audioDuration) * 100}%` }}
+                />
+              </div>
+            )}
+            {isPreloading && !isSpeaking && (
+              <div className="mt-1.5 h-1 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-full w-1/3 bg-gradient-to-r from-sky-300 to-sky-400 rounded-full animate-preload-slide" />
+              </div>
+            )}
           </div>
 
           {/* Section jump strip */}

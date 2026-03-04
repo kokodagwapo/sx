@@ -214,3 +214,11 @@ body {
 .animate-tour-pulse {
   animation: tour-pulse 1.4s ease-in-out infinite;
 }
+
+@keyframes preload-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.animate-preload-slide {
+  animation: preload-slide 1.2s ease-in-out infinite;
+}
