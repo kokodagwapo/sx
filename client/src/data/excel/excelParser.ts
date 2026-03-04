@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import type { LoanRecord } from "@/data/types/loanRecord";
+import type { LoanRecord, LoanStatus } from "@/data/types/loanRecord";
 import { CSV_COLUMN_MAP } from "@/data/types/loanRecord";
 import type { ParseResult } from "@/data/csv/csvParser";
 
@@ -18,6 +18,25 @@ function toString(val: unknown): string {
 
 function normalizeHeader(h: string): string {
   return h.toLowerCase().replace(/[\s_-]+/g, "");
+}
+
+/** Rates stored as decimals (0.035) are auto-converted to percent (3.5) */
+function normalizeRate(raw: number | undefined): number | undefined {
+  if (raw == null) return undefined;
+  return raw > 0 && raw < 1 ? raw * 100 : raw;
+}
+
+const VALID_STATUSES = new Set<string>(["Available", "Allocated", "Committed", "Sold"]);
+
+function normalizeStatus(val: string): LoanStatus | undefined {
+  const s = val.trim();
+  if (VALID_STATUSES.has(s)) return s as LoanStatus;
+  const l = s.toLowerCase();
+  if (l === "avail" || l === "for sale") return "Available";
+  if (l === "alloc" || l === "allocated") return "Allocated";
+  if (l === "commit" || l === "committed" || l === "loi") return "Committed";
+  if (l === "sold" || l === "closed") return "Sold";
+  return undefined;
 }
 
 /** Parse Excel file to LoanRecord[] - uses first sheet */
@@ -80,7 +99,7 @@ export function parseExcel(file: File): Promise<ParseResult> {
             errors.push({ row: rowNum, column: "upb", message: "Invalid or missing UPB" });
           }
 
-          const rate = toNumber(getVal("rate"));
+          const rate = normalizeRate(toNumber(getVal("rate")));
           const fico = toNumber(getVal("fico"));
           const ltv = toNumber(getVal("ltv"));
           const cltv = toNumber(getVal("cltv")) ?? ltv;
@@ -89,25 +108,39 @@ export function parseExcel(file: File): Promise<ParseResult> {
 
           const purpose = toString(getVal("purpose"));
           const purposeVal: "Purchase" | "Refinance" =
-            /^purchase$/i.test(purpose) || /^p$/i.test(purpose) ? "Purchase" : "Refinance";
+            /^purchase$/i.test(purpose) || /^p$/i.test(purpose) || /^purch/i.test(purpose)
+              ? "Purchase"
+              : "Refinance";
 
           const occupancy = toString(getVal("occupancy"));
           const occVal: "Owner" | "Investment" | "Second home" =
-            /^owner|primary/i.test(occupancy) || /^o$/i.test(occupancy)
+            /^owner|primary|principal/i.test(occupancy) || /^o$/i.test(occupancy)
               ? "Owner"
-              : /^investment|invest/i.test(occupancy) || /^i$/i.test(occupancy)
+              : /^investment|invest|non.?owner/i.test(occupancy) || /^i$/i.test(occupancy)
                 ? "Investment"
-                : "Second home";
+                : /^second|vacation/i.test(occupancy)
+                  ? "Second home"
+                  : "Owner";
+
+          const sourceRaw = toString(getVal("source"));
+          const statusRaw = toString(getVal("status"));
+          const lienRaw = toString(getVal("lienPosition"));
 
           rows.push({
             id: `import-${rowNum}-${tvm}`,
             tvm,
-            stateName: toString(getVal("stateName")),
+            source: sourceRaw || undefined,
+            stateName: toString(getVal("stateName")) || undefined,
+            countyName: toString(getVal("countyName")) || undefined,
             city: toString(getVal("city")) || undefined,
+            propertyAddress: toString(getVal("propertyAddress")) || undefined,
+            zip: toString(getVal("zip")) || undefined,
             product: toString(getVal("product")) || "30 FRM",
             purpose: purposeVal,
             occupancy: occVal,
             propertyType: toString(getVal("propertyType")) || "Single-family",
+            loanType: toString(getVal("loanType")) || undefined,
+            lienPosition: lienRaw || "1st",
             term: Math.round(term),
             units: Math.round(toNumber(getVal("units")) ?? 1),
             loanAmount: upb ?? 0,
@@ -118,6 +151,10 @@ export function parseExcel(file: File): Promise<ParseResult> {
             cltv: cltv ?? ltv ?? 80,
             dti: dti ?? 36,
             firstPaymentDate: toString(getVal("firstPaymentDate")) || new Date().toLocaleDateString("en-US"),
+            originationYear: toNumber(getVal("originationYear")) ?? undefined,
+            status: statusRaw ? normalizeStatus(statusRaw) : undefined,
+            buyerId: toString(getVal("buyerId")) || undefined,
+            sellerId: toString(getVal("sellerId")) || undefined,
             basePrice: toNumber(getVal("basePrice")),
             finalPrice: toNumber(getVal("finalPrice")),
           });

@@ -9,7 +9,7 @@ export function loanToScheduleRow(r: LoanRecord): ScheduleRow {
     r.occupancy === "Investment" ? "Investment" : r.occupancy === "Second home" ? "Second home" : "Owner";
   return {
     tvm: r.tvm,
-    source: "Import",
+    source: r.source ?? "Import",
     loanAmount: r.loanAmount,
     upb: r.upb,
     rate: r.rate,
@@ -20,7 +20,7 @@ export function loanToScheduleRow(r: LoanRecord): ScheduleRow {
     cltv: r.cltv,
     dti: r.dti,
     occupancy: occ,
-    propertyAddress: undefined,
+    propertyAddress: r.propertyAddress,
     city: r.city ?? "",
     county: r.countyName,
     state: r.stateName ?? "",
@@ -28,6 +28,8 @@ export function loanToScheduleRow(r: LoanRecord): ScheduleRow {
     units: r.units,
     productType: r.product,
     term: r.term,
+    lienPosition: r.lienPosition ?? "1st",
+    status: r.status,
   };
 }
 
@@ -111,20 +113,24 @@ export function step2LoanToLoanRecord(r: Step2Loan): LoanRecord {
   return {
     id: r.id,
     tvm: r.id,
+    source: r.source || undefined,
     stateName: r.state,
     product: r.product,
     purpose,
     occupancy: occ,
     propertyType: r.propertyType,
+    loanType: r.loanType,
     term: 360,
     units: 1,
     loanAmount: r.upb,
     upb: r.upb,
     rate: r.coupon,
-    fico: 720,
-    ltv: 80,
-    cltv: 80,
-    dti: 36,
+    fico: r.fico ?? 720,
+    ltv: r.ltv ?? 80,
+    cltv: r.ltv ?? 80,
+    dti: r.dti ?? 36,
+    status: r.status,
+    buyerId: r.buyerId,
     firstPaymentDate: new Date().toLocaleDateString("en-US"),
   };
 }
