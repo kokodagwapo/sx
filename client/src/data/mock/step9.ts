@@ -3,6 +3,9 @@ import { step2Loans } from "./step2Loans";
 
 export type CohortDimension = "units" | "vintage" | "product" | "rateBucket" | "ltvBucket" | "geography";
 
+export const SELLERS = ["All", "Provident", "Stonegate", "New Penn Financial"] as const;
+export type Seller = typeof SELLERS[number];
+
 export type CohortRow = {
   label: string;
   loanCount: number;
@@ -14,13 +17,16 @@ export type CohortRow = {
   avgDti: number;
 };
 
+type Loan = typeof step2Loans[0];
+
 function buildCohorts<K extends string>(
-  groupFn: (loan: typeof step2Loans[0]) => K | null,
+  loans: Loan[],
+  groupFn: (loan: Loan) => K | null,
   labels: Record<K, string>,
 ): CohortRow[] {
   const groups = new Map<K, { count: number; upb: number; wacSum: number; ficoSum: number; ltvSum: number; dtiSum: number }>();
 
-  for (const loan of step2Loans) {
+  for (const loan of loans) {
     const key = groupFn(loan);
     if (!key || !labels[key]) continue;
     const existing = groups.get(key);
@@ -77,6 +83,12 @@ function getLtvBucket(ltv: number): string {
   return ">90%";
 }
 
+function getVintageYear(firstPaymentDate: string): string {
+  if (!firstPaymentDate) return "";
+  const parts = firstPaymentDate.split("/");
+  return parts.length === 3 ? parts[2].substring(0, 4) : "";
+}
+
 const TOP_STATES = ["CA", "FL", "GA", "TX", "NY", "PA", "NJ", "WA", "MD", "CO"];
 
 export const COHORT_CONFIGS: Record<CohortDimension, { title: string; description: string; labels: Record<string, string> }> = {
@@ -87,8 +99,8 @@ export const COHORT_CONFIGS: Record<CohortDimension, { title: string; descriptio
   },
   vintage: {
     title: "By Origination Year",
-    description: "Loan performance segmented by first payment year (real data)",
-    labels: { "2016": "2016", "2017": "2017" },
+    description: "Loan performance segmented by first payment year — real origination dates from Provident, Stonegate & New Penn Financial",
+    labels: { "2014": "2014", "2015": "2015", "2016": "2016", "2026": "2026" },
   },
   product: {
     title: "By Product Type",
@@ -112,64 +124,36 @@ export const COHORT_CONFIGS: Record<CohortDimension, { title: string; descriptio
   },
 };
 
-function getVintageBucket(firstPaymentDate: string): string {
-  if (!firstPaymentDate) return "2016";
-  const year = firstPaymentDate.split("/").pop() || "2016";
-  return year;
-}
+export function getCohortData(dimension: CohortDimension, seller: Seller = "All"): CohortRow[] {
+  const loans = seller === "All" ? step2Loans : step2Loans.filter(l => l.source === seller);
 
-function buildUnitCohorts(): CohortRow[] {
-  return buildCohorts(
-    (loan) => {
-      const u = String(loan.units ?? 1);
-      return ["1", "2", "3", "4"].includes(u) ? u as string : "1";
-    },
-    COHORT_CONFIGS.units.labels,
-  );
-}
-
-function buildProductCohorts(): CohortRow[] {
-  return buildCohorts(
-    (loan) => loan.product,
-    COHORT_CONFIGS.product.labels,
-  );
-}
-
-function buildRateCohorts(): CohortRow[] {
-  return buildCohorts(
-    (loan) => getRateBucket(loan.coupon),
-    COHORT_CONFIGS.rateBucket.labels,
-  );
-}
-
-function buildLtvCohorts(): CohortRow[] {
-  return buildCohorts(
-    (loan) => getLtvBucket(loan.ltv),
-    COHORT_CONFIGS.ltvBucket.labels,
-  );
-}
-
-function buildGeoCohorts(): CohortRow[] {
-  return buildCohorts(
-    (loan) => TOP_STATES.includes(loan.state) ? loan.state : null,
-    COHORT_CONFIGS.geography.labels,
-  ).sort((a, b) => b.totalUpb - a.totalUpb);
-}
-
-function buildVintageCohorts(): CohortRow[] {
-  return buildCohorts(
-    (_loan) => "2016",
-    COHORT_CONFIGS.vintage.labels,
-  );
-}
-
-export function getCohortData(dimension: CohortDimension): CohortRow[] {
   switch (dimension) {
-    case "units": return buildUnitCohorts();
-    case "vintage": return buildVintageCohorts();
-    case "product": return buildProductCohorts();
-    case "rateBucket": return buildRateCohorts();
-    case "ltvBucket": return buildLtvCohorts();
-    case "geography": return buildGeoCohorts();
+    case "units":
+      return buildCohorts(loans, (l) => {
+        const u = String(l.units ?? 1);
+        return ["1", "2", "3", "4"].includes(u) ? u : "1";
+      }, COHORT_CONFIGS.units.labels);
+
+    case "vintage":
+      return buildCohorts(loans, (l) => {
+        const yr = getVintageYear(l.firstPaymentDate);
+        return yr && COHORT_CONFIGS.vintage.labels[yr] ? yr : null;
+      }, COHORT_CONFIGS.vintage.labels);
+
+    case "product":
+      return buildCohorts(loans, (l) => l.product, COHORT_CONFIGS.product.labels);
+
+    case "rateBucket":
+      return buildCohorts(loans, (l) => getRateBucket(l.coupon), COHORT_CONFIGS.rateBucket.labels);
+
+    case "ltvBucket":
+      return buildCohorts(loans, (l) => getLtvBucket(l.ltv), COHORT_CONFIGS.ltvBucket.labels);
+
+    case "geography":
+      return buildCohorts(
+        loans,
+        (l) => TOP_STATES.includes(l.state) ? l.state : null,
+        COHORT_CONFIGS.geography.labels,
+      ).sort((a, b) => b.totalUpb - a.totalUpb);
   }
 }

@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
-import { BarChart2, Layers, DollarSign, Percent, CreditCard, TrendingUp, Hash, Banknote, Scale } from "lucide-react";
+import { BarChart2, Layers, DollarSign, Percent, CreditCard, TrendingUp, Hash, Banknote, Scale, Building2 } from "lucide-react";
 import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { TourBubble } from "@/components/onboarding/TourBubble";
 import { DataTable, sortableColumn } from "@/components/tables/DataTable";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
 import { ScatterPlot } from "@/components/charts/ScatterPlot";
-import { getCohortData, COHORT_CONFIGS, type CohortDimension, type CohortRow } from "@/data/mock/step9";
+import { getCohortData, COHORT_CONFIGS, SELLERS, type CohortDimension, type CohortRow, type Seller } from "@/data/mock/step9";
 import { cn } from "@/lib/utils";
 import type { KpiItem } from "@/components/step/KpiStrip";
 
@@ -18,6 +18,13 @@ const DIMENSIONS: { id: CohortDimension; label: string }[] = [
   { id: "ltvBucket",   label: "By LTV" },
   { id: "geography",   label: "By State" },
 ];
+
+const SELLER_COLORS: Record<Seller, { active: string; inactive: string; dot: string }> = {
+  "All":               { active: "bg-slate-800 text-white border-slate-800",        inactive: "bg-white/60 text-slate-600 border-white/60 hover:bg-slate-50 hover:border-slate-300",          dot: "bg-slate-400" },
+  "Provident":         { active: "bg-sky-500 text-white border-sky-500",            inactive: "bg-white/60 text-slate-600 border-white/60 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200",    dot: "bg-sky-400" },
+  "Stonegate":         { active: "bg-violet-500 text-white border-violet-500",      inactive: "bg-white/60 text-slate-600 border-white/60 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200", dot: "bg-violet-400" },
+  "New Penn Financial":{ active: "bg-emerald-500 text-white border-emerald-500",    inactive: "bg-white/60 text-slate-600 border-white/60 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200", dot: "bg-emerald-400" },
+};
 
 const COHORT_COLUMNS = [
   sortableColumn<CohortRow>("label", "Cohort", { sortingFn: "string", cell: ({ getValue }) => <span className="font-medium text-slate-800">{getValue() as string}</span> }),
@@ -32,22 +39,24 @@ const COHORT_COLUMNS = [
 
 export default function Step9Cohorts() {
   const [dimension, setDimension] = useState<CohortDimension>("units");
-  const cohorts = useMemo(() => getCohortData(dimension), [dimension]);
+  const [seller, setSeller] = useState<Seller>("All");
+
+  const cohorts = useMemo(() => getCohortData(dimension, seller), [dimension, seller]);
 
   const kpis: KpiItem[] = useMemo(() => {
     const totalLoans = cohorts.reduce((s, c) => s + c.loanCount, 0);
     const totalUpb = cohorts.reduce((s, c) => s + c.totalUpb, 0);
     const avgBalance = totalLoans > 0 ? totalUpb / totalLoans : 0;
     const wac = totalUpb > 0 ? cohorts.reduce((s, c) => s + c.wac * c.totalUpb, 0) / totalUpb : 0;
-    const avgFico = cohorts.length > 0 ? cohorts.reduce((s, c) => s + c.avgFico, 0) / cohorts.length : 0;
-    const avgLtv = cohorts.length > 0 ? cohorts.reduce((s, c) => s + c.avgLtv, 0) / cohorts.length : 0;
+    const avgFico = totalUpb > 0 ? cohorts.reduce((s, c) => s + c.avgFico * c.totalUpb, 0) / totalUpb : 0;
+    const avgLtv  = totalUpb > 0 ? cohorts.reduce((s, c) => s + c.avgLtv  * c.totalUpb, 0) / totalUpb : 0;
     return [
-      { label: "Cohort Groups", value: String(cohorts.length), icon: Layers },
-      { label: "Total Loans", value: totalLoans.toLocaleString(), icon: Hash },
-      { label: "Total UPB", value: "$" + (totalUpb / 1_000_000).toFixed(1) + "M", icon: Banknote },
-      { label: "Avg Loan Balance", value: "$" + Math.round(avgBalance).toLocaleString(), icon: DollarSign },
-      { label: "Wtd Avg Coupon", value: wac.toFixed(3) + "%", icon: Percent },
-      { label: "Avg FICO / LTV", value: Math.round(avgFico) + " / " + avgLtv.toFixed(0) + "%", icon: CreditCard },
+      { label: "Cohort Groups",    value: String(cohorts.length),                         icon: Layers    },
+      { label: "Total Loans",      value: totalLoans.toLocaleString(),                    icon: Hash      },
+      { label: "Total UPB",        value: "$" + (totalUpb / 1_000_000).toFixed(1) + "M", icon: Banknote  },
+      { label: "Avg Loan Balance", value: "$" + Math.round(avgBalance).toLocaleString(),  icon: DollarSign },
+      { label: "Wtd Avg Coupon",   value: wac.toFixed(3) + "%",                           icon: Percent   },
+      { label: "Avg FICO / LTV",   value: Math.round(avgFico) + " / " + avgLtv.toFixed(0) + "%", icon: CreditCard },
     ];
   }, [cohorts]);
 
@@ -66,6 +75,42 @@ export default function Step9Cohorts() {
   return (
     <SprinkleShell stepId="9" kpis={kpis} animateKpis>
       <div className="space-y-4">
+
+        {/* Seller filter */}
+        <PanelCard
+          className="opacity-0 animate-fade-in-up"
+          icon={Building2}
+          title="Institution Filter"
+          subtitle="Filter cohort analysis by loan seller — real data from Provident, Stonegate & New Penn Financial"
+        >
+          <div className="flex flex-wrap gap-2">
+            {SELLERS.map(s => {
+              const col = SELLER_COLORS[s];
+              const isActive = seller === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSeller(s)}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-150 border shadow-sm",
+                    isActive ? col.active : col.inactive,
+                  )}
+                >
+                  <span className={cn("h-2 w-2 rounded-full shrink-0", isActive ? "bg-white/80" : col.dot)} />
+                  {s}
+                </button>
+              );
+            })}
+          </div>
+          {seller !== "All" && (
+            <p className="mt-2.5 text-[11px] text-slate-500">
+              Showing cohorts for <span className="font-semibold text-slate-700">{seller}</span> loans only.
+              Click <span className="font-semibold">All</span> to restore the full pool view.
+            </p>
+          )}
+        </PanelCard>
+
         {/* Dimension selector */}
         <PanelCard
           data-tour="cohort-selector"
@@ -143,7 +188,7 @@ export default function Step9Cohorts() {
           {cohorts.map((c, i) => {
             const colors = [
               "from-sky-50 border-sky-100", "from-violet-50 border-violet-100",
-              "from-mint-50 border-emerald-100", "from-amber-50 border-amber-100",
+              "from-emerald-50 border-emerald-100", "from-amber-50 border-amber-100",
               "from-pink-50 border-pink-100", "from-blue-50 border-blue-100",
             ];
             const cls = colors[i % colors.length];
@@ -182,7 +227,10 @@ export default function Step9Cohorts() {
         </div>
 
         <footer className="border-t border-slate-200/70 pt-4 text-xs text-slate-500">
-          <p>Cohort metrics calculated from the active loan pool. WAC = Weighted Average Coupon weighted by UPB.</p>
+          <p>
+            Cohort metrics calculated from real loan tape data — Provident (2,452 loans), Stonegate (963 loans), New Penn Financial (3,637 loans).
+            WAC = Weighted Average Coupon weighted by UPB.
+          </p>
           <p className="mt-1">Teraverde Financial LLC. 2026. All rights reserved.</p>
         </footer>
       </div>

@@ -21,6 +21,7 @@ export type Step2Loan = {
   dti: number;
   ltv: number;
   fico: number;
+  firstPaymentDate: string;
 };
 
 type RealLoan = {
@@ -101,6 +102,7 @@ const loans = (realLoansRaw as RealLoan[]).map((r, i) => ({
   dti: r.dti,
   ltv: r.ltv,
   fico: r.fico,
+  firstPaymentDate: r.firstPaymentDate ?? "",
 }));
 
 export function generateStep2Loans(): Step2Loan[] {
