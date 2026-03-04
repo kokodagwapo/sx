@@ -312,10 +312,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { default: OpenAI } = await import("openai");
       const openai = new OpenAI({ apiKey });
       const response = await openai.audio.speech.create({
-        model: "tts-1",
+        model: "tts-1-hd",
         voice: "shimmer",
         input: text,
-        speed: 1.1,
+        speed: 0.92,
       });
       const buffer = Buffer.from(await response.arrayBuffer());
       res.set("Content-Type", "audio/mpeg");
