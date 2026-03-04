@@ -531,46 +531,46 @@ export default function Step1Geography() {
         {/* Left column: metrics + controls + insights */}
         <div className="flex flex-col gap-4 order-2 lg:order-1">
           {/* KPI cards */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 opacity-0 animate-fade-in-up">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 opacity-0 animate-fade-in-up">
               <Tooltip content="Total number of selected loans in the portfolio. Click to expand drilldown by state." wrapperClassName="w-full min-w-0">
                 <button
                   type="button"
                   onClick={() => setLoansDrilldownOpen((o) => !o)}
                   className={cn(
-                    "flex min-h-[72px] sm:min-h-[88px] min-w-0 w-full flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-3 sm:px-4 py-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+                    "flex h-full min-w-0 w-full flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-2.5 sm:px-4 py-2 sm:py-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
                     loansDrilldownOpen && "ring-2 ring-sky-500/30 border-sky-300/80"
                   )}
                 >
                   <div className="flex items-center justify-between gap-1">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-sky-500/20 text-sky-600">
-                        <LayoutList className="h-2.5 w-2.5" strokeWidth={2} />
+                      <div className="flex h-4 w-4 sm:h-5 sm:w-5 shrink-0 items-center justify-center rounded-md bg-sky-500/20 text-sky-600">
+                        <LayoutList className="h-2 w-2 sm:h-2.5 sm:w-2.5" strokeWidth={2} />
                       </div>
-                      <span className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.06em] sm:tracking-[0.14em] text-sky-700/90 truncate">
+                      <span className="text-[9px] sm:text-[11px] font-medium uppercase tracking-[0.04em] sm:tracking-[0.14em] text-sky-700/90 truncate">
                         Total Loans
                       </span>
                     </div>
                     <ChevronDown
-                      className={cn("h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform", loansDrilldownOpen && "rotate-180")}
+                      className={cn("h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-slate-400 transition-transform", loansDrilldownOpen && "rotate-180")}
                     />
                   </div>
-                  <div className="mt-1 text-base sm:text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)] truncate">
+                  <div className="mt-0.5 sm:mt-1 text-[13px] sm:text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)] truncate">
                     {totalLoans.toLocaleString()}
                   </div>
-                  <div className="mt-0.5 text-[9px] text-sky-600 font-medium">Click for drilldown</div>
+                  <div className="mt-0.5 text-[8px] sm:text-[9px] text-sky-600 font-medium">Click for drilldown</div>
                 </button>
               </Tooltip>
               <Tooltip content="Weighted Average Coupon — the average interest rate of loans weighted by unpaid principal balance." wrapperClassName="w-full min-w-0">
-                <div className="flex min-h-[72px] sm:min-h-[88px] min-w-0 w-full flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-3 sm:px-4 py-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                <div className="flex h-full min-w-0 w-full flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl px-2.5 sm:px-4 py-2 sm:py-3 text-left shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-violet-500/20 text-violet-600">
-                      <Percent className="h-2.5 w-2.5" strokeWidth={2} />
+                    <div className="flex h-4 w-4 sm:h-5 sm:w-5 shrink-0 items-center justify-center rounded-md bg-violet-500/20 text-violet-600">
+                      <Percent className="h-2 w-2 sm:h-2.5 sm:w-2.5" strokeWidth={2} />
                     </div>
-                    <span className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.06em] sm:tracking-[0.14em] text-violet-700/90 truncate">
+                    <span className="text-[9px] sm:text-[11px] font-medium uppercase tracking-[0.04em] sm:tracking-[0.14em] text-violet-700/90 truncate">
                       WAC
                     </span>
                   </div>
-                  <div className="mt-1 text-base sm:text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)] truncate">
+                  <div className="mt-0.5 sm:mt-1 text-[13px] sm:text-[22px] font-semibold tracking-tight text-slate-800 tabular-nums [font-family:var(--font-display)] truncate">
                     {weightedAvgCoupon}
                   </div>
                 </div>
@@ -814,26 +814,27 @@ export default function Step1Geography() {
       {/* Loans drilldown — full width */}
       {loansDrilldownOpen && (
         <div className="mt-4 opacity-0 animate-fade-in-up rounded-xl border border-white/50 bg-white/30 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.08)] overflow-hidden">
-          <div className="flex items-center justify-between border-b border-white/40 px-4 py-3 bg-white/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/15 text-sky-600">
-                <LayoutList className="h-5 w-5" strokeWidth={2} />
+          <div className="flex items-center justify-between gap-2 border-b border-white/40 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/20">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-sky-500/15 text-sky-600">
+                <LayoutList className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-slate-800">Loans by State — Drilldown & Compare</h3>
-                <p className="text-xs text-slate-500">Pin states to compare • Expand to individual loan data (TVMA, rate, product)</p>
+              <div className="min-w-0">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-800 truncate">Loans by State — Drilldown</h3>
+                <p className="text-[10px] sm:text-xs text-slate-500 truncate">Pin states to compare</p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setLoansDrilldownOpen(false)}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-200/60 hover:text-slate-700 transition-colors"
+              className="shrink-0 flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-200/60 hover:text-slate-700 transition-colors"
             >
-              <X className="h-4 w-4" /> Close
+              <X className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Close</span>
             </button>
           </div>
 
-          <div className="p-4">
+          <div className="p-3 sm:p-4">
             {/* Pinned states bar */}
             <div className="mb-4">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 mb-2">
@@ -954,26 +955,25 @@ export default function Step1Geography() {
       {/* Chart bar drilldown panel */}
       {chartBarDrilldown && (
         <div className="mt-4 opacity-0 animate-fade-in-up rounded-xl border border-white/50 bg-white/30 backdrop-blur-xl shadow-[0_4px_24px_rgba(56,189,248,0.08)] overflow-hidden">
-          <div className="flex items-center justify-between border-b border-white/40 px-4 py-3 bg-white/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/15 text-sky-600">
-                <BarChart2 className="h-5 w-5" strokeWidth={2} />
+          <div className="flex items-center justify-between gap-2 border-b border-white/40 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/20">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-sky-500/15 text-sky-600">
+                <BarChart2 className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2} />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-slate-800">{chartBarDrilldown.title}</h3>
-                <p className="text-xs text-slate-500">{chartBarDrilldown.subtitle}</p>
+              <div className="min-w-0">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{chartBarDrilldown.title}</h3>
+                <p className="text-[10px] sm:text-xs text-slate-500 truncate">{chartBarDrilldown.subtitle}</p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-1.5">
               {"sourceLoans" in chartBarDrilldown && chartBarDrilldown.sourceLoans && (
                 <button
                   type="button"
                   onClick={() => setDrilldownExpandToLoans((v) => !v)}
-                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-sky-600 hover:bg-sky-100 transition-colors"
+                  className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] sm:text-xs font-medium text-sky-600 hover:bg-sky-100 transition-colors"
                 >
                   <Table2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{drilldownExpandToLoans ? "Collapse" : "Expand loans"}</span>
-                  <span className="sm:hidden">{drilldownExpandToLoans ? "Collapse" : "Loans"}</span>
+                  <span className="hidden sm:inline">{drilldownExpandToLoans ? "Collapse" : "Expand"}</span>
                 </button>
               )}
               <button
@@ -982,18 +982,19 @@ export default function Step1Geography() {
                   setChartBarSelected(null);
                   setDrilldownExpandToLoans(false);
                 }}
-                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-200/60 hover:text-slate-700 transition-colors"
+                className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] sm:text-xs font-medium text-slate-500 hover:bg-slate-200/60 hover:text-slate-700 transition-colors"
               >
-                <X className="h-3.5 w-3.5" /> Close
+                <X className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Close</span>
               </button>
             </div>
           </div>
-          <div className="p-4">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+          <div className="p-3 sm:p-4">
+            <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-4">
               {chartBarDrilldown.details.map((d) => (
-                <div key={d.label} className="rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-3 py-2.5">
-                  <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">{d.label}</div>
-                  <div className="mt-1 text-sm font-semibold text-slate-800">{d.value}</div>
+                <div key={d.label} className="rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-2.5 sm:px-3 py-2">
+                  <div className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-slate-500 truncate">{d.label}</div>
+                  <div className="mt-0.5 sm:mt-1 text-xs sm:text-sm font-semibold text-slate-800 truncate">{d.value}</div>
                 </div>
               ))}
             </div>

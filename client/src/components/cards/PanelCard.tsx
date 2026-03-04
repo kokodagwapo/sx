@@ -50,7 +50,7 @@ export function PanelCard({
       )}
     >
       {(title || subtitle || right) && (
-        <header className="flex items-start justify-between gap-3 border-b border-white/50 bg-white/20 px-4 py-3">
+        <header className="flex items-start justify-between gap-2 sm:gap-3 border-b border-white/50 bg-white/20 px-3 sm:px-4 py-2.5 sm:py-3">
           {(tooltip ?? (typeof title === "string" ? title : null)) && (title || Icon) ? (
             <Tooltip content={tooltip ?? (typeof title === "string" ? title : "")}>{headerContent}</Tooltip>
           ) : (
@@ -59,7 +59,7 @@ export function PanelCard({
           {right && <div className="shrink-0">{right}</div>}
         </header>
       )}
-      <div className={cn("px-4 py-3", contentClassName)}>{children}</div>
+      <div className={cn("px-3 sm:px-4 py-2.5 sm:py-3", contentClassName)}>{children}</div>
     </section>
   );
 }

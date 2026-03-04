@@ -7,10 +7,8 @@ export type KpiItem = {
   label: string;
   value: string;
   helper?: string;
-  /** Full title for tooltip on hover; when set, label can be abbreviated */
   tooltip?: string;
   icon?: LucideIcon;
-  /** Optional id for drilldown lookup */
   id?: string;
 };
 
@@ -37,21 +35,13 @@ export function KpiStrip({
   items: KpiItem[];
   animate?: boolean;
   onItemClick?: (item: KpiItem, index: number) => void;
-  /** Compact single-row layout with smaller text */
   compact?: boolean;
   className?: string;
 }) {
   return (
-    <div className={cn("border-b border-white/50 bg-white/20 backdrop-blur-sm", compact ? "py-5" : "py-4", className)}>
+    <div className={cn("border-b border-white/50 bg-white/20 backdrop-blur-sm py-3 sm:py-4", className)}>
       <div className="container-page">
-        <div
-          className={cn(
-            "grid w-full gap-3 sm:gap-4",
-            compact
-              ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
-              : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
-          )}
-        >
+        <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6 lg:gap-4">
           {items.map((kpi, idx) => {
             const colors = KPI_CARD_COLORS[idx % KPI_CARD_COLORS.length];
             const tooltipContent = kpi.tooltip ?? kpi.helper ?? (onItemClick ? "Click for details" : kpi.label);
@@ -63,38 +53,32 @@ export function KpiStrip({
                 onClick={onItemClick ? () => onItemClick(kpi, idx) : undefined}
                 onKeyDown={onItemClick ? (e) => e.key === "Enter" && onItemClick(kpi, idx) : undefined}
                 className={cn(
-                  "flex min-h-[72px] sm:min-h-[88px] min-w-0 flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+                  "flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
                   onItemClick && "cursor-pointer"
                 )}
               >
-                <div className={cn("flex flex-1 flex-col justify-center min-w-0", compact ? "px-2.5 py-2 sm:px-3.5 sm:py-2.5" : "px-3 py-2.5 sm:px-4 sm:py-3")}>
-                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <div className="flex flex-1 flex-col justify-center min-w-0 px-2.5 py-2 sm:px-3.5 sm:py-3">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     {kpi.icon && (
                       <div
                         className={cn(
-                          "flex shrink-0 items-center justify-center rounded-md h-5 w-5",
+                          "flex shrink-0 items-center justify-center rounded-md h-4 w-4 sm:h-5 sm:w-5",
                           colors.icon
                         )}
                       >
-                        <kpi.icon className="h-2.5 w-2.5" strokeWidth={2} />
+                        <kpi.icon className="h-2 w-2 sm:h-2.5 sm:w-2.5" strokeWidth={2} />
                       </div>
                     )}
                     <div
                       className={cn(
-                        "font-medium uppercase min-w-0 truncate",
-                        compact ? "text-[10px] sm:text-[11px] tracking-[0.06em] sm:tracking-[0.08em]" : "text-[10px] sm:text-[11px] tracking-[0.06em] sm:tracking-[0.14em]",
+                        "font-medium uppercase min-w-0 truncate text-[9px] sm:text-[11px] tracking-[0.04em] sm:tracking-[0.1em]",
                         colors.label
                       )}
                     >
                       {kpi.label}
                     </div>
                   </div>
-                  <div
-                    className={cn(
-                      "mt-1 font-semibold tracking-tight tabular-nums text-slate-800 [font-family:var(--font-display)] truncate",
-                      compact ? "text-sm sm:text-lg" : "text-base sm:text-[22px]"
-                    )}
-                  >
+                  <div className="mt-0.5 sm:mt-1 font-semibold tracking-tight tabular-nums text-slate-800 [font-family:var(--font-display)] truncate text-[13px] sm:text-lg lg:text-[22px]">
                     {animate && isNumericValue(kpi.value) ? (
                       <AnimatedCounter
                         value={kpi.value}
@@ -106,19 +90,17 @@ export function KpiStrip({
                     )}
                   </div>
                   {kpi.helper && !compact && (
-                    <div className={cn("mt-0.5 text-xs opacity-80", colors.label)}>
+                    <div className={cn("mt-0.5 text-[10px] sm:text-xs opacity-80 truncate", colors.label)}>
                       {kpi.helper}
                     </div>
                   )}
                 </div>
               </div>
             );
-            return (kpi.icon || kpi.tooltip || kpi.helper) ? (
-              <Tooltip key={kpi.label} content={tooltipContent}>
+            return (
+              <Tooltip key={kpi.label} content={tooltipContent} wrapperClassName="w-full min-w-0">
                 {card}
               </Tooltip>
-            ) : (
-              card
             );
           })}
         </div>
