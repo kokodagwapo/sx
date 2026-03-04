@@ -12,7 +12,7 @@ export const COHI_TOUR_STOPS: CohiStop[] = [
     route: "/step/1",
     target: "sidebar-main-menu",
     title: "Welcome",
-    script: "7,052 loans. $1.86 billion in UPB. Everything you need to underwrite, price, and match this pool to the right buyer — all in one place. Let's walk through it.",
+    script: "You're looking at 7,052 loans totaling $1.86 billion in UPB. Geography, credit, pricing, composition, cash flows, and buyer matching — nine steps from raw tape to closed deal. No spreadsheets, no guesswork. Let's walk through it.",
     icon: "sparkles",
   },
   {
