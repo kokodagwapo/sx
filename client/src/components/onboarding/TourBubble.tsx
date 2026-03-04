@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTour } from "@/context/TourContext";
+import { COHI_TOUR_STOPS } from "@/data/cohiTour";
 
 export type TourStep = {
   title: string;
@@ -132,10 +133,25 @@ const ICON_MAP = {
 
 const DOT_WINDOW = 7;
 
+const SECTIONS: { label: string; firstStop: number; abbr: string }[] = [
+  { label: "Welcome",    abbr: "Intro",  firstStop: 0  },
+  { label: "Step 1",     abbr: "Geo",    firstStop: 3  },
+  { label: "Step 2",     abbr: "Search", firstStop: 6  },
+  { label: "Step 3",     abbr: "Credit", firstStop: 9  },
+  { label: "Step 4",     abbr: "Price",  firstStop: 12 },
+  { label: "Step 5",     abbr: "Fin",    firstStop: 15 },
+  { label: "Step 6a",    abbr: "Comp",   firstStop: 18 },
+  { label: "Step 6b",    abbr: "Yield",  firstStop: 21 },
+  { label: "Step 7",     abbr: "Sched",  firstStop: 24 },
+  { label: "Step 8",     abbr: "Deal",   firstStop: 27 },
+  { label: "Step 9",     abbr: "Cohort", firstStop: 30 },
+  { label: "Bank CR",    abbr: "Bank",   firstStop: 33 },
+];
+
 export function CohiTourPanel() {
   const {
     isActive, stopIndex, totalStops, currentStop,
-    goNext, goPrev, endTour,
+    goNext, goPrev, goToStop, endTour,
     isSpeaking, isLoadingTts, timeLeft, isThinking, cohiReply,
     speakCurrent, stopSpeaking, askCohi, clearReply,
   } = useTour();
@@ -360,6 +376,37 @@ export function CohiTourPanel() {
             </span>
           </div>
 
+          {/* Section jump strip */}
+          <div className="border-t border-slate-100 bg-slate-50/40 px-3 pt-2 pb-1.5">
+            <div className="mb-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">Jump to section</div>
+            <div className="flex gap-1 overflow-x-auto scrollbar-none pb-0.5">
+              {SECTIONS.map((sec) => {
+                const isCurrentSection = stopIndex >= sec.firstStop &&
+                  (SECTIONS.findIndex(s => s.firstStop === sec.firstStop) === SECTIONS.length - 1
+                    ? true
+                    : stopIndex < SECTIONS[SECTIONS.findIndex(s => s.firstStop === sec.firstStop) + 1].firstStop);
+                return (
+                  <button
+                    key={sec.firstStop}
+                    type="button"
+                    onClick={() => goToStop(sec.firstStop)}
+                    title={sec.label}
+                    className={cn(
+                      "shrink-0 rounded-md px-2 py-1 text-[10px] font-semibold transition-all active:scale-95 whitespace-nowrap",
+                      isCurrentSection
+                        ? "bg-sky-500 text-white shadow-sm"
+                        : stopIndex > sec.firstStop
+                          ? "bg-sky-100 text-sky-700 hover:bg-sky-200"
+                          : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-sky-300 hover:text-sky-600"
+                    )}
+                  >
+                    {sec.abbr}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Nav footer */}
           <div className="border-t border-slate-100 bg-slate-50/60 px-3 py-2.5">
             <div className="flex items-center justify-between gap-2">
@@ -382,15 +429,18 @@ export function CohiTourPanel() {
                 {Array.from({ length: dotEnd - dotStart }, (_, i) => {
                   const realIdx = dotStart + i;
                   return (
-                    <span
+                    <button
                       key={realIdx}
+                      type="button"
+                      onClick={() => goToStop(realIdx)}
+                      title={`Stop ${realIdx + 1}: ${COHI_TOUR_STOPS[realIdx]?.title ?? ""}`}
                       className={cn(
-                        "rounded-full transition-all duration-300",
+                        "rounded-full transition-all duration-300 hover:scale-150 active:scale-100",
                         realIdx === stopIndex
                           ? "w-4 h-1.5 bg-sky-500"
                           : realIdx < stopIndex
-                            ? "w-1.5 h-1.5 bg-sky-300"
-                            : "w-1.5 h-1.5 bg-slate-200"
+                            ? "w-1.5 h-1.5 bg-sky-300 hover:bg-sky-400"
+                            : "w-1.5 h-1.5 bg-slate-200 hover:bg-slate-400"
                       )}
                     />
                   );

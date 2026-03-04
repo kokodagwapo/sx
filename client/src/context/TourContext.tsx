@@ -14,6 +14,7 @@ export type CohiTourContextValue = {
   endTour: () => void;
   goNext: () => void;
   goPrev: () => void;
+  goToStop: (i: number) => void;
   isSpeaking: boolean;
   isLoadingTts: boolean;
   timeLeft: number;
@@ -31,7 +32,7 @@ export type CohiTourContextValue = {
 const CohiTourCtx = createContext<CohiTourContextValue>({
   isActive: false, stopIndex: -1, totalStops: COHI_TOUR_STOPS.length,
   currentStop: null,
-  startTour: () => {}, endTour: () => {}, goNext: () => {}, goPrev: () => {},
+  startTour: () => {}, endTour: () => {}, goNext: () => {}, goPrev: () => {}, goToStop: () => {},
   isSpeaking: false, isLoadingTts: false, timeLeft: 0, isThinking: false, cohiReply: null,
   speakCurrent: () => {}, stopSpeaking: () => {},
   askCohi: async () => {}, clearReply: () => {},
@@ -188,6 +189,14 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
     });
   }, [persist, stopSpeaking]);
 
+  const goToStop = useCallback((i: number) => {
+    const clamped = Math.max(0, Math.min(COHI_TOUR_STOPS.length - 1, i));
+    stopSpeaking();
+    setCohiReply(null);
+    setStopIndex(clamped);
+    persist(clamped, true);
+  }, [persist, stopSpeaking]);
+
   useEffect(() => {
     return () => { stopSpeaking(); };
   }, [stopSpeaking]);
@@ -208,7 +217,7 @@ function TourProviderInner({ children }: { children: React.ReactNode }) {
   return (
     <CohiTourCtx.Provider value={{
       isActive, stopIndex, totalStops: COHI_TOUR_STOPS.length,
-      currentStop, startTour, endTour, goNext, goPrev,
+      currentStop, startTour, endTour, goNext, goPrev, goToStop,
       isSpeaking, isLoadingTts, timeLeft, isThinking, cohiReply,
       speakCurrent, stopSpeaking, askCohi, clearReply,
       tourVersion, tourActive: isActive, restartTour: startTour,
