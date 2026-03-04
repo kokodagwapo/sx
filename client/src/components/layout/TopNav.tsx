@@ -22,60 +22,29 @@ type Notif = {
   link?: string;
 };
 
-const NOTIFICATIONS: Notif[] = [
-  {
-    id: "n1",
-    type: "alert",
-    title: "High Flood-Risk Concentration",
-    body: "Calculating flood risk…",
-    time: "2 min ago",
-    link: "/step/2",
-  },
-  {
-    id: "n1b",
-    type: "alert",
-    title: "Wildfire Risk Exposure",
-    body: "Calculating wildfire risk…",
-    time: "5 min ago",
-    link: "/step/2",
-  },
+const STATIC_NOTIFICATIONS: Notif[] = [
   {
     id: "n2",
     type: "alert",
-    title: "CA Concentration Exceeds 20%",
-    body: "California now represents 21.4% of total UPB ($187M). Consider geographic diversification.",
+    title: "CA Concentration Above 20%",
+    body: "California represents 20.6% of total loan count (1,449 loans). Single-state exposure above 20% warrants review.",
     time: "18 min ago",
     link: "/step/1",
   },
   {
     id: "n3",
     type: "market",
-    title: "30-Yr Rate Moved +12 bps",
-    body: "Conventional 30-year rate rose to 6.82%. Refinance pipeline may compress — check cohort prepay speeds.",
+    title: "30-Yr Fixed Rate at 6.82%",
+    body: "Current pool WA coupon of 3.50% sits 332 bps below market. Below-market servicing creates positive convexity for buyers.",
     time: "1 hr ago",
     link: "/step/9",
   },
   {
-    id: "n4",
-    type: "info",
-    title: "87 Loans Approaching Commitment Expiry",
-    body: "87 Committed loans have estimated expiry within 14 days. Review on Step 2 → Committed drilldown.",
-    time: "3 hr ago",
-    link: "/step/2",
-  },
-  {
-    id: "n5",
-    type: "success",
-    title: "Portfolio Tape Processed",
-    body: "6,215 loans imported successfully. All steps updated with the latest data.",
-    time: "Yesterday",
-  },
-  {
     id: "n6",
     type: "info",
-    title: "LLPA Pricing Updated",
-    body: "Teraverde indicative pricing grid refreshed for Q2 2026. Review adjusted margins on Step 4.",
-    time: "Yesterday",
+    title: "LLPA Pricing Grid Active",
+    body: "Teraverde indicative pricing is applied across all 7,050 loans. Review loan-level adjustments on the Pricing Sheet.",
+    time: "3 hr ago",
     link: "/step/4",
   },
 ];
@@ -137,15 +106,43 @@ export function TopNav({
     state: l.state || "", county: (l as any).county || l.countyName || "", upb: l.upb || 0,
   }))), [importedLoans]);
 
-  const liveNotifications = useMemo<Notif[]>(() => NOTIFICATIONS.map(n => {
-    if (n.id === "n1") return { ...n,
-      body: `${riskStats.floodHighPct.toFixed(1)}% of portfolio UPB (${riskStats.floodHighCount.toLocaleString()} loans) sits in FEMA High+ flood-risk zones. Review exposure on Step 1.`,
-    };
-    if (n.id === "n1b") return { ...n,
-      body: `${riskStats.fireHighPct.toFixed(1)}% of portfolio UPB (${riskStats.fireHighCount.toLocaleString()} loans) in High+ wildfire-risk zones based on FEMA NRI data.`,
-    };
-    return n;
-  }), [riskStats]);
+  const liveNotifications = useMemo<Notif[]>(() => {
+    const dynamic: Notif[] = [];
+
+    if (riskStats.floodHighPct > 1) {
+      dynamic.push({
+        id: "n1",
+        type: "alert",
+        title: "Flood-Risk Concentration",
+        body: `${riskStats.floodHighPct.toFixed(1)}% of portfolio UPB (${riskStats.floodHighCount.toLocaleString()} loans) in FEMA High/Very High flood zones.`,
+        time: "2 min ago",
+        link: "/step/1",
+      });
+    }
+
+    if (riskStats.fireHighPct > 1) {
+      dynamic.push({
+        id: "n1b",
+        type: "alert",
+        title: "Wildfire-Risk Exposure",
+        body: `${riskStats.fireHighPct.toFixed(1)}% of portfolio UPB (${riskStats.fireHighCount.toLocaleString()} loans) in High/Very High wildfire zones per FEMA NRI.`,
+        time: "5 min ago",
+        link: "/step/1",
+      });
+    }
+
+    if (importedLoans && importedLoans.length > 0) {
+      dynamic.push({
+        id: "n5",
+        type: "success",
+        title: "Portfolio Tape Loaded",
+        body: `${importedLoans.length.toLocaleString()} loans imported and active across all steps.`,
+        time: "Just now",
+      });
+    }
+
+    return [...dynamic, ...STATIC_NOTIFICATIONS];
+  }, [riskStats, importedLoans]);
 
   const unreadCount = liveNotifications.filter((n) => !readIds.has(n.id)).length;
 
