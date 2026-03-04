@@ -27,29 +27,9 @@ type FdicResp = { data?: FdicRow[]; meta?: { total?: number } };
 
 type QuickBank = { label: string; query: string; initial: string; color: "sky" | "indigo" | "violet" | "emerald" | "amber" | "rose"; type: string };
 
-const QUICK_BANKS: QuickBank[] = [
-  { label: "JPMorgan",        query: "JPMorgan Chase",    initial: "JP", color: "sky",     type: "FDIC-Insured Bank" },
-  { label: "Bank of America", query: "Bank of America",   initial: "BA", color: "indigo",  type: "FDIC-Insured Bank" },
-  { label: "Wells Fargo",     query: "Wells Fargo",       initial: "WF", color: "violet",  type: "FDIC-Insured Bank" },
-  { label: "Citibank",        query: "Citibank",          initial: "C",  color: "emerald", type: "FDIC-Insured Bank" },
-  { label: "US Bank",         query: "US Bank",           initial: "US", color: "amber",   type: "FDIC-Insured Bank" },
-  { label: "PNC Bank",        query: "PNC Bank",          initial: "PN", color: "rose",    type: "FDIC-Insured Bank" },
-  { label: "Truist",          query: "Truist Bank",       initial: "T",  color: "sky",     type: "FDIC-Insured Bank" },
-  { label: "Regions Bank",    query: "Regions Bank",      initial: "R",  color: "rose",    type: "FDIC-Insured Bank" },
-];
-
-const QUICK_BANK_COLORS: Record<QuickBank["color"], { badge: string; ring: string }> = {
-  sky:     { badge: "bg-sky-500",     ring: "ring-sky-300"     },
-  indigo:  { badge: "bg-indigo-500",  ring: "ring-indigo-300"  },
-  violet:  { badge: "bg-violet-500",  ring: "ring-violet-300"  },
-  emerald: { badge: "bg-emerald-500", ring: "ring-emerald-300" },
-  amber:   { badge: "bg-amber-500",   ring: "ring-amber-300"   },
-  rose:    { badge: "bg-rose-500",    ring: "ring-rose-300"    },
-};
-
 // ─── Buyer Insight Cards ──────────────────────────────────────────────────────
 
-type InsightColor = "sky" | "emerald" | "amber" | "violet";
+type InsightColor = "sky" | "emerald" | "amber" | "violet" | "rose";
 
 type BuyerInsight = {
   id: string;
@@ -66,6 +46,7 @@ const INSIGHT_PALETTE: Record<InsightColor, { card: string; icon: string; iconBg
   emerald: { card: "border-emerald-100/60 bg-emerald-50/60", icon: "text-emerald-600", iconBg: "bg-emerald-100", tag: "bg-emerald-100 text-emerald-700", chip: "bg-emerald-100 hover:bg-emerald-200 text-emerald-800" },
   amber:   { card: "border-amber-100/60 bg-amber-50/60",   icon: "text-amber-600",   iconBg: "bg-amber-100",   tag: "bg-amber-100 text-amber-700",   chip: "bg-amber-100 hover:bg-amber-200 text-amber-800"   },
   violet:  { card: "border-violet-100/60 bg-violet-50/60", icon: "text-violet-600",  iconBg: "bg-violet-100",  tag: "bg-violet-100 text-violet-700",  chip: "bg-violet-100 hover:bg-violet-200 text-violet-800"  },
+  rose:    { card: "border-rose-100/60 bg-rose-50/60",     icon: "text-rose-600",    iconBg: "bg-rose-100",    tag: "bg-rose-100 text-rose-700",     chip: "bg-rose-100 hover:bg-rose-200 text-rose-800"     },
 };
 
 const BUYER_INSIGHTS: BuyerInsight[] = [
@@ -119,6 +100,19 @@ const BUYER_INSIGHTS: BuyerInsight[] = [
       { label: "Regions Bank",    query: "Regions Bank",        initial: "R",  color: "rose",    type: "FDIC-Insured Bank" },
       { label: "Fifth Third",     query: "Fifth Third Bank",    initial: "5T", color: "sky",     type: "FDIC-Insured Bank" },
       { label: "KeyBank",         query: "KeyBank",             initial: "K",  color: "indigo",  type: "FDIC-Insured Bank" },
+    ],
+  },
+  {
+    id: "high-risk",
+    title: "High Risk Loans",
+    subtitle: "Specialty buyers focused on non-QM, high-LTV, and distressed loan acquisitions.",
+    tag: "Non-QM",
+    icon: AlertCircle,
+    color: "rose",
+    banks: [
+      { label: "Flagstar Bank",     query: "Flagstar Bank",          initial: "FB", color: "rose",    type: "FDIC-Insured Bank" },
+      { label: "Western Alliance",  query: "Western Alliance Bank",  initial: "WA", color: "amber",   type: "FDIC-Insured Bank" },
+      { label: "First Citizens",    query: "First Citizens Bank",    initial: "FC", color: "rose",    type: "FDIC-Insured Bank" },
     ],
   },
 ];
@@ -669,34 +663,6 @@ export default function BankCallReport() {
 
         {/* Fixed bottom strip — quick banks + search bar */}
         <div className="flex-shrink-0 flex flex-col items-center px-4 pb-8 pt-3">
-
-          {/* Quick-search buyer cards */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-4 max-w-2xl w-full">
-            {QUICK_BANKS.map((bank) => {
-              const colors = QUICK_BANK_COLORS[bank.color];
-              const isActive = query === bank.query;
-              return (
-                <button
-                  key={bank.query}
-                  onClick={() => handleQuick(bank)}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-xl px-3 py-2 text-left transition-all duration-200 border shadow-sm hover:shadow-md",
-                    isActive
-                      ? "bg-white border-slate-300 shadow-md ring-2 " + colors.ring
-                      : "bg-white/70 border-white/60 backdrop-blur-sm hover:bg-white hover:border-slate-200",
-                  )}
-                >
-                  <div className={cn("h-8 w-8 shrink-0 rounded-lg flex items-center justify-center text-white text-[10px] font-black tracking-tight shadow-sm", colors.badge)}>
-                    {bank.initial}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold text-slate-800 whitespace-nowrap">{bank.label}</div>
-                    <div className="text-[10px] text-slate-400 whitespace-nowrap">{bank.type}</div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
 
           {/* Search bar */}
           <div data-tour="bcr-search" className="relative max-w-2xl w-full">
