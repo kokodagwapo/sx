@@ -43,39 +43,45 @@ function clamp(v: number, min: number, max: number) {
 
 function computePosition(targetRect: DOMRect, bubbleW: number, bubbleH: number): ComputedPos {
   const GAP = 14;
-  const PAD = 8;
+  const PAD = 12;
   const winW = window.innerWidth;
   const winH = window.innerHeight;
   const spaceBelow = winH - targetRect.bottom;
   const spaceAbove = targetRect.top;
   const spaceRight = winW - targetRect.right;
   const spaceLeft  = targetRect.left;
+
   let side: Side;
-  if (spaceBelow >= bubbleH + GAP || spaceBelow >= spaceAbove) side = "bottom";
+  if      (spaceBelow >= bubbleH + GAP) side = "bottom";
   else if (spaceAbove >= bubbleH + GAP) side = "top";
   else if (spaceRight >= bubbleW + GAP) side = "right";
-  else if (spaceLeft >= bubbleW + GAP) side = "left";
-  else side = "bottom";
+  else if (spaceLeft  >= bubbleW + GAP) side = "left";
+  else side = spaceAbove >= spaceBelow ? "top" : "bottom";
+
   const cx = targetRect.left + targetRect.width / 2;
   const cy = targetRect.top + targetRect.height / 2;
   let top: number, left: number;
+
   if (side === "bottom") {
     top  = targetRect.bottom + GAP;
     left = clamp(cx - bubbleW / 2, PAD, winW - bubbleW - PAD);
-    return { top, left, side, arrowX: clamp(cx - left, 16, bubbleW - 16) };
   } else if (side === "top") {
     top  = targetRect.top - bubbleH - GAP;
     left = clamp(cx - bubbleW / 2, PAD, winW - bubbleW - PAD);
-    return { top, left, side, arrowX: clamp(cx - left, 16, bubbleW - 16) };
   } else if (side === "right") {
     left = targetRect.right + GAP;
     top  = clamp(cy - bubbleH / 2, PAD, winH - bubbleH - PAD);
-    return { top, left, side, arrowY: clamp(cy - top, 16, bubbleH - 16) };
   } else {
     left = targetRect.left - bubbleW - GAP;
     top  = clamp(cy - bubbleH / 2, PAD, winH - bubbleH - PAD);
-    return { top, left, side, arrowY: clamp(cy - top, 16, bubbleH - 16) };
   }
+
+  top  = clamp(top,  PAD, winH - bubbleH - PAD);
+  left = clamp(left, PAD, winW - bubbleW - PAD);
+
+  const arrowX = (side === "bottom" || side === "top") ? clamp(cx - left, 16, bubbleW - 16) : undefined;
+  const arrowY = (side === "left"   || side === "right") ? clamp(cy - top, 16, bubbleH - 16) : undefined;
+  return { top, left, side, arrowX, arrowY };
 }
 
 function TargetHighlight({ rect }: { rect: DOMRect }) {
