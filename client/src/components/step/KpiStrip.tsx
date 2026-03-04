@@ -63,27 +63,26 @@ export function KpiStrip({
                 onClick={onItemClick ? () => onItemClick(kpi, idx) : undefined}
                 onKeyDown={onItemClick ? (e) => e.key === "Enter" && onItemClick(kpi, idx) : undefined}
                 className={cn(
-                  "flex min-h-[72px] sm:min-h-[88px] flex-col rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+                  "flex min-h-[72px] sm:min-h-[88px] min-w-0 flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
                   onItemClick && "cursor-pointer"
                 )}
               >
-                <div className={cn("flex flex-1 flex-col justify-center", compact ? "px-2.5 py-2 sm:px-3.5 sm:py-2.5" : "px-3 py-2.5 sm:px-4 sm:py-3")}>
-                  <div className="flex items-center gap-2">
+                <div className={cn("flex flex-1 flex-col justify-center min-w-0", compact ? "px-2.5 py-2 sm:px-3.5 sm:py-2.5" : "px-3 py-2.5 sm:px-4 sm:py-3")}>
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                     {kpi.icon && (
                       <div
                         className={cn(
-                          "flex shrink-0 items-center justify-center rounded-md",
-                          compact ? "h-5 w-5" : "h-5 w-5",
+                          "flex shrink-0 items-center justify-center rounded-md h-5 w-5",
                           colors.icon
                         )}
                       >
-                        <kpi.icon className={compact ? "h-2.5 w-2.5" : "h-2.5 w-2.5"} strokeWidth={2} />
+                        <kpi.icon className="h-2.5 w-2.5" strokeWidth={2} />
                       </div>
                     )}
                     <div
                       className={cn(
                         "font-medium uppercase min-w-0 truncate",
-                        compact ? "text-[11px] tracking-[0.08em]" : "text-[11px] tracking-[0.14em]",
+                        compact ? "text-[10px] sm:text-[11px] tracking-[0.06em] sm:tracking-[0.08em]" : "text-[10px] sm:text-[11px] tracking-[0.06em] sm:tracking-[0.14em]",
                         colors.label
                       )}
                     >
@@ -92,8 +91,8 @@ export function KpiStrip({
                   </div>
                   <div
                     className={cn(
-                      "mt-1 font-semibold tracking-tight tabular-nums text-slate-800 [font-family:var(--font-display)]",
-                      compact ? "text-base sm:text-lg" : "text-lg sm:text-[22px]"
+                      "mt-1 font-semibold tracking-tight tabular-nums text-slate-800 [font-family:var(--font-display)] truncate",
+                      compact ? "text-sm sm:text-lg" : "text-base sm:text-[22px]"
                     )}
                   >
                     {animate && isNumericValue(kpi.value) ? (

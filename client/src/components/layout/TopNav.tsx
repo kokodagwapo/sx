@@ -310,8 +310,8 @@ export function TopNav({
 
 
       {/* Center: Page title — absolutely centered in header */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-24 sm:px-0">
-        <h1 className="flex items-center gap-2 select-none min-w-0">
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-[120px] sm:px-[140px]">
+        <h1 className="flex items-center gap-2 select-none min-w-0 max-w-full">
           <span className="text-[12px] sm:text-[13px] font-bold tracking-[-0.02em] bg-gradient-to-r from-slate-700 via-sky-600 to-indigo-500 bg-clip-text text-transparent truncate">
             {title}
           </span>
