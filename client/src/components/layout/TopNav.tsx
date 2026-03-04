@@ -330,7 +330,7 @@ export function TopNav({
               type="button"
               onClick={() => setUploadOpen(true)}
               className={cn(
-                "relative rounded-lg p-2 transition-colors animate-glow-pulse",
+                "relative hidden sm:inline-flex rounded-lg p-2 transition-colors animate-glow-pulse",
                 importedLoans
                   ? "text-sky-500 hover:bg-white/30 hover:text-sky-600"
                   : "text-slate-400 hover:bg-white/30 hover:text-slate-600"
@@ -352,7 +352,7 @@ export function TopNav({
               <span className="hidden sm:inline">Start Cohi Tour</span>
             </button>
           </Tooltip>
-          <div data-tour="notif-bell" className="relative" ref={notifRef}>
+          <div data-tour="notif-bell" className="relative hidden sm:block" ref={notifRef}>
             <button
               type="button"
               onClick={() => setNotifOpen((o) => !o)}
