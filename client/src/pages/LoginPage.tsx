@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
+import { useNavigate, useSearchParams, Navigate, Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck, Building2, TrendingUp, User, Lock, Sparkles } from "lucide-react";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { useAuth, type UserRole } from "@/context/AuthContext";
@@ -72,10 +72,10 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8">
-        <div className="mb-8 flex flex-col items-center gap-2">
+        <Link to="/" className="mb-8 flex flex-col items-center gap-2 transition-opacity hover:opacity-80">
           <SprinkleXLogo size="lg" showText />
           <p className="text-[13px] text-slate-500 font-medium tracking-wide">Seasoned Whole Loan Exchange</p>
-        </div>
+        </Link>
 
         <div className="w-full max-w-[420px]">
           <div className="rounded-2xl border border-white/70 bg-white/65 backdrop-blur-2xl shadow-[0_8px_40px_rgba(0,0,0,0.06)] overflow-hidden">
