@@ -226,19 +226,17 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
     updateCanvasSize();
 
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current.x = e.clientX - rect.left;
-      mouseRef.current.y = e.clientY - rect.top;
-      mouseRef.current.active = true;
-    };
-
-    const handleMouseLeave = () => {
-      mouseRef.current.active = false;
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const inside = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
+      mouseRef.current.x = x;
+      mouseRef.current.y = y;
+      mouseRef.current.active = inside;
     };
 
     if (mouseRepel) {
-      container.addEventListener("mousemove", handleMouseMove);
-      container.addEventListener("mouseleave", handleMouseLeave);
+      window.addEventListener("mousemove", handleMouseMove);
     }
 
     let lastTime = 0;
@@ -308,8 +306,7 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       if (mouseRepel) {
-        container.removeEventListener("mousemove", handleMouseMove);
-        container.removeEventListener("mouseleave", handleMouseLeave);
+        window.removeEventListener("mousemove", handleMouseMove);
       }
     };
   }, [setupCanvas, updateSquares, updateDisplacement, drawGrid, width, height, isInView, timeScale, drift, mouseRepel, mouseRadius, mouseForce]);
