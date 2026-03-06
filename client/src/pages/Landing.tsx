@@ -229,7 +229,7 @@ function LandingNav() {
         </div>
         <div>
           <span className={cn("font-semibold text-sm tracking-tight", isDark ? "text-white" : "text-slate-900")}>SprinkleX</span>
-          <span className={cn("ml-2 text-xs", isDark ? "text-white/40" : "text-slate-400")}>Loan Portfolio Analytics</span>
+          <span className={cn("ml-2 text-xs", isDark ? "text-white/40" : "text-slate-400")}>Seasoned Whole Loan Exchange</span>
         </div>
       </div>
       <div className="flex items-center gap-2">

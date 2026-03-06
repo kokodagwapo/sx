@@ -7,14 +7,17 @@ interface FlickeringGridProps {
   gridGap?: number;
   flickerChance?: number;
   color?: string;
-  /** Optional palette for subtle multi-color squares */
   colors?: string[];
   width?: number;
   height?: number;
   className?: string;
   maxOpacity?: number;
-  /** How quickly squares ease to their new opacity (lower = slower/cinematic) */
   blendSpeed?: number;
+  timeScale?: number;
+  drift?: boolean;
+  mouseRepel?: boolean;
+  mouseRadius?: number;
+  mouseForce?: number;
 }
 
 const FlickeringGrid: React.FC<FlickeringGridProps> = ({
@@ -28,11 +31,17 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   className,
   maxOpacity = 0.3,
   blendSpeed = 0.9,
+  timeScale = 0.35,
+  drift = true,
+  mouseRepel = false,
+  mouseRadius = 120,
+  mouseForce = 28,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: -9999, y: -9999, active: false });
 
   const rgbaPrefixes = useMemo(() => {
     const toRGBA = (c: string) => {
@@ -65,13 +74,20 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       const squares = new Float32Array(cols * rows);
       const targets = new Float32Array(cols * rows);
       const colorIndex = new Uint8Array(cols * rows);
+      const speedMult = new Float32Array(cols * rows);
+      const phase = new Float32Array(cols * rows);
+      const displaceX = new Float32Array(cols * rows);
+      const displaceY = new Float32Array(cols * rows);
 
-      // Heavily favor first palette color; allow subtle “spark” accents.
       const palLen = Math.max(1, rgbaPrefixes.length);
       for (let i = 0; i < squares.length; i++) {
         const base = Math.random() * maxOpacity;
         squares[i] = base;
         targets[i] = base;
+        speedMult[i] = 0.25 + Math.random() * 0.85;
+        phase[i] = Math.random() * Math.PI * 2;
+        displaceX[i] = 0;
+        displaceY[i] = 0;
         if (palLen === 1) colorIndex[i] = 0;
         else {
           const r = Math.random();
@@ -81,22 +97,78 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
         }
       }
 
-      return { cols, rows, squares, targets, colorIndex, dpr };
+      return { cols, rows, squares, targets, colorIndex, speedMult, phase, displaceX, displaceY, dpr };
     },
     [squareSize, gridGap, maxOpacity, rgbaPrefixes.length],
   );
 
   const updateSquares = useCallback(
-    (squares: Float32Array, targets: Float32Array, deltaTime: number) => {
-      const ease = 1 - Math.exp(-deltaTime * Math.max(0.1, blendSpeed));
+    (
+      squares: Float32Array,
+      targets: Float32Array,
+      speedMult: Float32Array,
+      deltaTime: number,
+      tScale: number,
+    ) => {
+      const scaledDt = deltaTime * tScale;
       for (let i = 0; i < squares.length; i++) {
-        if (Math.random() < flickerChance * deltaTime) {
+        const spd = speedMult[i] ?? 1;
+        const ease = 1 - Math.exp(-scaledDt * Math.max(0.08, blendSpeed * spd));
+        if (Math.random() < flickerChance * scaledDt * spd) {
           targets[i] = Math.random() * maxOpacity;
         }
         squares[i] = squares[i] + (targets[i] - squares[i]) * ease;
       }
     },
     [flickerChance, maxOpacity, blendSpeed],
+  );
+
+  const updateDisplacement = useCallback(
+    (
+      displaceX: Float32Array,
+      displaceY: Float32Array,
+      cols: number,
+      rows: number,
+      deltaTime: number,
+      mRadius: number,
+      mForce: number,
+    ) => {
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
+      const active = mouseRef.current.active;
+      const returnSpeed = 4.5;
+      const rSq = mRadius * mRadius;
+
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const idx = i * rows + j;
+          const cellX = i * (squareSize + gridGap) + squareSize * 0.5;
+          const cellY = j * (squareSize + gridGap) + squareSize * 0.5;
+
+          let targetDx = 0;
+          let targetDy = 0;
+
+          if (active) {
+            const dx = cellX - mx;
+            const dy = cellY - my;
+            const distSq = dx * dx + dy * dy;
+
+            if (distSq < rSq && distSq > 0.01) {
+              const dist = Math.sqrt(distSq);
+              const strength = (1 - dist / mRadius);
+              const force = strength * strength * mForce;
+              targetDx = (dx / dist) * force;
+              targetDy = (dy / dist) * force;
+            }
+          }
+
+          const ease = 1 - Math.exp(-deltaTime * returnSpeed);
+          displaceX[idx] += (targetDx - displaceX[idx]) * ease;
+          displaceY[idx] += (targetDy - displaceY[idx]) * ease;
+        }
+      }
+    },
+    [squareSize, gridGap],
   );
 
   const drawGrid = useCallback(
@@ -109,11 +181,12 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       squares: Float32Array,
       targets: Float32Array,
       colorIndex: Uint8Array,
+      phase: Float32Array,
+      displaceX: Float32Array,
+      displaceY: Float32Array,
       dpr: number,
     ) => {
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "transparent";
-      ctx.fillRect(0, 0, w, h);
 
       for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
@@ -121,12 +194,11 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
           const opacity = squares[idx];
           const palIdx = Math.min(rgbaPrefixes.length - 1, colorIndex[idx] ?? 0);
           ctx.fillStyle = `${rgbaPrefixes[palIdx]}${opacity})`;
-          ctx.fillRect(
-            i * (squareSize + gridGap) * dpr,
-            j * (squareSize + gridGap) * dpr,
-            squareSize * dpr,
-            squareSize * dpr,
-          );
+          const dx = displaceX[idx] ?? 0;
+          const dy = displaceY[idx] ?? 0;
+          const x = (i * (squareSize + gridGap) + dx) * dpr;
+          const y = (j * (squareSize + gridGap) + dy) * dpr;
+          ctx.fillRect(x, y, squareSize * dpr, squareSize * dpr);
         }
       }
     },
@@ -153,6 +225,20 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 
     updateCanvasSize();
 
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const inside = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
+      mouseRef.current.x = x;
+      mouseRef.current.y = y;
+      mouseRef.current.active = inside;
+    };
+
+    if (mouseRepel) {
+      window.addEventListener("mousemove", handleMouseMove);
+    }
+
     let lastTime = 0;
     const animate = (time: number) => {
       if (!isInView) return;
@@ -160,7 +246,26 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       const deltaTime = (time - lastTime) / 1000;
       lastTime = time;
 
-      updateSquares(gridParams.squares, gridParams.targets, deltaTime);
+      updateSquares(
+        gridParams.squares,
+        gridParams.targets,
+        gridParams.speedMult,
+        deltaTime,
+        timeScale,
+      );
+
+      if (mouseRepel) {
+        updateDisplacement(
+          gridParams.displaceX,
+          gridParams.displaceY,
+          gridParams.cols,
+          gridParams.rows,
+          deltaTime,
+          mouseRadius,
+          mouseForce,
+        );
+      }
+
       drawGrid(
         ctx,
         canvas.width,
@@ -170,6 +275,9 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
         gridParams.squares,
         gridParams.targets,
         gridParams.colorIndex,
+        gridParams.phase,
+        gridParams.displaceX,
+        gridParams.displaceY,
         gridParams.dpr,
       );
       animationFrameId = requestAnimationFrame(animate);
@@ -196,14 +304,16 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
+      if (mouseRepel) {
+        window.removeEventListener("mousemove", handleMouseMove);
+      }
     };
-  }, [setupCanvas, updateSquares, drawGrid, width, height, isInView]);
+  }, [setupCanvas, updateSquares, updateDisplacement, drawGrid, width, height, isInView, timeScale, drift, mouseRepel, mouseRadius, mouseForce]);
 
   return (
     <div ref={containerRef} className={`w-full h-full ${className ?? ""}`}>
       <canvas
         ref={canvasRef}
-        className="pointer-events-none"
         style={{
           width: canvasSize.width,
           height: canvasSize.height,
@@ -214,4 +324,3 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 };
 
 export { FlickeringGrid };
-

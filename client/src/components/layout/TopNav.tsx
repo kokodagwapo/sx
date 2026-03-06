@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, Bell, User, ChevronDown, Menu, ChevronLeft, ChevronRight, FileUp, AlertTriangle, Info, TrendingUp, CheckCircle2, X, Sparkles } from "lucide-react";
+import { Search, Bell, User, ChevronDown, Menu, ChevronLeft, ChevronRight, FileUp, AlertTriangle, Info, TrendingUp, CheckCircle2, X, Sparkles, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { search, type SearchResult } from "@/app/searchIndex";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
@@ -10,6 +10,7 @@ import { steps, getPrevNext, type StepId } from "@/app/steps";
 import { UploadModal } from "@/components/importExport/UploadModal";
 import { useLoanContext } from "@/context/LoanContext";
 import { useTour } from "@/context/TourContext";
+import { useAuth } from "@/context/AuthContext";
 import { portfolioRiskSummary } from "@/data/riskLookup";
 
 
@@ -100,6 +101,7 @@ export function TopNav({
   const notifRef = useRef<HTMLDivElement>(null);
   const { setImportedLoans, importedLoans } = useLoanContext();
   const { startTour } = useTour();
+  const { user, logout } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const riskStats = useMemo(() => portfolioRiskSummary((importedLoans ?? []).map(l => ({
@@ -477,14 +479,24 @@ export function TopNav({
             <Sparkles className="h-4 w-4" strokeWidth={2} />
           </button>
           <div className="flex items-center gap-2 rounded-lg border border-white/50 bg-white/30 backdrop-blur-sm px-2 sm:px-3 py-2">
-            <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-sky-500 text-white shrink-0">
+            <div className={cn(
+              "flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-white shrink-0",
+              user?.role === "seller" ? "bg-emerald-500" : "bg-sky-500"
+            )}>
               <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} />
             </div>
             <div className="hidden sm:block">
-              <div className="text-sm font-medium text-slate-800">Hey, Maylin</div>
-              <div className="text-xs text-slate-500">Business Profile</div>
+              <div className="text-sm font-medium text-slate-800">{user?.username ?? "Guest"}</div>
+              <div className="text-xs text-slate-500 capitalize">{user?.role ?? "—"}</div>
             </div>
-            <ChevronDown className="hidden sm:block h-4 w-4 text-slate-400" strokeWidth={2} />
+            <button
+              type="button"
+              onClick={() => { logout(); navigate("/"); }}
+              title="Sign out"
+              className="hidden sm:flex h-6 w-6 items-center justify-center rounded-md text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
           </div>
         </div>
       </div>

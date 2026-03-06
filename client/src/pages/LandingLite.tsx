@@ -5,6 +5,7 @@ import { ArrowRight, Building2, Globe, LayoutList, Search, Scale, ListChecks, Mi
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { cn } from "@/lib/utils";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { AppearingDots } from "@/components/backgrounds/AppearingDots";
 import { assistantLoanSearch, cohiTts } from "@/api/assistant";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
@@ -113,11 +114,11 @@ export default function LandingLite() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-transparent">
       {/* Celestial background (white base + dots) */}
-      <div className="pointer-events-none absolute inset-0">
+      <div className="absolute inset-0">
         {/* soft color blobs */}
-        <div className="absolute -top-24 -left-24 h-[360px] w-[360px] sm:-top-32 sm:-left-32 sm:h-[520px] sm:w-[520px] rounded-full bg-slate-100/65 blur-3xl sx-float-1" />
-        <div className="absolute -top-28 right-[-160px] h-[420px] w-[420px] sm:-top-40 sm:right-[-180px] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-100/55 blur-3xl sx-float-2" />
-        <div className="absolute bottom-[-180px] left-[8%] h-[420px] w-[420px] sm:bottom-[-220px] sm:left-[20%] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-50/70 blur-3xl sx-float-3" />
+        <div className="pointer-events-none absolute -top-24 -left-24 h-[360px] w-[360px] sm:-top-32 sm:-left-32 sm:h-[520px] sm:w-[520px] rounded-full bg-slate-100/65 blur-3xl sx-float-1" />
+        <div className="pointer-events-none absolute -top-28 right-[-160px] h-[420px] w-[420px] sm:-top-40 sm:right-[-180px] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-100/55 blur-3xl sx-float-2" />
+        <div className="pointer-events-none absolute bottom-[-180px] left-[8%] h-[420px] w-[420px] sm:bottom-[-220px] sm:left-[20%] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-50/70 blur-3xl sx-float-3" />
         <FlickeringGrid
           className="absolute inset-0 size-full opacity-[0.92] filter contrast-125 saturate-125"
           squareSize={5}
@@ -127,6 +128,19 @@ export default function LandingLite() {
           maxOpacity={0.22}
           flickerChance={0.05}
           blendSpeed={0.58}
+          timeScale={0.3}
+          mouseRepel={true}
+          mouseRadius={220}
+          mouseForce={28}
+        />
+        <AppearingDots
+          className="opacity-90"
+          count={55}
+          minRadius={1.2}
+          maxRadius={3.5}
+          cycleMsMin={10000}
+          cycleMsMax={22000}
+          maxAlpha={0.42}
         />
 
         {/* Subtle “web” elements */}
@@ -184,6 +198,7 @@ export default function LandingLite() {
         </div>
 
         {/* (removed) vignette overlay so background animation stays visible */}
+
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1100px] px-4 sm:px-6 py-8 sm:py-10 min-h-screen flex flex-col text-slate-900 [font-family:var(--font-sans)]">
@@ -191,11 +206,11 @@ export default function LandingLite() {
           <div className="flex items-center gap-3">
             <SprinkleXLogo size="md" showText />
             <span className="hidden sm:inline text-[10px] font-medium tracking-[0.22em] uppercase text-slate-400">
-              Portfolio Analytics
+              Seasoned Whole Loan Exchange
             </span>
           </div>
           <Link
-            to="/step/1"
+            to="/login?returnTo=%2Fstep%2F1"
             className="sx-hover-brighten-control inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl border border-sky-200/70 bg-sky-100/35 backdrop-blur-2xl px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-sky-100/45"
           >
             <span className="[font-family:var(--font-display)] tracking-tight">Open dashboard</span>
@@ -207,29 +222,29 @@ export default function LandingLite() {
           <div>
             <div className="sx-fade-rise sx-fade-rise-2">
             <h1
-              className="text-[clamp(28px,4.2vw,52px)] font-semibold tracking-[-0.035em] leading-[1.08] [font-family:var(--font-display)] [text-wrap:balance]"
-              style={{ letterSpacing: "-0.035em" }}
+              className="text-[clamp(26px,3.8vw,48px)] font-bold tracking-[-0.04em] leading-[1.12] [font-family:var(--font-display)] [text-wrap:balance]"
             >
-              Buy and sell{" "}
-              <span className="bg-gradient-to-r from-[#1D77C3] via-[#4E9A4B] to-[#90D348] bg-clip-text text-transparent font-extrabold tracking-[-0.04em] drop-shadow-[0_10px_24px_rgba(29,119,195,0.10)]">
-                loan pools
+              A{" "}
+              <span className="bg-gradient-to-r from-[#1D77C3] via-[#4E9A4B] to-[#90D348] bg-clip-text text-transparent font-extrabold tracking-[-0.045em]">
+                Seasoned Whole Loan
               </span>{" "}
-              in minutes.
+              Exchange
             </h1>
-            <p className="mt-3 max-w-[62ch] text-[15px] sm:text-[16px] leading-[1.55] text-slate-600 [text-wrap:pretty]">
-              A simple marketplace for loan buyers and sellers—search, compare, and price in one place.
+            <p className="mt-4 max-w-[58ch] text-[15px] sm:text-[16px] leading-[1.6] text-slate-600 [text-wrap:pretty] [font-family:var(--font-sans)]">
+              A digital marketplace where lenders trade seasoned whole loans that have proven performance histories, enabling smarter liquidity, risk, and portfolio management.
             </p>
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-[12px] font-semibold text-slate-600">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1 backdrop-blur">
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[11px] sm:text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 backdrop-blur border border-white/40">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#1D77C3]" />
-                Built for buyers
+                Liquidity
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1 backdrop-blur">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 backdrop-blur border border-white/40">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#4E9A4B]" />
-                Built for sellers
+                Risk
               </span>
-              <span className="hidden sm:inline text-slate-400">
-                No noise. Just deals.
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 backdrop-blur border border-white/40">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#90D348]" />
+                Portfolio
               </span>
             </div>
             </div>

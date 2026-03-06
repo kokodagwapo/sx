@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   MapPin,
   Search,
@@ -18,6 +18,7 @@ import {
   Settings,
   Landmark,
   X,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -25,6 +26,7 @@ import { steps } from "@/app/steps";
 import { prefetchStep } from "@/app/stepPrefetch";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
+import { useAuth } from "@/context/AuthContext";
 
 const STEP_ICONS: Record<string, typeof MapPin> = {
   "1":  MapPin,
@@ -54,6 +56,8 @@ export function Sidebar({
   forceShow?: boolean;
 }) {
   const location = useLocation();
+  const nav = useNavigate();
+  const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(true);
   const [adminOpen, setAdminOpen] = useState(true);
 
@@ -245,6 +249,19 @@ export function Sidebar({
             </ul>
           )}
         </div>
+
+        {user && !collapsed && (
+          <div className="mt-auto border-t border-slate-100 px-3 py-3">
+            <button
+              type="button"
+              onClick={() => { logout(); nav("/"); }}
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-all"
+            >
+              <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+              <span className="truncate">Sign out</span>
+            </button>
+          </div>
+        )}
       </nav>
     </aside>
   );
