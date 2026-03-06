@@ -128,7 +128,7 @@ export default function LandingLite() {
           blendSpeed={0.58}
           timeScale={0.3}
           mouseRepel={true}
-          mouseRadius={120}
+          mouseRadius={220}
           mouseForce={28}
         />
       </div>
