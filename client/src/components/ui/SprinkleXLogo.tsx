@@ -1,6 +1,7 @@
 /** Official SprinkleX by Teraverde logo — exact brand version */
 
-const TEAL = "#007B8A";
+// Slightly bluer-teal to give the UI a cooler “blue hint”
+const TEAL = "#1D77C3";
 const GREEN_CENTER = "#4E9A4B";
 const GREEN_MID = "#6DAA47";
 const GREEN_LIGHT = "#90D348";

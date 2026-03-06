@@ -61,23 +61,78 @@ export default function LandingLite() {
       {/* Celestial background (white base + dots) */}
       <div className="pointer-events-none absolute inset-0">
         {/* soft color blobs */}
-        <div className="absolute -top-32 -left-32 h-[520px] w-[520px] rounded-full bg-sky-200/35 blur-3xl" />
-        <div className="absolute -top-40 right-[-180px] h-[560px] w-[560px] rounded-full bg-indigo-200/30 blur-3xl" />
-        <div className="absolute bottom-[-220px] left-[20%] h-[560px] w-[560px] rounded-full bg-teal-200/25 blur-3xl" />
+        <div className="absolute -top-32 -left-32 h-[520px] w-[520px] rounded-full bg-sky-200/35 blur-3xl sx-float-1" />
+        <div className="absolute -top-40 right-[-180px] h-[560px] w-[560px] rounded-full bg-indigo-200/30 blur-3xl sx-float-2" />
+        <div className="absolute bottom-[-220px] left-[20%] h-[560px] w-[560px] rounded-full bg-teal-200/25 blur-3xl sx-float-3" />
         <FlickeringGrid
           className="absolute inset-0 size-full opacity-[0.9]"
           squareSize={4}
           gridGap={7}
-          color="#007B8A"
+          color="#1D77C3"
           maxOpacity={0.20}
           flickerChance={0.12}
         />
+
+        {/* Subtle “web” elements */}
+        <svg
+          className="absolute left-[6%] top-[18%] w-[360px] h-[240px] opacity-[0.22] sx-float-2"
+          viewBox="0 0 360 240"
+          fill="none"
+          aria-hidden="true"
+        >
+          <g stroke="url(#g1)" strokeWidth="1">
+            <path d="M22 160 L110 108 L196 138 L304 70" />
+            <path d="M110 108 L144 42 L196 138" />
+            <path d="M196 138 L238 198 L334 176" />
+          </g>
+          <g>
+            {[
+              { x: 22, y: 160, c: "#1D77C3" },
+              { x: 110, y: 108, c: "#2dd4bf" },
+              { x: 144, y: 42, c: "#4E9A4B" },
+              { x: 196, y: 138, c: "#1D77C3" },
+              { x: 238, y: 198, c: "#4E9A4B" },
+              { x: 304, y: 70, c: "#2dd4bf" },
+              { x: 334, y: 176, c: "#1D77C3" },
+            ].map((n, i) => (
+              <g key={i} className={i % 2 === 0 ? "sx-pulse-soft" : ""}>
+                <circle cx={n.x} cy={n.y} r="4.5" fill={n.c} fillOpacity="0.55" />
+                <circle cx={n.x} cy={n.y} r="2.2" fill="#ffffff" fillOpacity="0.85" />
+              </g>
+            ))}
+          </g>
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="360" y2="240" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#1D77C3" stopOpacity="0.75" />
+              <stop offset="0.5" stopColor="#2dd4bf" stopOpacity="0.6" />
+              <stop offset="1" stopColor="#4E9A4B" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div className="absolute right-[8%] top-[20%] sx-float-1">
+          <div className="sx-surface rounded-2xl px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_30px_rgba(2,6,23,0.10)]">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#2dd4bf] sx-pulse-soft" />
+              Live filters
+            </span>
+          </div>
+        </div>
+        <div className="absolute right-[12%] top-[34%] sx-float-3">
+          <div className="sx-surface rounded-2xl px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_30px_rgba(2,6,23,0.10)]">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#4E9A4B] sx-pulse-soft" />
+              Verified tapes
+            </span>
+          </div>
+        </div>
+
         {/* gentle vignette for depth */}
         <div className="absolute inset-0 bg-[radial-gradient(900px_520px_at_50%_0%,rgba(255,255,255,0),rgba(255,255,255,0.78)_70%,rgba(255,255,255,0.92))]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1100px] px-4 py-10 min-h-screen flex flex-col">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 sx-fade-rise sx-fade-rise-1">
           <div className="flex items-center gap-3">
             <SprinkleXLogo size="md" showText />
             <span className="hidden sm:inline text-[10px] font-medium tracking-[0.22em] uppercase text-slate-400">
@@ -86,7 +141,7 @@ export default function LandingLite() {
           </div>
           <Link
             to="/step/1"
-            className="sx-hover-brighten-control inline-flex items-center gap-2 rounded-xl bg-[#007B8A] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#006775]"
+            className="sx-hover-brighten-control inline-flex items-center gap-2 rounded-xl bg-[#1D77C3] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1762A4]"
           >
             Open dashboard <ArrowRight className="h-4 w-4" />
           </Link>
@@ -94,9 +149,10 @@ export default function LandingLite() {
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
+            <div className="sx-fade-rise sx-fade-rise-2">
             <h1 className="text-[34px] sm:text-[44px] font-semibold tracking-[-0.03em] leading-[1.06] text-slate-900 [font-family:var(--font-display)]">
               Buy and sell{" "}
-              <span className="bg-gradient-to-r from-[#007B8A] via-[#2dd4bf] to-[#4E9A4B] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#1D77C3] via-[#2dd4bf] to-[#4E9A4B] bg-clip-text text-transparent">
                 loan pools
               </span>{" "}
               in minutes.
@@ -106,7 +162,7 @@ export default function LandingLite() {
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1 backdrop-blur">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#007B8A]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#1D77C3]" />
                 Built for buyers
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1 backdrop-blur">
@@ -117,12 +173,13 @@ export default function LandingLite() {
                 No noise. Just deals.
               </span>
             </div>
+            </div>
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid gap-3 sx-fade-rise sx-fade-rise-3">
             <div className="flex items-center justify-between">
               <div className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600">
-                <span className="h-4 w-1.5 rounded-full bg-gradient-to-b from-[#007B8A] via-[#2dd4bf] to-[#4E9A4B]" />
+                <span className="h-4 w-1.5 rounded-full bg-gradient-to-b from-[#1D77C3] via-[#2dd4bf] to-[#4E9A4B]" />
                 {isLoading ? "Loading portfolio stats…" : "Portfolio snapshot"}
               </div>
             </div>
@@ -203,7 +260,7 @@ export default function LandingLite() {
               <button
                 type="submit"
                 className={cn(
-                  "sx-hover-brighten-control inline-flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#007B8A] px-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#006775]",
+                  "sx-hover-brighten-control inline-flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#1D77C3] px-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1762A4]",
                   !prompt.trim() && "bg-slate-400 hover:bg-slate-500"
                 )}
               >
