@@ -5,7 +5,6 @@ import { ArrowRight, Building2, Globe, LayoutList, Search, Scale, ListChecks, Mi
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { cn } from "@/lib/utils";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
-import { AppearingDots } from "@/components/backgrounds/AppearingDots";
 import { assistantLoanSearch, cohiTts } from "@/api/assistant";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
@@ -123,21 +122,11 @@ export default function LandingLite() {
           className="absolute inset-0 size-full opacity-[0.92] filter contrast-125 saturate-125"
           squareSize={5}
           gridGap={6}
+          // Neutral-first palette for a white/clean base with subtle color pops
           colors={["#94a3b8", "#1D77C3", "#2dd4bf", "#4E9A4B", "#a78bfa", "#f59e0b"]}
           maxOpacity={0.22}
           flickerChance={0.05}
           blendSpeed={0.58}
-          timeScale={0.3}
-          drift={true}
-        />
-        <AppearingDots
-          className="opacity-90"
-          count={55}
-          minRadius={1.2}
-          maxRadius={3.5}
-          cycleMsMin={10000}
-          cycleMsMax={22000}
-          maxAlpha={0.42}
         />
 
         {/* Subtle “web” elements */}
