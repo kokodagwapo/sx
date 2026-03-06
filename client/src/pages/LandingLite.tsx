@@ -113,11 +113,11 @@ export default function LandingLite() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-transparent">
       {/* Celestial background (white base + dots) */}
-      <div className="pointer-events-none absolute inset-0">
+      <div className="absolute inset-0">
         {/* soft color blobs */}
-        <div className="absolute -top-24 -left-24 h-[360px] w-[360px] sm:-top-32 sm:-left-32 sm:h-[520px] sm:w-[520px] rounded-full bg-slate-100/65 blur-3xl sx-float-1" />
-        <div className="absolute -top-28 right-[-160px] h-[420px] w-[420px] sm:-top-40 sm:right-[-180px] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-100/55 blur-3xl sx-float-2" />
-        <div className="absolute bottom-[-180px] left-[8%] h-[420px] w-[420px] sm:bottom-[-220px] sm:left-[20%] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-50/70 blur-3xl sx-float-3" />
+        <div className="pointer-events-none absolute -top-24 -left-24 h-[360px] w-[360px] sm:-top-32 sm:-left-32 sm:h-[520px] sm:w-[520px] rounded-full bg-slate-100/65 blur-3xl sx-float-1" />
+        <div className="pointer-events-none absolute -top-28 right-[-160px] h-[420px] w-[420px] sm:-top-40 sm:right-[-180px] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-100/55 blur-3xl sx-float-2" />
+        <div className="pointer-events-none absolute bottom-[-180px] left-[8%] h-[420px] w-[420px] sm:bottom-[-220px] sm:left-[20%] sm:h-[560px] sm:w-[560px] rounded-full bg-slate-50/70 blur-3xl sx-float-3" />
         <FlickeringGrid
           className="absolute inset-0 size-full opacity-[0.92] filter contrast-125 saturate-125"
           squareSize={5}
@@ -127,64 +127,10 @@ export default function LandingLite() {
           flickerChance={0.05}
           blendSpeed={0.58}
           timeScale={0.3}
-          drift={true}
+          mouseRepel={true}
+          mouseRadius={120}
+          mouseForce={28}
         />
-
-        {/* Subtle “web” elements */}
-        <svg
-          className="hidden md:block absolute left-[6%] top-[18%] w-[360px] h-[240px] opacity-[0.22] sx-float-2"
-          viewBox="0 0 360 240"
-          fill="none"
-          aria-hidden="true"
-        >
-          <g stroke="url(#g1)" strokeWidth="1">
-            <path d="M22 160 L110 108 L196 138 L304 70" />
-            <path d="M110 108 L144 42 L196 138" />
-            <path d="M196 138 L238 198 L334 176" />
-          </g>
-          <g>
-            {[
-              { x: 22, y: 160, c: "#1D77C3" },
-              { x: 110, y: 108, c: "#2dd4bf" },
-              { x: 144, y: 42, c: "#4E9A4B" },
-              { x: 196, y: 138, c: "#1D77C3" },
-              { x: 238, y: 198, c: "#4E9A4B" },
-              { x: 304, y: 70, c: "#2dd4bf" },
-              { x: 334, y: 176, c: "#1D77C3" },
-            ].map((n, i) => (
-              <g key={i} className={i % 2 === 0 ? "sx-pulse-soft" : ""}>
-                <circle cx={n.x} cy={n.y} r="4.5" fill={n.c} fillOpacity="0.55" />
-                <circle cx={n.x} cy={n.y} r="2.2" fill="#ffffff" fillOpacity="0.85" />
-              </g>
-            ))}
-          </g>
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="360" y2="240" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#1D77C3" stopOpacity="0.75" />
-              <stop offset="0.5" stopColor="#2dd4bf" stopOpacity="0.6" />
-              <stop offset="1" stopColor="#4E9A4B" stopOpacity="0.6" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        <div className="hidden md:block absolute right-[8%] top-[20%] sx-float-1">
-          <div className="sx-surface rounded-2xl px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_30px_rgba(2,6,23,0.10)]">
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#2dd4bf] sx-pulse-soft" />
-              Live filters
-            </span>
-          </div>
-        </div>
-        <div className="hidden md:block absolute right-[12%] top-[34%] sx-float-3">
-          <div className="sx-surface rounded-2xl px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_30px_rgba(2,6,23,0.10)]">
-            <span className="inline-flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#4E9A4B] sx-pulse-soft" />
-              Verified tapes
-            </span>
-          </div>
-        </div>
-
-        {/* (removed) vignette overlay so background animation stays visible */}
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1100px] px-4 sm:px-6 py-8 sm:py-10 min-h-screen flex flex-col text-slate-900 [font-family:var(--font-sans)]">
