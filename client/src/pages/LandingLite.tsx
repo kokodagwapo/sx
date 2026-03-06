@@ -122,11 +122,12 @@ export default function LandingLite() {
           className="absolute inset-0 size-full opacity-[0.92] filter contrast-125 saturate-125"
           squareSize={5}
           gridGap={6}
-          // Neutral-first palette for a white/clean base with subtle color pops
           colors={["#94a3b8", "#1D77C3", "#2dd4bf", "#4E9A4B", "#a78bfa", "#f59e0b"]}
           maxOpacity={0.22}
           flickerChance={0.05}
           blendSpeed={0.58}
+          timeScale={0.3}
+          drift={true}
         />
 
         {/* Subtle “web” elements */}
