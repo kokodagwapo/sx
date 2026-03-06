@@ -142,7 +142,7 @@ export default function LandingLite() {
             </span>
           </div>
           <Link
-            to="/step/1"
+            to="/login?returnTo=%2Fstep%2F1"
             className="sx-hover-brighten-control inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl border border-sky-200/70 bg-sky-100/35 backdrop-blur-2xl px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-sky-100/45"
           >
             <span className="[font-family:var(--font-display)] tracking-tight">Open dashboard</span>

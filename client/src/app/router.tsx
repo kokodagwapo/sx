@@ -1,10 +1,12 @@
 import { lazy, Suspense } from "react";
-import { createBrowserRouter, Navigate, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider, Outlet, useLocation } from "react-router-dom";
 import { TourProvider } from "@/context/TourContext";
 import { CohiTourPanel } from "@/components/onboarding/TourBubble";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 const Landing          = lazy(() => import("@/pages/Landing"));
 const LandingLite      = lazy(() => import("@/pages/LandingLite"));
+const LoginPage        = lazy(() => import("@/pages/LoginPage"));
 const BankCallReport   = lazy(() => import("@/pages/BankCallReport"));
 const Step1Geography   = lazy(() => import("@/pages/steps/Step1Geography"));
 const Step2SearchLoans = lazy(() => import("@/pages/steps/Step2SearchLoans"));
@@ -27,14 +29,33 @@ function PageLoader() {
   );
 }
 
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  if (!isAuthenticated) {
+    return <Navigate to={`/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  }
+  return <>{children}</>;
+}
+
 function RootLayout() {
   return (
-    <TourProvider>
-      <Suspense fallback={<PageLoader />}>
-        <Outlet />
-      </Suspense>
-      <CohiTourPanel />
-    </TourProvider>
+    <AuthProvider>
+      <TourProvider>
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
+        <CohiTourPanel />
+      </TourProvider>
+    </AuthProvider>
+  );
+}
+
+function ProtectedOutlet() {
+  return (
+    <RequireAuth>
+      <Outlet />
+    </RequireAuth>
   );
 }
 
@@ -44,21 +65,27 @@ const router = createBrowserRouter([
     children: [
       { path: "/",                   element: <LandingLite /> },
       { path: "/landing",            element: <LandingLite /> },
+      { path: "/login",              element: <LoginPage /> },
       { path: "/marketplace",        element: <Landing /> },
       { path: "/bank-call-report",   element: <BankCallReport /> },
-      { path: "/step/1",             element: <Step1Geography /> },
-      { path: "/step/2",             element: <Step2SearchLoans /> },
-      { path: "/step/3",             element: <Step3CreditMetrics /> },
-      { path: "/step/4",             element: <Step4PricingSheet /> },
-      { path: "/step/5",             element: <Step5FinancialMetrics /> },
-      { path: "/step/6a",            element: <Step6aLoanComposition /> },
-      { path: "/step/6b",            element: <Step6bYields /> },
-      { path: "/step/6c",            element: <Step6cLoanConcentration /> },
-      { path: "/step/7",             element: <Step7Schedule /> },
-      { path: "/step/8",             element: <Step8Summary /> },
-      { path: "/step/9",             element: <Step9Cohorts /> },
-      { path: "/admin/tape-import",  element: <TapeImport /> },
-      { path: "*",                   element: <Navigate to="/step/1" replace /> },
+      {
+        element: <ProtectedOutlet />,
+        children: [
+          { path: "/step/1",             element: <Step1Geography /> },
+          { path: "/step/2",             element: <Step2SearchLoans /> },
+          { path: "/step/3",             element: <Step3CreditMetrics /> },
+          { path: "/step/4",             element: <Step4PricingSheet /> },
+          { path: "/step/5",             element: <Step5FinancialMetrics /> },
+          { path: "/step/6a",            element: <Step6aLoanComposition /> },
+          { path: "/step/6b",            element: <Step6bYields /> },
+          { path: "/step/6c",            element: <Step6cLoanConcentration /> },
+          { path: "/step/7",             element: <Step7Schedule /> },
+          { path: "/step/8",             element: <Step8Summary /> },
+          { path: "/step/9",             element: <Step9Cohorts /> },
+          { path: "/admin/tape-import",  element: <TapeImport /> },
+        ],
+      },
+      { path: "*",                   element: <Navigate to="/" replace /> },
     ],
   },
 ]);
