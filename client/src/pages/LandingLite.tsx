@@ -5,6 +5,7 @@ import { ArrowRight, Building2, Globe, LayoutList, Search, Scale, ListChecks, Mi
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { cn } from "@/lib/utils";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { AppearingDots } from "@/components/backgrounds/AppearingDots";
 import { assistantLoanSearch, cohiTts } from "@/api/assistant";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
@@ -128,6 +129,15 @@ export default function LandingLite() {
           blendSpeed={0.58}
           timeScale={0.3}
           drift={true}
+        />
+        <AppearingDots
+          className="opacity-90"
+          count={55}
+          minRadius={1.2}
+          maxRadius={3.5}
+          cycleMsMin={10000}
+          cycleMsMax={22000}
+          maxAlpha={0.42}
         />
 
         {/* Subtle “web” elements */}
