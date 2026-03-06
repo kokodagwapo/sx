@@ -19,8 +19,8 @@
   /* Stronger “floating” outer shadow for grouped surfaces */
   .sx-floating {
     filter:
-      drop-shadow(0 18px 60px rgba(2, 6, 23, 0.16))
-      drop-shadow(0 6px 18px rgba(56, 189, 248, 0.12));
+      drop-shadow(0 12px 34px rgba(2, 6, 23, 0.10))
+      drop-shadow(0 4px 10px rgba(29, 119, 195, 0.05));
   }
 
   .sx-fade-rise {
@@ -154,6 +154,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   touch-action: pan-x pan-y pinch-zoom;
   -webkit-text-size-adjust: 100%;
+}
+
+/* Allow specific pages (e.g. LandingLite) to reveal animated backgrounds */
+body.sx-body-transparent {
+  background: transparent !important;
 }
 
 *::-webkit-scrollbar {

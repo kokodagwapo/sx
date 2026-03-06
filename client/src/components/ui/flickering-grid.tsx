@@ -7,10 +7,14 @@ interface FlickeringGridProps {
   gridGap?: number;
   flickerChance?: number;
   color?: string;
+  /** Optional palette for subtle multi-color squares */
+  colors?: string[];
   width?: number;
   height?: number;
   className?: string;
   maxOpacity?: number;
+  /** How quickly squares ease to their new opacity (lower = slower/cinematic) */
+  blendSpeed?: number;
 }
 
 const FlickeringGrid: React.FC<FlickeringGridProps> = ({
@@ -18,17 +22,19 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   gridGap = 6,
   flickerChance = 0.3,
   color = "rgb(0, 0, 0)",
+  colors,
   width,
   height,
   className,
   maxOpacity = 0.3,
+  blendSpeed = 0.9,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isInView, setIsInView] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
-  const memoizedColor = useMemo(() => {
+  const rgbaPrefixes = useMemo(() => {
     const toRGBA = (c: string) => {
       if (typeof window === "undefined") {
         return `rgba(0, 0, 0,`;
@@ -42,8 +48,9 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       const [r, g, b] = Array.from(ctx.getImageData(0, 0, 1, 1).data);
       return `rgba(${r}, ${g}, ${b},`;
     };
-    return toRGBA(color);
-  }, [color]);
+    const pal = (colors && colors.length > 0) ? colors : [color];
+    return pal.map(toRGBA);
+  }, [color, colors]);
 
   const setupCanvas = useCallback(
     (canvas: HTMLCanvasElement, w: number, h: number) => {
@@ -56,24 +63,40 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       const rows = Math.floor(h / (squareSize + gridGap));
 
       const squares = new Float32Array(cols * rows);
+      const targets = new Float32Array(cols * rows);
+      const colorIndex = new Uint8Array(cols * rows);
+
+      // Heavily favor first palette color; allow subtle “spark” accents.
+      const palLen = Math.max(1, rgbaPrefixes.length);
       for (let i = 0; i < squares.length; i++) {
-        squares[i] = Math.random() * maxOpacity;
+        const base = Math.random() * maxOpacity;
+        squares[i] = base;
+        targets[i] = base;
+        if (palLen === 1) colorIndex[i] = 0;
+        else {
+          const r = Math.random();
+          // Slightly more “sparkle” accents so the grid reads on white.
+          if (r < 0.70) colorIndex[i] = 0;
+          else colorIndex[i] = 1 + Math.floor(Math.random() * (palLen - 1));
+        }
       }
 
-      return { cols, rows, squares, dpr };
+      return { cols, rows, squares, targets, colorIndex, dpr };
     },
-    [squareSize, gridGap, maxOpacity],
+    [squareSize, gridGap, maxOpacity, rgbaPrefixes.length],
   );
 
   const updateSquares = useCallback(
-    (squares: Float32Array, deltaTime: number) => {
+    (squares: Float32Array, targets: Float32Array, deltaTime: number) => {
+      const ease = 1 - Math.exp(-deltaTime * Math.max(0.1, blendSpeed));
       for (let i = 0; i < squares.length; i++) {
         if (Math.random() < flickerChance * deltaTime) {
-          squares[i] = Math.random() * maxOpacity;
+          targets[i] = Math.random() * maxOpacity;
         }
+        squares[i] = squares[i] + (targets[i] - squares[i]) * ease;
       }
     },
-    [flickerChance, maxOpacity],
+    [flickerChance, maxOpacity, blendSpeed],
   );
 
   const drawGrid = useCallback(
@@ -84,6 +107,8 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       cols: number,
       rows: number,
       squares: Float32Array,
+      targets: Float32Array,
+      colorIndex: Uint8Array,
       dpr: number,
     ) => {
       ctx.clearRect(0, 0, w, h);
@@ -92,8 +117,10 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 
       for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
-          const opacity = squares[i * rows + j];
-          ctx.fillStyle = `${memoizedColor}${opacity})`;
+          const idx = i * rows + j;
+          const opacity = squares[idx];
+          const palIdx = Math.min(rgbaPrefixes.length - 1, colorIndex[idx] ?? 0);
+          ctx.fillStyle = `${rgbaPrefixes[palIdx]}${opacity})`;
           ctx.fillRect(
             i * (squareSize + gridGap) * dpr,
             j * (squareSize + gridGap) * dpr,
@@ -103,7 +130,7 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
         }
       }
     },
-    [memoizedColor, squareSize, gridGap],
+    [rgbaPrefixes, squareSize, gridGap],
   );
 
   useEffect(() => {
@@ -133,8 +160,18 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       const deltaTime = (time - lastTime) / 1000;
       lastTime = time;
 
-      updateSquares(gridParams.squares, deltaTime);
-      drawGrid(ctx, canvas.width, canvas.height, gridParams.cols, gridParams.rows, gridParams.squares, gridParams.dpr);
+      updateSquares(gridParams.squares, gridParams.targets, deltaTime);
+      drawGrid(
+        ctx,
+        canvas.width,
+        canvas.height,
+        gridParams.cols,
+        gridParams.rows,
+        gridParams.squares,
+        gridParams.targets,
+        gridParams.colorIndex,
+        gridParams.dpr,
+      );
       animationFrameId = requestAnimationFrame(animate);
     };
 

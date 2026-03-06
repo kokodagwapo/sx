@@ -251,9 +251,7 @@ export function TopNav({
         >
           <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
-        <Link to="/" className="hidden sm:flex items-center gap-3 shrink-0 -ml-1">
-          <SprinkleXLogo size="sm" showText showByline={false} showTrademark={false} />
-        </Link>
+        {/* Logo hidden per UI request (keep header clean) */}
         {/* Page title — before step numbers, modern typography */}
         <h1 className="flex items-center gap-2 min-w-0 shrink text-left">
           <span
