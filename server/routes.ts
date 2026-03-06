@@ -513,11 +513,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { query } = req.body as { query?: string };
     if (!query || typeof query !== "string") return res.status(400).json({ error: "query is required" });
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
     if (apiKey) {
       try {
         const { default: OpenAI } = await import("openai");
-        const openai = new OpenAI({ apiKey });
+        const openai = new OpenAI({ apiKey, ...(baseURL ? { baseURL } : {}) });
         const completion = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
@@ -580,14 +581,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return { q, filters, ranges, sort: "upb:desc" as string };
     };
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
     let plan: { q: string; filters?: Record<string, string[]>; ranges?: Record<string, Array<[number, number]>>; sort?: string } =
       fallbackPlan();
 
     if (apiKey) {
       try {
         const { default: OpenAI } = await import("openai");
-        const openai = new OpenAI({ apiKey });
+        const openai = new OpenAI({ apiKey, ...(baseURL ? { baseURL } : {}) });
         const completion = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
@@ -651,11 +653,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/cohi/tts", async (req, res) => {
     const { text } = req.body as { text?: string };
     if (!text || typeof text !== "string") return res.status(400).json({ error: "text is required" });
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return res.status(503).json({ error: "TTS unavailable — OPENAI_API_KEY not set" });
+    const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+    if (!apiKey) return res.status(503).json({ error: "TTS unavailable — no OpenAI API key configured" });
     try {
       const { default: OpenAI } = await import("openai");
-      const openai = new OpenAI({ apiKey });
+      const openai = new OpenAI({ apiKey, ...(baseURL ? { baseURL } : {}) });
       const response = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
         voice: "shimmer",
