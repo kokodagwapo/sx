@@ -138,7 +138,7 @@ export default function LandingLite() {
           <div className="flex items-center gap-3">
             <SprinkleXLogo size="md" showText />
             <span className="hidden sm:inline text-[10px] font-medium tracking-[0.22em] uppercase text-slate-400">
-              Portfolio Analytics
+              Seasoned Whole Loan Exchange
             </span>
           </div>
           <Link
