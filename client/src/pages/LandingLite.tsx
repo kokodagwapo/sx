@@ -479,7 +479,7 @@ export default function LandingLite() {
           </div>
         </form>
 
-        <div className="mt-auto pt-10 text-xs text-slate-400">
+        <div className="mt-auto pt-10 text-xs text-slate-400 text-center">
           Teraverde® Financial LLC. 2026. All rights reserved.
         </div>
       </div>
