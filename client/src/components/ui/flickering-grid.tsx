@@ -188,20 +188,14 @@ const FlickeringGrid: React.FC<FlickeringGridProps> = ({
     ) => {
       ctx.clearRect(0, 0, w, h);
 
-      const t = timeMs * 0.0004;
       for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
           const idx = i * rows + j;
           const opacity = squares[idx];
           const palIdx = Math.min(rgbaPrefixes.length - 1, colorIndex[idx] ?? 0);
           ctx.fillStyle = `${rgbaPrefixes[palIdx]}${opacity})`;
-          let dx = displaceX[idx] ?? 0;
-          let dy = displaceY[idx] ?? 0;
-          if (enableDrift) {
-            const ph = phase[idx] ?? 0;
-            dx += Math.sin(t + ph) * 2.2;
-            dy += Math.cos(t * 0.85 + ph * 0.7) * 1.8;
-          }
+          const dx = displaceX[idx] ?? 0;
+          const dy = displaceY[idx] ?? 0;
           const x = (i * (squareSize + gridGap) + dx) * dpr;
           const y = (j * (squareSize + gridGap) + dy) * dpr;
           ctx.fillRect(x, y, squareSize * dpr, squareSize * dpr);
