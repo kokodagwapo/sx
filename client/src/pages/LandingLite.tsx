@@ -5,6 +5,7 @@ import { ArrowRight, Building2, Globe, LayoutList, Search, Scale, ListChecks, Mi
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { cn } from "@/lib/utils";
 import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { AppearingDots } from "@/components/backgrounds/AppearingDots";
 import { assistantLoanSearch, cohiTts } from "@/api/assistant";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
@@ -131,6 +132,72 @@ export default function LandingLite() {
           mouseRadius={220}
           mouseForce={28}
         />
+        <AppearingDots
+          className="opacity-90"
+          count={55}
+          minRadius={1.2}
+          maxRadius={3.5}
+          cycleMsMin={10000}
+          cycleMsMax={22000}
+          maxAlpha={0.42}
+        />
+
+        {/* Subtle “web” elements */}
+        <svg
+          className="hidden md:block absolute left-[6%] top-[18%] w-[360px] h-[240px] opacity-[0.22] sx-float-2"
+          viewBox="0 0 360 240"
+          fill="none"
+          aria-hidden="true"
+        >
+          <g stroke="url(#g1)" strokeWidth="1">
+            <path d="M22 160 L110 108 L196 138 L304 70" />
+            <path d="M110 108 L144 42 L196 138" />
+            <path d="M196 138 L238 198 L334 176" />
+          </g>
+          <g>
+            {[
+              { x: 22, y: 160, c: "#1D77C3" },
+              { x: 110, y: 108, c: "#2dd4bf" },
+              { x: 144, y: 42, c: "#4E9A4B" },
+              { x: 196, y: 138, c: "#1D77C3" },
+              { x: 238, y: 198, c: "#4E9A4B" },
+              { x: 304, y: 70, c: "#2dd4bf" },
+              { x: 334, y: 176, c: "#1D77C3" },
+            ].map((n, i) => (
+              <g key={i} className={i % 2 === 0 ? "sx-pulse-soft" : ""}>
+                <circle cx={n.x} cy={n.y} r="4.5" fill={n.c} fillOpacity="0.55" />
+                <circle cx={n.x} cy={n.y} r="2.2" fill="#ffffff" fillOpacity="0.85" />
+              </g>
+            ))}
+          </g>
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="360" y2="240" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#1D77C3" stopOpacity="0.75" />
+              <stop offset="0.5" stopColor="#2dd4bf" stopOpacity="0.6" />
+              <stop offset="1" stopColor="#4E9A4B" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div className="hidden md:block absolute right-[8%] top-[20%] sx-float-1">
+          <div className="sx-surface rounded-2xl px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_30px_rgba(2,6,23,0.10)]">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#2dd4bf] sx-pulse-soft" />
+              Live filters
+            </span>
+          </div>
+        </div>
+        <div className="hidden md:block absolute right-[12%] top-[34%] sx-float-3">
+          <div className="sx-surface rounded-2xl px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_10px_30px_rgba(2,6,23,0.10)]">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#4E9A4B] sx-pulse-soft" />
+              Verified tapes
+            </span>
+          </div>
+        </div>
+
+        {/* (removed) vignette overlay so background animation stays visible */}
+
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1100px] px-4 sm:px-6 py-8 sm:py-10 min-h-screen flex flex-col text-slate-900 [font-family:var(--font-sans)]">
