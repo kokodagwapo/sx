@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { storage } from "./storage";
 import { insertSignupSchema } from "@shared/schema";
+import { aggregateLoans, getFilteredLoans, getGeoRecords, getLoanById, getPortfolioStats, searchLoans } from "./portfolioData";
 
 const statsPath = path.resolve(process.cwd(), "client/src/data/real/realStats.json");
 const PORTFOLIO_STATS = (() => {
@@ -122,6 +123,186 @@ async function getRates(): Promise<RatesPayload> {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+
+  // ─── Portfolio data API (batched/lazy) ─────────────────────────────────────
+  app.get("/api/portfolio/stats", (_req, res) => {
+    const data = getPortfolioStats() ?? PORTFOLIO_STATS;
+    if (!data) return res.status(503).json({ error: "portfolio stats unavailable" });
+    res.set("Cache-Control", "public, max-age=300");
+    res.json(data);
+  });
+
+  app.get("/api/loans/search", (req, res) => {
+    const q = String(req.query.q ?? "").trim();
+    const sort = String(req.query.sort ?? "").trim() || undefined;
+    const cursor = String(req.query.cursor ?? "").trim() || undefined;
+    const limit = Math.max(1, Math.min(200, parseInt(String(req.query.limit ?? "50"), 10) || 50));
+
+    let filters: Record<string, string[]> | undefined = undefined;
+    const filtersRaw = String(req.query.filters ?? "").trim();
+    if (filtersRaw) {
+      try {
+        const parsed = JSON.parse(filtersRaw) as Record<string, string[]>;
+        filters = parsed;
+      } catch {
+        return res.status(400).json({ error: "invalid filters json" });
+      }
+    }
+
+    let ranges: Record<string, Array<[number, number]>> | undefined = undefined;
+    const rangesRaw = String(req.query.ranges ?? "").trim();
+    if (rangesRaw) {
+      try {
+        ranges = JSON.parse(rangesRaw) as Record<string, Array<[number, number]>>;
+      } catch {
+        return res.status(400).json({ error: "invalid ranges json" });
+      }
+    }
+
+    const result = searchLoans({ q, sort, cursor, limit, filters, ranges });
+    res.json(result);
+  });
+
+  app.get("/api/loans/aggregations", (req, res) => {
+    const q = String(req.query.q ?? "").trim();
+    const sort = String(req.query.sort ?? "").trim() || undefined;
+
+    let filters: Record<string, string[]> | undefined = undefined;
+    const filtersRaw = String(req.query.filters ?? "").trim();
+    if (filtersRaw) {
+      try {
+        filters = JSON.parse(filtersRaw) as Record<string, string[]>;
+      } catch {
+        return res.status(400).json({ error: "invalid filters json" });
+      }
+    }
+
+    let ranges: Record<string, Array<[number, number]>> | undefined = undefined;
+    const rangesRaw = String(req.query.ranges ?? "").trim();
+    if (rangesRaw) {
+      try {
+        ranges = JSON.parse(rangesRaw) as Record<string, Array<[number, number]>>;
+      } catch {
+        return res.status(400).json({ error: "invalid ranges json" });
+      }
+    }
+
+    const result = aggregateLoans({ q, sort, filters, ranges });
+    res.set("Cache-Control", "public, max-age=60");
+    res.json(result);
+  });
+
+  app.get("/api/loans/export/schedule.csv", (req, res) => {
+    const q = String(req.query.q ?? "").trim();
+    let filters: Record<string, string[]> | undefined = undefined;
+    const filtersRaw = String(req.query.filters ?? "").trim();
+    if (filtersRaw) {
+      try {
+        filters = JSON.parse(filtersRaw) as Record<string, string[]>;
+      } catch {
+        return res.status(400).json({ error: "invalid filters json" });
+      }
+    }
+
+    let ranges: Record<string, Array<[number, number]>> | undefined = undefined;
+    const rangesRaw = String(req.query.ranges ?? "").trim();
+    if (rangesRaw) {
+      try {
+        ranges = JSON.parse(rangesRaw) as Record<string, Array<[number, number]>>;
+      } catch {
+        return res.status(400).json({ error: "invalid ranges json" });
+      }
+    }
+
+    const loans = getFilteredLoans({ q, filters, ranges });
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", "attachment; filename=\"loan_schedule.csv\"");
+
+    const header = [
+      "tvm",
+      "source",
+      "loanAmount",
+      "upb",
+      "rate",
+      "firstPaymentDate",
+      "purpose",
+      "fico",
+      "ltv",
+      "cltv",
+      "dti",
+      "occupancy",
+      "propertyAddress",
+      "city",
+      "county",
+      "state",
+      "propertyType",
+      "units",
+      "productType",
+      "term",
+      "lienPosition",
+      "status",
+      "buyerId",
+    ].join(",");
+
+    res.write(header + "\n");
+    for (const l of loans) {
+      const row = [
+        l.tvm,
+        l.source,
+        String(l.loanAmount),
+        String(l.upb),
+        String(l.rate),
+        l.firstPaymentDate,
+        l.purpose,
+        String(l.fico),
+        String(l.ltv),
+        String(l.cltv),
+        String(l.dti),
+        l.occupancy,
+        JSON.stringify(l.propertyAddress ?? "").replaceAll(",", " "),
+        l.city,
+        l.county,
+        l.state,
+        l.propertyType,
+        String(l.units),
+        l.productType,
+        String(l.term),
+        l.lienPosition,
+        l.status,
+        l.buyerId ?? "",
+      ]
+        .map((v) => {
+          const s = String(v ?? "");
+          // Basic CSV escaping
+          if (s.includes("\"") || s.includes(",") || s.includes("\n")) return `"${s.replaceAll("\"", "\"\"")}"`;
+          return s;
+        })
+        .join(",");
+      res.write(row + "\n");
+    }
+    res.end();
+  });
+
+  app.get("/api/loans/:id", (req, res) => {
+    const id = String(req.params.id ?? "").trim();
+    if (!id) return res.status(400).json({ error: "id required" });
+    const found = getLoanById(id);
+    if (!found) return res.status(404).json({ error: "not found" });
+    res.json(found);
+  });
+
+  app.get("/api/geo/counties", (_req, res) => {
+    const records = getGeoRecords();
+    res.set("Cache-Control", "public, max-age=300");
+    res.json(records);
+  });
+
+  app.get("/api/geo/state/:stateFips/counties", (req, res) => {
+    const stateFips = String(req.params.stateFips ?? "").trim();
+    const records = getGeoRecords().filter((r) => r.stateFips === stateFips);
+    res.set("Cache-Control", "public, max-age=300");
+    res.json(records);
+  });
 
   // Live rate data from FRED (proxied to avoid CORS)
   app.get("/api/rates", async (_req, res) => {

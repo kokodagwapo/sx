@@ -5,7 +5,7 @@ const GREEN_CENTER = "#4E9A4B";
 const GREEN_MID = "#6DAA47";
 const GREEN_LIGHT = "#90D348";
 
-function LogoIcon({ size }: { size: number }) {
+function LogoIcon({ size, showTrademark = true }: { size: number; showTrademark?: boolean }) {
   return (
     <svg
       viewBox="0 0 32 32"
@@ -27,9 +27,11 @@ function LogoIcon({ size }: { size: number }) {
       <circle cx="6" cy="26" r="1.6" fill={GREEN_LIGHT} />
       <circle cx="26" cy="26" r="1.6" fill={GREEN_LIGHT} />
       {/* TM */}
-      <text x="24" y="8" fontSize="4" fill={TEAL} fontFamily="sans-serif" fontWeight="600">
-        TM
-      </text>
+      {showTrademark ? (
+        <text x="24" y="8" fontSize="4" fill={TEAL} fontFamily="sans-serif" fontWeight="600">
+          TM
+        </text>
+      ) : null}
     </svg>
   );
 }
@@ -37,10 +39,14 @@ function LogoIcon({ size }: { size: number }) {
 export function SprinkleXLogo({
   className,
   showText = true,
+  showByline = true,
+  showTrademark = true,
   size = "md",
 }: {
   className?: string;
   showText?: boolean;
+  showByline?: boolean;
+  showTrademark?: boolean;
   size?: "sm" | "md" | "lg" | "xl";
 }) {
   const iconSizes = { sm: 26, md: 30, lg: 36, xl: 54 };
@@ -54,7 +60,7 @@ export function SprinkleXLogo({
       aria-label="SprinkleX by Teraverde"
     >
       {!showText ? (
-        <LogoIcon size={iconSize} />
+        <LogoIcon size={iconSize} showTrademark={showTrademark} />
       ) : (
         <div className="flex flex-col items-start gap-0">
           <div className="flex items-baseline gap-0.5">
@@ -64,14 +70,16 @@ export function SprinkleXLogo({
             >
               Sprinkle
             </span>
-            <LogoIcon size={iconSize} />
+            <LogoIcon size={iconSize} showTrademark={showTrademark} />
           </div>
-          <span
-            className={`font-medium ${bySizes[size]}`}
-            style={{ color: TEAL, fontFamily: "var(--font-display, system-ui, sans-serif)" }}
-          >
-            by Teraverde®
-          </span>
+          {showByline ? (
+            <span
+              className={`font-medium ${bySizes[size]}`}
+              style={{ color: TEAL, fontFamily: "var(--font-display, system-ui, sans-serif)" }}
+            >
+              by Teraverde®
+            </span>
+          ) : null}
         </div>
       )}
     </div>

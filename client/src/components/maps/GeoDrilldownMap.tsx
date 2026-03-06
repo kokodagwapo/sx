@@ -2,9 +2,8 @@ import { useState, useCallback, useMemo, useRef } from "react";
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { ChevronLeft, ZoomIn, ZoomOut, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { LoanGeoRecord } from "@/data/mock/step1";
-import { step1TractCentroids } from "@/data/mock/step1";
-import { STATE_CENTERS } from "@/data/mock/step1GeoData";
+import type { LoanGeoRecord } from "@/api/geo";
+import { STATE_CENTERS } from "@/data/geo/stateCenters";
 import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS, type RiskLevel } from "@/data/mock/femaRisk";
 import { getCountyFloodRisk, getCountyWildfireRisk, countyFloodFill, countyWildfireFill } from "@/data/mock/countyRisk";
 
@@ -524,13 +523,18 @@ function TractView({
   const maxLoans = Math.max(1, ...tractData.map((t) => t.loanCount));
   const sorted = [...tractData].sort((a, b) => b.loanCount - a.loanCount);
 
-  const centroidMap = new Map(step1TractCentroids.map((c) => [c.tractFips, c]));
-  const tractWithCoords = tractData
-    .map((t) => {
-      const c = centroidMap.get(t.tractFips);
-      return c ? { ...t, lon: c.lon, lat: c.lat } : null;
-    })
-    .filter(Boolean) as (LoanGeoRecord & { lon: number; lat: number })[];
+  function pseudoCentroid(countyFips: string, tractFips: string): { lon: number; lat: number } {
+    const [baseLon, baseLat] = STATE_CENTERS[stateFips] ?? [-98, 38];
+    const hash = (countyFips + tractFips).split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+    const offsetLon = ((hash % 17) - 8) * 0.2;
+    const offsetLat = ((Math.floor(hash / 17) % 13) - 6) * 0.15;
+    return { lon: baseLon + offsetLon, lat: baseLat + offsetLat };
+  }
+
+  const tractWithCoords = tractData.map((t) => {
+    const { lon, lat } = pseudoCentroid(t.countyFips, t.tractFips);
+    return { ...t, lon, lat };
+  }) as (LoanGeoRecord & { lon: number; lat: number })[];
 
   const mapCenter: [number, number] =
     tractWithCoords.length > 0

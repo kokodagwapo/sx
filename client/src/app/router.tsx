@@ -4,6 +4,7 @@ import { TourProvider } from "@/context/TourContext";
 import { CohiTourPanel } from "@/components/onboarding/TourBubble";
 
 const Landing          = lazy(() => import("@/pages/Landing"));
+const LandingLite      = lazy(() => import("@/pages/LandingLite"));
 const BankCallReport   = lazy(() => import("@/pages/BankCallReport"));
 const Step1Geography   = lazy(() => import("@/pages/steps/Step1Geography"));
 const Step2SearchLoans = lazy(() => import("@/pages/steps/Step2SearchLoans"));
@@ -20,8 +21,8 @@ const TapeImport     = lazy(() => import("@/pages/admin/TapeImport"));
 
 function PageLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-sky-200 border-t-sky-500" />
+    <div className="flex min-h-[50vh] items-center justify-center bg-[hsl(var(--app-bg))]">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-sky-500" />
     </div>
   );
 }
@@ -41,8 +42,9 @@ const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-      { path: "/",                   element: <Step1Geography /> },
-      { path: "/landing",            element: <Landing /> },
+      { path: "/",                   element: <LandingLite /> },
+      { path: "/landing",            element: <LandingLite /> },
+      { path: "/marketplace",        element: <Landing /> },
       { path: "/bank-call-report",   element: <BankCallReport /> },
       { path: "/step/1",             element: <Step1Geography /> },
       { path: "/step/2",             element: <Step2SearchLoans /> },

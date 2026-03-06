@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { TopNav } from "@/components/layout/TopNav";
 import { KpiStrip, type KpiItem } from "@/components/step/KpiStrip";
 import { type StepId, steps } from "@/app/steps";
+import { prefetchStep } from "@/app/stepPrefetch";
 import { FilterRail, type FilterGroup, type FilterState, type SliderGroup, type SliderState } from "@/components/filters/FilterRail";
 import { cn } from "@/lib/utils";
 import { SlidersHorizontal } from "lucide-react";
@@ -54,6 +55,14 @@ export function SprinkleShell({
     setMobileMenuOpen(false);
     setMobileFilterOpen(false);
   }, [location.pathname]);
+
+  // Prefetch next steps when on 5, 6a, 6b, 6c, 7, 8 for faster navigation
+  useEffect(() => {
+    const idx = steps.findIndex((s) => s.id === stepId);
+    if (idx >= 0) {
+      steps.slice(idx + 1, idx + 3).forEach((s) => prefetchStep(s.path));
+    }
+  }, [stepId]);
 
   const toggleSidebar = () => {
     setSidebarCollapsed(c => {

@@ -12,6 +12,8 @@ export const queryClient = new QueryClient({
       queryFn: ({ queryKey }) => fetcher(queryKey[0] as string),
       staleTime: 5 * 60 * 1000,
       retry: 1,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   },
 });

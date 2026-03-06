@@ -53,7 +53,7 @@ export function KpiStrip({
                 onClick={onItemClick ? () => onItemClick(kpi, idx) : undefined}
                 onKeyDown={onItemClick ? (e) => e.key === "Enter" && onItemClick(kpi, idx) : undefined}
                 className={cn(
-                  "flex h-full w-full min-w-0 flex-col overflow-hidden rounded-xl border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+                  "sx-surface sx-hover-brighten flex h-full w-full min-w-0 flex-col overflow-hidden rounded-xl",
                   onItemClick && "cursor-pointer"
                 )}
               >

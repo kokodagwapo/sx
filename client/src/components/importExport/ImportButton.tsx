@@ -61,7 +61,7 @@ export function ImportButton({ onImport, className, disabled }: ImportButtonProp
         onClick={() => inputRef.current?.click()}
         disabled={disabled}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed",
+          "sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed",
           className
         )}
       >

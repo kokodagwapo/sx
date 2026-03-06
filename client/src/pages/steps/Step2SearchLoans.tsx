@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 import { Percent, MapPinned, PieChart, Target, FileText, Banknote, LayoutList, Clock, Scale, TrendingUp, CheckCircle2, Lock, AlertCircle, Tag, X, ArrowUpDown, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, UploadCloud, GitCompare, Plus, Building2 } from "lucide-react";
 import { BuyerChip, BuyerInfoCard, type BuyerLoan } from "@/components/buyers/BuyerInfoCard";
 import { ExportButton } from "@/components/importExport/ExportButton";
@@ -19,10 +21,11 @@ import type { KpiItem } from "@/components/step/KpiStrip";
 import type { FilterState, SliderState, SliderGroup } from "@/components/filters/FilterRail";
 import type { VerticalBarDatum } from "@/components/charts/VerticalBarChart";
 import type { DonutDatum } from "@/components/charts/DonutChart";
-import { step2Loans, type Step2Loan } from "@/data/mock/step2Loans";
+import type { Step2Loan } from "@/data/mock/step2Loans";
 import { DONUT_REFERENCE_COLORS } from "@/styles/chartPalette";
 import { cn } from "@/lib/utils";
 import { getRisk, RISK_COLORS, type RiskLevel } from "@/data/riskLookup";
+import { fetchLoanAggregations, fetchLoansPage, type LoanAggregationsResponse, type LoanListItem } from "@/api/loans";
 
 function RiskBadge({ level, icon }: { level: RiskLevel; icon: string }) {
   const c = RISK_COLORS[level];
@@ -91,6 +94,97 @@ const SLIDER_DEFAULTS: SliderState = {
   upb: [50_000, 2_000_000],
   dti: [10, 55],
 };
+
+function useDebouncedValue<T>(value: T, delayMs: number) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(t);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+function toStep2Loan(l: LoanListItem): Step2Loan {
+  return {
+    id: l.id,
+    source: l.source,
+    product: l.productType,
+    interestRate: l.interestRateBucket,
+    occupancy: l.occupancy,
+    purpose: l.purpose,
+    propertyType: l.propertyType,
+    loanType: l.loanType,
+    state: l.state,
+    upb: l.upb,
+    coupon: l.rate,
+    duration: l.duration,
+    status: l.status as any,
+    buyerId: l.buyerId,
+    units: l.units,
+    dti: l.dti,
+    ltv: l.ltv,
+    fico: l.fico,
+    firstPaymentDate: l.firstPaymentDate,
+  };
+}
+
+function buildApiFilters(filterState: FilterState): Record<string, string[]> {
+  // Map FilterRail group titles -> API fields
+  const out: Record<string, string[]> = {};
+  const map: Record<string, string> = {
+    Lender: "source",
+    "Product Type": "productType",
+    Occupancy: "occupancy",
+    Purpose: "purpose",
+    "Property Type": "propertyType",
+    "Loan Type": "loanType",
+    Status: "status",
+    State: "state",
+  };
+  for (const [group, selected] of Object.entries(filterState)) {
+    const apiKey = map[group];
+    if (!apiKey || !selected?.length) continue;
+    out[apiKey] = selected;
+  }
+  return out;
+}
+
+function buildRanges(filterState: FilterState, sliderState: SliderState): Record<string, Array<[number, number]>> {
+  const ranges: Record<string, Array<[number, number]>> = {};
+
+  // Sliders
+  const couponRange = sliderState["coupon"] ?? SLIDER_DEFAULTS["coupon"];
+  ranges.rate = [[couponRange[0], couponRange[1]]];
+  const upbRange = sliderState["upb"] ?? SLIDER_DEFAULTS["upb"];
+  ranges.upb = [[upbRange[0], upbRange[1]]];
+  const dtiRange = sliderState["dti"] ?? SLIDER_DEFAULTS["dti"];
+  ranges.dti = [[dtiRange[0], dtiRange[1]]];
+
+  // Buckets (optional)
+  const fico = filterState["FICO"] ?? [];
+  if (fico.length) {
+    ranges.fico = fico.map((b) => {
+      if (b === "<680") return [0, 679];
+      if (b === "680–720") return [680, 720];
+      if (b === "720–760") return [720, 760];
+      if (b === ">760") return [761, 900];
+      return [0, 900];
+    });
+  }
+  const ltv = filterState["LTV"] ?? [];
+  if (ltv.length) {
+    ranges.ltv = ltv.map((b) => {
+      if (b === "<60") return [0, 60];
+      if (b === "60–70") return [60, 70];
+      if (b === "70–80") return [70, 80];
+      if (b === "80–90") return [80, 90];
+      if (b === ">90") return [90, 999];
+      return [0, 999];
+    });
+  }
+
+  return ranges;
+}
 
 function filterLoansByField(
   loans: Step2Loan[],
@@ -169,17 +263,27 @@ function StatusSummaryBar({
   loans,
   selectedStatus,
   onStatusClick,
+  summary,
 }: {
   loans: Step2Loan[];
   selectedStatus: LoanStatus | null;
   onStatusClick: (s: LoanStatus) => void;
+  summary?: LoanAggregationsResponse | null;
 }) {
-  const total = loans.length;
+  const total = summary?.total ?? loans.length;
   const byStatus = useMemo(() => {
+    if (summary?.byStatus) {
+      return {
+        Available: summary.byStatus["Available"]?.count ?? 0,
+        Allocated: summary.byStatus["Allocated"]?.count ?? 0,
+        Committed: summary.byStatus["Committed"]?.count ?? 0,
+        Sold: summary.byStatus["Sold"]?.count ?? 0,
+      };
+    }
     const counts = { Available: 0, Allocated: 0, Committed: 0, Sold: 0 };
     for (const l of loans) counts[l.status] = (counts[l.status] ?? 0) + 1;
     return counts;
-  }, [loans]);
+  }, [loans, summary]);
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -613,24 +717,71 @@ function CounterpartyPanel({ loans }: { loans: Step2Loan[] }) {
 }
 
 export default function Step2SearchLoans() {
+  const location = useLocation();
   const [filterState, setFilterState] = useState<FilterState>({});
   const [sliderState, setSliderState] = useState<SliderState>(SLIDER_DEFAULTS);
   const [selectedStatus, setSelectedStatus] = useState<LoanStatus | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const { importedLoans, setImportedLoans } = useLoanContext();
+  const [serverQuery, setServerQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(serverQuery, 300);
+
+  useEffect(() => {
+    const q = new URLSearchParams(location.search).get("q") ?? "";
+    setServerQuery(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   const toggleStatus = useCallback((s: LoanStatus) => {
     setSelectedStatus(prev => prev === s ? null : s);
   }, []);
 
+  const apiFilters = useMemo(() => buildApiFilters(filterState), [filterState]);
+  const apiRanges = useMemo(() => buildRanges(filterState, sliderState), [filterState, sliderState]);
+
+  const { data: agg, isLoading: aggLoading } = useQuery<LoanAggregationsResponse>({
+    enabled: !importedLoans,
+    queryKey: ["loansAgg", debouncedQuery, apiFilters, apiRanges],
+    queryFn: () => fetchLoanAggregations({ q: debouncedQuery, filters: apiFilters, ranges: apiRanges }),
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const {
+    data: serverPages,
+    isLoading: serverLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    enabled: !importedLoans,
+    queryKey: ["loans", debouncedQuery, apiFilters, apiRanges],
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) =>
+      fetchLoansPage({
+        q: debouncedQuery,
+        cursor: pageParam,
+        limit: 50,
+        filters: apiFilters,
+        ranges: apiRanges,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const serverLoans = useMemo(
+    () => serverPages?.pages.flatMap((p) => p.items.map(toStep2Loan)) ?? [],
+    [serverPages],
+  );
+  const serverTotal = agg?.total ?? serverPages?.pages?.[0]?.total ?? 0;
+
   const allLoans = useMemo(
-    () => importedLoans ? importedLoans.map(loanRecordToStep2Loan) : step2Loans,
-    [importedLoans],
+    () => (importedLoans ? importedLoans.map(loanRecordToStep2Loan) : serverLoans),
+    [importedLoans, serverLoans],
   );
 
   const filteredLoans = useMemo(
-    () => filterLoansByField(allLoans, filterState, sliderState),
-    [allLoans, filterState, sliderState],
+    () => (importedLoans ? filterLoansByField(allLoans, filterState, sliderState) : allLoans),
+    [allLoans, filterState, sliderState, importedLoans],
   );
 
   const drilldownLoans = useMemo(
@@ -671,40 +822,67 @@ export default function Step2SearchLoans() {
     });
   }, []);
 
-  const interestRateBars = useMemo(
-    () => aggregateByField(filteredLoans, "interestRate").sort((a, b) => {
-      const order = ["2–2.5", "2.5–3", "3–3.5", "3.5–4", "4–4.5", "4.5–5", "5–5.5", "5.5–6"];
-      return order.indexOf(a.name) - order.indexOf(b.name);
-    }),
-    [filteredLoans],
-  );
+  const interestRateBars = useMemo(() => {
+    if (!importedLoans && agg?.byInterestRateBucket) {
+      const entries = Object.entries(agg.byInterestRateBucket).map(([name, value]) => ({ name, value }));
+      return entries.sort((a, b) => b.value - a.value);
+    }
+    return aggregateByField(filteredLoans, "interestRate").sort((a, b) => b.value - a.value);
+  }, [filteredLoans, importedLoans, agg]);
 
-  const stateBars = useMemo(
-    () => aggregateByField(filteredLoans, "state").sort((a, b) => b.value - a.value),
-    [filteredLoans],
-  );
+  const stateBars = useMemo(() => {
+    if (!importedLoans && agg?.byState) {
+      return Object.entries(agg.byState)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 20);
+    }
+    return aggregateByField(filteredLoans, "state").sort((a, b) => b.value - a.value);
+  }, [filteredLoans, importedLoans, agg]);
 
-  const productDonut = useMemo(
-    () => aggregateDonut(filteredLoans, "product").map((d, i) => ({ ...d, color: DONUT_REFERENCE_COLORS[i % DONUT_REFERENCE_COLORS.length] })),
-    [filteredLoans],
-  );
-  const purposeDonut = useMemo(
-    () => aggregateDonut(filteredLoans, "purpose").map((d, i) => ({ ...d, color: DONUT_REFERENCE_COLORS[i % DONUT_REFERENCE_COLORS.length] })),
-    [filteredLoans],
-  );
-  const loanTypeDonut = useMemo(
-    () => aggregateDonut(filteredLoans, "loanType").map((d, i) => ({ ...d, color: DONUT_REFERENCE_COLORS[i % DONUT_REFERENCE_COLORS.length] })),
-    [filteredLoans],
-  );
+  const productDonut = useMemo(() => {
+    const base = !importedLoans && agg?.byProductType
+      ? Object.entries(agg.byProductType).map(([name, value]) => ({ name, value }))
+      : aggregateDonut(filteredLoans, "product");
+    return base.map((d, i) => ({ ...d, color: DONUT_REFERENCE_COLORS[i % DONUT_REFERENCE_COLORS.length] }));
+  }, [filteredLoans, importedLoans, agg]);
+  const purposeDonut = useMemo(() => {
+    const base = !importedLoans && agg?.byPurpose
+      ? Object.entries(agg.byPurpose).map(([name, value]) => ({ name, value }))
+      : aggregateDonut(filteredLoans, "purpose");
+    return base.map((d, i) => ({ ...d, color: DONUT_REFERENCE_COLORS[i % DONUT_REFERENCE_COLORS.length] }));
+  }, [filteredLoans, importedLoans, agg]);
+  const loanTypeDonut = useMemo(() => {
+    const base = !importedLoans && agg?.byLoanType
+      ? Object.entries(agg.byLoanType).map(([name, value]) => ({ name, value }))
+      : aggregateDonut(filteredLoans, "loanType");
+    return base.map((d, i) => ({ ...d, color: DONUT_REFERENCE_COLORS[i % DONUT_REFERENCE_COLORS.length] }));
+  }, [filteredLoans, importedLoans, agg]);
 
   const kpis: KpiItem[] = useMemo(() => {
+    if (!importedLoans && agg) {
+      const totalUpb = agg.totalUpb;
+      const totalLoans = agg.total;
+      const available = agg.byStatus?.["Available"]?.count ?? 0;
+      const wac = agg.wac ?? 0;
+      const wad = agg.wad ?? 0;
+      return [
+        { label: "Total UPB", value: "$" + (totalUpb / 1_000_000).toFixed(1) + "M", icon: Banknote },
+        { label: "Total Loans", value: totalLoans.toLocaleString(), icon: LayoutList },
+        { label: "Available", value: available.toLocaleString(), icon: CheckCircle2 },
+        { label: "Wtd Avg Coupon", value: wac.toFixed(2) + "%", icon: Percent },
+        { label: "Bond Equiv Yield*", value: (wac * 0.9).toFixed(2) + "%", icon: TrendingUp },
+        { label: "Wtd Avg Duration*", value: wad.toFixed(2) + " yrs", icon: Clock },
+      ];
+    }
+
     const totalUpb = filteredLoans.reduce((s, l) => s + l.upb, 0);
     const totalLoans = filteredLoans.length;
     const wac = totalLoans > 0
-      ? filteredLoans.reduce((s, l) => s + l.coupon * l.upb, 0) / filteredLoans.reduce((s, l) => s + l.upb, 0)
+      ? filteredLoans.reduce((s, l) => s + l.coupon * l.upb, 0) / (totalUpb || 1)
       : 0;
     const wad = totalLoans > 0
-      ? filteredLoans.reduce((s, l) => s + l.duration * l.upb, 0) / filteredLoans.reduce((s, l) => s + l.upb, 0)
+      ? filteredLoans.reduce((s, l) => s + l.duration * l.upb, 0) / (totalUpb || 1)
       : 0;
     const available = filteredLoans.filter(l => l.status === "Available").length;
     return [
@@ -715,7 +893,7 @@ export default function Step2SearchLoans() {
       { label: "Bond Equiv Yield*", value: (wac * 0.9).toFixed(2) + "%", icon: TrendingUp },
       { label: "Wtd Avg Duration*", value: wad.toFixed(2) + " yrs", icon: Clock },
     ];
-  }, [filteredLoans]);
+  }, [filteredLoans, importedLoans, agg]);
 
   return (
     <SprinkleShell
@@ -735,6 +913,7 @@ export default function Step2SearchLoans() {
             loans={filteredLoans}
             selectedStatus={selectedStatus}
             onStatusClick={toggleStatus}
+            summary={!importedLoans ? agg ?? null : null}
           />
         </div>
         <div className="flex items-center gap-1.5">
@@ -766,6 +945,24 @@ export default function Step2SearchLoans() {
           loans={drilldownLoans}
           onClose={() => setSelectedStatus(null)}
         />
+      )}
+
+      {!importedLoans && (
+        <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-200/60 bg-white/50 backdrop-blur px-3 py-2">
+          <div className="text-xs text-slate-500">
+            Showing <span className="font-semibold text-slate-700">{allLoans.length.toLocaleString()}</span> of{" "}
+            <span className="font-semibold text-slate-700">{serverTotal.toLocaleString()}</span> loans
+            {aggLoading || serverLoading ? " (updating…)" : ""}
+          </div>
+          <button
+            type="button"
+            disabled={!hasNextPage || isFetchingNextPage}
+            onClick={() => fetchNextPage()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFetchingNextPage ? "Loading…" : hasNextPage ? "Load more" : "All loaded"}
+          </button>
+        </div>
       )}
 
       <div className="grid grid-cols-12 gap-4">

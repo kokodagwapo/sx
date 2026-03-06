@@ -1,5 +1,4 @@
 import type { LoanStatus } from "@/data/types/loanRecord";
-import step7SampleRaw from "@/data/real/realLoans.json";
 
 export type ScheduleRow = {
   tvm: string;
@@ -59,30 +58,34 @@ function normalizeOccupancy(occ: string): "Owner" | "Investment" | "Second home"
   return "Owner";
 }
 
-export const step7ScheduleRows: ScheduleRow[] = (step7SampleRaw as RealSampleLoan[]).map((r) => ({
-  tvm: r.tvm,
-  source: r.source,
-  loanAmount: r.loanAmount,
-  upb: r.upb,
-  rate: r.rate,
-  firstPaymentDate: r.firstPaymentDate,
-  purpose: r.purpose as "Purchase" | "Refinance",
-  fico: r.fico,
-  ltv: r.ltv,
-  cltv: r.cltv,
-  dti: r.dti,
-  occupancy: normalizeOccupancy(r.occupancy),
-  propertyAddress: r.propertyAddress,
-  city: r.city,
-  county: r.county,
-  state: r.state,
-  propertyType: r.propertyType,
-  units: r.units,
-  productType: r.productType,
-  term: r.term,
-  lienPosition: r.lienPosition || "1st",
-  status: r.status as LoanStatus,
-}));
+function toScheduleRow(r: RealSampleLoan): ScheduleRow {
+  return {
+    tvm: r.tvm,
+    source: r.source,
+    loanAmount: r.loanAmount,
+    upb: r.upb,
+    rate: r.rate,
+    firstPaymentDate: r.firstPaymentDate,
+    purpose: r.purpose as "Purchase" | "Refinance",
+    fico: r.fico,
+    ltv: r.ltv,
+    cltv: r.cltv,
+    dti: r.dti,
+    occupancy: normalizeOccupancy(r.occupancy),
+    propertyAddress: r.propertyAddress,
+    city: r.city,
+    county: r.county,
+    state: r.state,
+    propertyType: r.propertyType,
+    units: r.units,
+    productType: r.productType,
+    term: r.term,
+    lienPosition: r.lienPosition || "1st",
+    status: r.status as LoanStatus,
+  };
+}
+
+// Step 7 now loads schedule rows via `/api/loans/search` (batched), not bundled JSON.
 
 export type KpiDrilldown = {
   label: string;

@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { createPortal } from "react-dom";
 import { X, Building2, DollarSign, TrendingUp, BarChart2, FileText, MapPin, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { step2Loans } from "@/data/mock/step2Loans";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLoanAggregations, fetchLoansPage, type LoanAggregationsResponse, type LoanListItem } from "@/api/loans";
 
 // ─── Per-lender pastel theme ──────────────────────────────────────────────────
 
@@ -116,29 +117,63 @@ export function LenderDrilldownModal({
 }) {
   const theme = LENDER_THEME[lender] ?? DEFAULT_THEME;
 
-  const loans = useMemo(
-    () => step2Loans.filter((l) => l.source === lender),
-    [lender],
-  );
+  const { data: agg } = useQuery<LoanAggregationsResponse>({
+    queryKey: ["lenderAgg", lender],
+    queryFn: () => fetchLoanAggregations({ filters: { source: [lender] } }),
+    staleTime: 2 * 60 * 1000,
+  });
 
-  const totalUpb = useMemo(() => loans.reduce((s, l) => s + l.upb, 0), [loans]);
-  const wac    = totalUpb > 0 ? loans.reduce((s, l) => s + l.coupon * l.upb, 0) / totalUpb : 0;
-  const waFico = totalUpb > 0 ? loans.reduce((s, l) => s + l.fico   * l.upb, 0) / totalUpb : 0;
-  const waLtv  = totalUpb > 0 ? loans.reduce((s, l) => s + l.ltv    * l.upb, 0) / totalUpb : 0;
-  const avgBal = loans.length > 0 ? totalUpb / loans.length : 0;
+  const { data: topPage } = useQuery({
+    queryKey: ["lenderTopLoans", lender],
+    queryFn: () => fetchLoansPage({ limit: 250, sort: "upb:desc", filters: { source: [lender] } }),
+    staleTime: 2 * 60 * 1000,
+  });
 
-  const stateCounts   = useMemo(() => { const m: Record<string, number> = {}; for (const l of loans) m[l.state]   = (m[l.state]   ?? 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); }, [loans]);
-  const productCounts = useMemo(() => { const m: Record<string, number> = {}; for (const l of loans) m[l.product] = (m[l.product] ?? 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); }, [loans]);
-  const purposeCounts = useMemo(() => { const m: Record<string, number> = {}; for (const l of loans) m[l.purpose] = (m[l.purpose] ?? 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); }, [loans]);
-  const statusCounts  = useMemo(() => { const m: Record<string, number> = {}; for (const l of loans) m[l.status]  = (m[l.status]  ?? 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); }, [loans]);
-  const topLoans      = useMemo(() => [...loans].sort((a, b) => b.upb - a.upb).slice(0, 12), [loans]);
+  const loans: LoanListItem[] = topPage?.items ?? [];
+
+  const totalUpb = agg?.totalUpb ?? loans.reduce((s, l) => s + l.upb, 0);
+  const totalLoans = agg?.total ?? loans.length;
+  const wac = agg?.wac ?? (totalUpb > 0 ? loans.reduce((s, l) => s + l.rate * l.upb, 0) / totalUpb : 0);
+  const waFico = agg?.waFico ?? (totalUpb > 0 ? loans.reduce((s, l) => s + l.fico * l.upb, 0) / totalUpb : 0);
+  const waLtv = agg?.waLtv ?? (totalUpb > 0 ? loans.reduce((s, l) => s + l.ltv * l.upb, 0) / totalUpb : 0);
+  const avgBal = agg?.avgBalance ?? (totalLoans > 0 ? totalUpb / totalLoans : 0);
+
+  const stateCounts = useMemo(() => {
+    const by = agg?.byState;
+    if (by) return Object.entries(by).sort((a, b) => b[1] - a[1]);
+    const m: Record<string, number> = {};
+    for (const l of loans) m[l.state] = (m[l.state] ?? 0) + 1;
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [loans, agg]);
+  const productCounts = useMemo(() => {
+    const by = agg?.byProductType;
+    if (by) return Object.entries(by).sort((a, b) => b[1] - a[1]);
+    const m: Record<string, number> = {};
+    for (const l of loans) m[l.productType] = (m[l.productType] ?? 0) + 1;
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [loans, agg]);
+  const purposeCounts = useMemo(() => {
+    const by = agg?.byPurpose;
+    if (by) return Object.entries(by).sort((a, b) => b[1] - a[1]);
+    const m: Record<string, number> = {};
+    for (const l of loans) m[l.purpose] = (m[l.purpose] ?? 0) + 1;
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [loans, agg]);
+  const statusCounts = useMemo(() => {
+    const by = agg?.byStatus;
+    if (by) return Object.entries(by).map(([k, v]) => [k, v.count] as const).sort((a, b) => b[1] - a[1]);
+    const m: Record<string, number> = {};
+    for (const l of loans) m[l.status] = (m[l.status] ?? 0) + 1;
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [loans, agg]);
+  const topLoans = useMemo(() => loans.slice(0, 12), [loans]);
 
   const topStates  = stateCounts.slice(0, 8);
   const maxState   = topStates[0]?.[1] ?? 1;
   const maxProduct = productCounts[0]?.[1] ?? 1;
 
   const kpis = [
-    { label: "Loans",       value: loans.length.toLocaleString(),             icon: FileText   },
+    { label: "Loans",       value: totalLoans.toLocaleString(),               icon: FileText   },
     { label: "Total UPB",   value: `$${(totalUpb / 1_000_000).toFixed(1)}M`, icon: DollarSign },
     { label: "WA Coupon",   value: `${wac.toFixed(3)}%`,                     icon: TrendingUp },
     { label: "Avg Balance", value: `$${(avgBal / 1_000).toFixed(0)}K`,       icon: BarChart2  },
@@ -292,9 +327,9 @@ export function LenderDrilldownModal({
                         >
                           <td className="px-3 py-2 font-mono text-slate-500 max-w-[80px] truncate">{loan.id}</td>
                           <td className="px-3 py-2 font-semibold text-slate-700">{loan.state}</td>
-                          <td className="px-3 py-2 text-slate-600">{loan.product}</td>
+                          <td className="px-3 py-2 text-slate-600">{loan.productType}</td>
                           <td className="px-3 py-2 tabular-nums text-right font-semibold text-slate-700">${(loan.upb / 1_000).toFixed(0)}K</td>
-                          <td className="px-3 py-2 tabular-nums text-right text-slate-500">{loan.coupon.toFixed(2)}%</td>
+                          <td className="px-3 py-2 tabular-nums text-right text-slate-500">{loan.rate.toFixed(2)}%</td>
                           <td className="px-3 py-2">
                             <span className={cn("rounded-full border px-2 py-0.5 text-[9px] font-bold", STATUS_BADGE[loan.status] ?? "bg-slate-100 text-slate-600 border-slate-200")}>
                               {loan.status}

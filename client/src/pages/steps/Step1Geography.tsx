@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   MapPin,
   Globe,
@@ -28,16 +29,13 @@ import { PanelCard } from "@/components/cards/PanelCard";
 import { GeoDrilldownMap } from "@/components/maps/GeoDrilldownMap";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
 import { DataTable, sortableColumn } from "@/components/tables/DataTable";
-import {
-  step1LoansByGeo,
-  step1StateBars,
-  type LoanGeoRecord,
-} from "@/data/mock/step1";
+import { step1StateBars } from "@/data/mock/step1";
 import { getRiskForState, RISK_COLORS, WILDFIRE_COLORS, STATE_RISK, type RiskLevel } from "@/data/mock/femaRisk";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { UploadModal } from "@/components/importExport/UploadModal";
 import { useLoanContext } from "@/context/LoanContext";
+import { fetchUsCounties, type LoanGeoRecord } from "@/api/geo";
 
 type RiskLayer = "loans" | "flood" | "wildfire";
 
@@ -85,6 +83,12 @@ export default function Step1Geography() {
   const [riskLayer, setRiskLayer] = useState<RiskLayer>("loans");
   const [uploadOpen, setUploadOpen] = useState(false);
   const { setImportedLoans, importedLoans } = useLoanContext();
+
+  const { data: step1LoansByGeo = [], isLoading: isGeoLoading } = useQuery({
+    queryKey: ["/api/geo/counties"],
+    queryFn: fetchUsCounties,
+    staleTime: 5 * 60 * 1000,
+  });
 
   /** Loans for map: filter by state input when set */
   const mapLoans = useMemo(() => {
@@ -730,16 +734,30 @@ export default function Step1Geography() {
             contentClassName="!p-0"
           >
             <div data-tour="geo-map" className="h-[300px] sm:h-[420px] lg:h-[564px] overflow-hidden bg-white/30 backdrop-blur-xl border border-white/50 shadow-[0_4px_24px_rgba(56,189,248,0.10)] p-0 m-0 outline-none ring-0 rounded-xl flex flex-col">
-              <GeoDrilldownMap
-                className="flex-1 w-full p-0 m-0 border-0 outline-none shadow-none"
-                loans={mapLoans}
-                riskLayer={riskLayer !== "loans" ? riskLayer : undefined}
-                onSelectionChange={(level, name, loans) => {
-                  setSelectedLevel(level);
-                  setSelectedName(name);
-                  setSelectedLoans(loans);
-                }}
-              />
+              {isGeoLoading ? (
+                <div className="flex-1 w-full flex items-center justify-center">
+                  <div className="w-[92%] max-w-[820px]">
+                    <div className="h-4 w-44 rounded bg-slate-200/60 animate-pulse" />
+                    <div className="mt-4 h-[220px] sm:h-[340px] lg:h-[460px] w-full rounded-lg bg-slate-200/50 animate-pulse" />
+                    <div className="mt-3 flex gap-2">
+                      <div className="h-8 w-24 rounded bg-slate-200/60 animate-pulse" />
+                      <div className="h-8 w-24 rounded bg-slate-200/60 animate-pulse" />
+                      <div className="h-8 w-24 rounded bg-slate-200/60 animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <GeoDrilldownMap
+                  className="flex-1 w-full p-0 m-0 border-0 outline-none shadow-none"
+                  loans={mapLoans}
+                  riskLayer={riskLayer !== "loans" ? riskLayer : undefined}
+                  onSelectionChange={(level, name, loans) => {
+                    setSelectedLevel(level);
+                    setSelectedName(name);
+                    setSelectedLoans(loans);
+                  }}
+                />
+              )}
             </div>
           </PanelCard>
 

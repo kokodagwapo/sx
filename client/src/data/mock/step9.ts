@@ -1,5 +1,19 @@
 /** Cohort analysis data — derived from real loan pool (Step 9) */
-import { step2Loans } from "./step2Loans";
+// NOTE: Step 9 uses lightweight synthetic cohorts in dev mode.
+// Real cohorts can be wired to `/api/loans/aggregations` + paged detail later.
+
+type Loan = {
+  source: string;
+  product: string;
+  state: string;
+  upb: number;
+  coupon: number;
+  fico: number;
+  ltv: number;
+  dti: number;
+  units: number;
+  firstPaymentDate: string;
+};
 
 export type CohortDimension = "units" | "vintage" | "product" | "rateBucket" | "ltvBucket" | "geography";
 
@@ -17,7 +31,41 @@ export type CohortRow = {
   avgDti: number;
 };
 
-type Loan = typeof step2Loans[0];
+const TOP_STATES = ["CA", "FL", "GA", "TX", "NY", "PA", "NJ", "WA", "MD", "CO"];
+
+const MOCK_LOANS: Loan[] = (() => {
+  const products = ["30 FRM", "15 FRM", "7/1 ARM", "5/1 ARM"] as const;
+  const out: Loan[] = [];
+  for (const seller of ["Provident", "Stonegate", "New Penn Financial"]) {
+    for (const state of TOP_STATES) {
+      for (const p of products) {
+        const seed = (seller + state + p).split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+        const count = 8 + (seed % 7);
+        for (let i = 0; i < count; i++) {
+          const upb = 120_000 + ((seed * (i + 3)) % 520_000);
+          const coupon = 2.75 + ((seed + i) % 18) * 0.1;
+          const fico = 690 + ((seed + i * 13) % 90);
+          const ltv = 58 + ((seed + i * 7) % 35);
+          const dti = 24 + ((seed + i * 5) % 18);
+          const units = 1 + ((seed + i) % 2);
+          out.push({
+            source: seller,
+            product: p,
+            state,
+            upb,
+            coupon,
+            fico,
+            ltv,
+            dti,
+            units,
+            firstPaymentDate: `01/01/${2014 + ((seed + i) % 3)}`,
+          });
+        }
+      }
+    }
+  }
+  return out;
+})();
 
 function buildCohorts<K extends string>(
   loans: Loan[],
@@ -89,8 +137,6 @@ function getVintageYear(firstPaymentDate: string): string {
   return parts.length === 3 ? parts[2].substring(0, 4) : "";
 }
 
-const TOP_STATES = ["CA", "FL", "GA", "TX", "NY", "PA", "NJ", "WA", "MD", "CO"];
-
 export const COHORT_CONFIGS: Record<CohortDimension, { title: string; description: string; labels: Record<string, string> }> = {
   units: {
     title: "By Unit Count",
@@ -125,7 +171,7 @@ export const COHORT_CONFIGS: Record<CohortDimension, { title: string; descriptio
 };
 
 export function getCohortData(dimension: CohortDimension, seller: Seller = "All"): CohortRow[] {
-  const loans = seller === "All" ? step2Loans : step2Loans.filter(l => l.source === seller);
+  const loans = seller === "All" ? MOCK_LOANS : MOCK_LOANS.filter((l) => l.source === seller);
 
   switch (dimension) {
     case "units":

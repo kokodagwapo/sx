@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { steps } from "@/app/steps";
+import { prefetchStep } from "@/app/stepPrefetch";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 
@@ -82,7 +83,7 @@ export function Sidebar({
           type="button"
           onClick={onToggle}
           className={cn(
-            "rounded-lg p-2 transition-colors",
+            "sx-hover-brighten-control rounded-lg p-2 transition-colors",
             collapsed
               ? "text-amber-400 hover:bg-sky-500 animate-pulse"
               : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
@@ -116,8 +117,9 @@ export function Sidebar({
                     <Tooltip content={step.tooltip ?? step.headerTitle.replace(/^Step \d+\w? - /, "")} wrapperClassName="w-full [&>a]:w-full">
                       <Link
                         to={step.path}
+                        onMouseEnter={() => prefetchStep(step.path)}
                         className={cn(
-                          "flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
+                          "sx-hover-brighten-control flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
                           collapsed
                             ? isActive
                               ? "justify-center bg-white/25"
@@ -159,7 +161,7 @@ export function Sidebar({
                 <Link
                   to="/bank-call-report"
                   className={cn(
-                    "flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
+                    "sx-hover-brighten-control flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-all duration-150",
                     collapsed
                       ? isActive
                         ? "justify-center bg-white/25"

@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { TourBubble } from "@/components/onboarding/TourBubble";
 import {
   List,
@@ -30,7 +31,6 @@ import { PanelCard } from "@/components/cards/PanelCard";
 import { SprinkleShell } from "@/layouts/SprinkleShell";
 import { DataTable, sortableColumn } from "@/components/tables/DataTable";
 import {
-  step7ScheduleRows,
   step7KpiDrilldown,
   type ScheduleRow,
   type KpiDrilldown,
@@ -42,14 +42,34 @@ import { exportScheduleToExcel } from "@/data/excel/excelExporter";
 import { loanToScheduleRow } from "@/data/converters";
 import type { LoanRecord } from "@/data/types/loanRecord";
 import type { KpiItem } from "@/components/step/KpiStrip";
-const STEP7_KPIS: KpiItem[] = [
-  { id: "upb", label: "Total Unpaid Principal Balance (UPB)", value: "1,861,333,635", icon: Banknote },
-  { id: "loans", label: "Total Loans Meeting Criteria", value: "7,050", icon: LayoutList },
-  { id: "coupon", label: "Weighted Average Coupon*", value: "3.50", icon: Percent },
-  { id: "bey", label: "Bond Equivalent Yield*", value: "3.17", icon: TrendingUp },
-  { id: "duration", label: "Weighted Average Duration*", value: "6.80", icon: Clock },
-  { id: "price", label: "Weighted Price Indication**", value: "100.71", icon: Scale },
-];
+import { fetchLoanAggregations, fetchLoansPage, type LoanAggregationsResponse, type LoanListItem } from "@/api/loans";
+
+function toScheduleRow(l: LoanListItem): ScheduleRow {
+  return {
+    tvm: l.tvm,
+    source: l.source,
+    loanAmount: l.loanAmount,
+    upb: l.upb,
+    rate: l.rate,
+    firstPaymentDate: l.firstPaymentDate,
+    purpose: l.purpose as any,
+    fico: l.fico,
+    ltv: l.ltv,
+    cltv: l.cltv,
+    dti: l.dti,
+    occupancy: l.occupancy as any,
+    propertyAddress: l.propertyAddress,
+    city: l.city,
+    county: l.county,
+    state: l.state,
+    propertyType: l.propertyType,
+    units: l.units,
+    productType: l.productType,
+    term: l.term,
+    lienPosition: l.lienPosition,
+    status: l.status as any,
+  };
+}
 
 type DrilldownType = "kpi" | "loan" | null;
 
@@ -311,7 +331,7 @@ const columns = [
 ];
 
 export default function Step7Schedule() {
-  const [rows, setRows] = useState<ScheduleRow[]>(step7ScheduleRows);
+  const [importedRows, setImportedRows] = useState<ScheduleRow[]>([]);
   const [drilldown, setDrilldown] = useState<{
     type: DrilldownType;
     id: string | null;
@@ -320,11 +340,54 @@ export default function Step7Schedule() {
 
   const handleImport = useCallback((imported: LoanRecord[]) => {
     const scheduleRows = imported.map(loanToScheduleRow);
-    setRows((prev) => [...scheduleRows, ...prev]);
+    setImportedRows((prev) => [...scheduleRows, ...prev]);
   }, []);
 
   const exportCSV = useCallback((data: ScheduleRow[]) => exportScheduleToCSV(data), []);
   const exportExcel = useCallback((data: ScheduleRow[]) => exportScheduleToExcel(data), []);
+
+  const { data: agg } = useQuery<LoanAggregationsResponse>({
+    queryKey: ["scheduleAgg"],
+    queryFn: () => fetchLoanAggregations({}),
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const {
+    data: pages,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["scheduleRows"],
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) =>
+      fetchLoansPage({ cursor: pageParam, limit: 100, sort: "tvm:asc" }),
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const serverRows = useMemo(
+    () => pages?.pages.flatMap((p) => p.items.map(toScheduleRow)) ?? [],
+    [pages],
+  );
+
+  const rows = useMemo(() => [...importedRows, ...serverRows], [importedRows, serverRows]);
+
+  const kpis: KpiItem[] = useMemo(() => {
+    const totalUpb = agg?.totalUpb ?? 1_861_333_635;
+    const totalLoans = agg?.total ?? 7050;
+    const wac = agg?.wac ?? 3.5;
+    const wad = agg?.wad ?? 6.8;
+    return [
+      { id: "upb", label: "Total Unpaid Principal Balance (UPB)", value: Intl.NumberFormat("en-US").format(Math.round(totalUpb)), icon: Banknote },
+      { id: "loans", label: "Total Loans Meeting Criteria", value: totalLoans.toLocaleString(), icon: LayoutList },
+      { id: "coupon", label: "Weighted Average Coupon*", value: wac.toFixed(2), icon: Percent },
+      { id: "bey", label: "Bond Equivalent Yield*", value: (wac * 0.905).toFixed(2), icon: TrendingUp },
+      { id: "duration", label: "Weighted Average Duration*", value: wad.toFixed(2), icon: Clock },
+      { id: "price", label: "Weighted Price Indication**", value: "100.71", icon: Scale },
+    ];
+  }, [agg]);
 
   const handleKpiClick = (item: KpiItem) => {
     const id = item.id ?? null;
@@ -348,7 +411,7 @@ export default function Step7Schedule() {
   return (
     <SprinkleShell
       stepId="7"
-      kpis={STEP7_KPIS}
+      kpis={kpis}
       animateKpis
       onKpiClick={(item) => item.id && handleKpiClick(item)}
     >
@@ -361,23 +424,57 @@ export default function Step7Schedule() {
         right={
           <div className="flex items-center gap-2">
             <ImportButton onImport={handleImport} />
+            <a
+              href="/api/loans/export/schedule.csv"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
+            >
+              Export full CSV
+            </a>
             <ExportButton
               data={rows}
               filename="loan_schedule"
               exportCSV={exportCSV}
               exportExcel={exportExcel}
+              disabled={isLoading}
             />
           </div>
         }
       >
-        <DataTable
-          data={rows}
-          columns={columns}
-          height={620}
-          animateRows
-          stripeRows
-          onRowClick={handleRowClick}
-        />
+        {isLoading ? (
+          <div className="flex h-[620px] items-center justify-center">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-200 border-t-sky-500" />
+          </div>
+        ) : (
+          <DataTable
+            data={rows}
+            columns={columns}
+            height={620}
+            animateRows
+            stripeRows
+            onRowClick={handleRowClick}
+          />
+        )}
+
+        {!isLoading && (
+          <div className="mt-3 flex items-center justify-between">
+            <div className="text-xs text-slate-500">
+              Showing <span className="font-semibold text-slate-700">{rows.length.toLocaleString()}</span>
+              {agg?.total ? (
+                <>
+                  {" "}of <span className="font-semibold text-slate-700">{agg.total.toLocaleString()}</span>
+                </>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              disabled={!hasNextPage || isFetchingNextPage}
+              onClick={() => fetchNextPage()}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isFetchingNextPage ? "Loading…" : hasNextPage ? "Load more" : "All loaded"}
+            </button>
+          </div>
+        )}
       </PanelCard>
 
       {drilldown?.data && (

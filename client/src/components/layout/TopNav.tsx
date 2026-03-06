@@ -103,7 +103,7 @@ export function TopNav({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const riskStats = useMemo(() => portfolioRiskSummary((importedLoans ?? []).map(l => ({
-    state: l.state || "", county: (l as any).county || l.countyName || "", upb: l.upb || 0,
+    state: l.stateName || "", county: l.countyName || "", upb: l.upb || 0,
   }))), [importedLoans]);
 
   const liveNotifications = useMemo<Notif[]>(() => {
@@ -243,27 +243,40 @@ export function TopNav({
 
   return (
     <header className="sticky top-0 z-[999] relative flex h-14 w-full items-center justify-between border-b border-white/50 bg-white/40 backdrop-blur-xl px-3 sm:px-4 transition-colors duration-300 shadow-none overflow-hidden">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
         <button
           type="button"
           onClick={onMenuClick}
-          className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-white/30 hover:text-slate-900 lg:hidden"
+          className="sx-hover-brighten-control rounded-lg p-2 text-slate-600 transition-colors hover:bg-white/30 hover:text-slate-900 lg:hidden shrink-0"
         >
           <Menu className="h-5 w-5" strokeWidth={2} />
         </button>
-        <Link to="/" className="hidden items-center gap-3 shrink-0 -ml-1">
-          <SprinkleXLogo size="sm" showText />
+        <Link to="/" className="hidden sm:flex items-center gap-3 shrink-0 -ml-1">
+          <SprinkleXLogo size="sm" showText showByline={false} showTrademark={false} />
         </Link>
-        {/* Step stepper — permanent, no layout shift */}
+        {/* Page title — before step numbers, modern typography */}
+        <h1 className="flex items-center gap-2 min-w-0 shrink text-left">
+          <span
+            className="text-[13px] sm:text-[15px] font-semibold tracking-tight text-slate-800 truncate [font-family:var(--font-display)]"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            {title}
+          </span>
+          <span className="hidden md:inline-flex h-1 w-1 shrink-0 rounded-full bg-sky-400/70" />
+          <span className="hidden lg:inline text-[10px] font-medium text-slate-400 tracking-widest uppercase whitespace-nowrap">
+            SprinkleX Analytics
+          </span>
+        </h1>
+        {/* Step stepper — after title */}
         <nav
-          className="ml-2 hidden items-center gap-0.5 sm:flex"
+          className="hidden items-center gap-0.5 sm:flex shrink-0"
           aria-label="Step navigation"
         >
           {prev && (
             <Tooltip content={`Previous: ${prev.headerTitle}`} side="bottom">
               <Link
                 to={prev.path}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-white/30 hover:text-slate-700 hover:scale-105 active:scale-95"
+                className="sx-hover-brighten-control flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-white/30 hover:text-slate-700 hover:scale-105 active:scale-95"
               >
                 <ChevronLeft className="h-4 w-4" strokeWidth={2} />
               </Link>
@@ -280,7 +293,7 @@ export function TopNav({
                   <Link
                     to={step.path}
                     className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium transition-all duration-200",
+                      "sx-hover-brighten-control flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-semibold transition-all duration-200 [font-family:var(--font-display)]",
                       isActive
                         ? "bg-sky-500 text-white shadow-sm ring-2 ring-sky-500/20"
                         : "text-slate-500 hover:bg-white/30 hover:text-sky-700 hover:scale-105 active:scale-95"
@@ -296,27 +309,13 @@ export function TopNav({
             <Tooltip content={`Next: ${next.headerTitle}`} side="bottom">
               <Link
                 to={next.path}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-white/30 hover:text-slate-700 hover:scale-105 active:scale-95"
+                className="sx-hover-brighten-control flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-white/30 hover:text-slate-700 hover:scale-105 active:scale-95"
               >
                 <ChevronRight className="h-4 w-4" strokeWidth={2} />
               </Link>
             </Tooltip>
           )}
         </nav>
-      </div>
-
-
-      {/* Center: Page title — absolutely centered in header */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-16 sm:px-[140px]">
-        <h1 className="flex items-center gap-2 select-none min-w-0 max-w-full">
-          <span className="text-[11px] sm:text-[13px] font-bold tracking-[-0.02em] bg-gradient-to-r from-slate-700 via-sky-600 to-indigo-500 bg-clip-text text-transparent line-clamp-1">
-            {title}
-          </span>
-          <span className="hidden md:block h-1 w-1 shrink-0 rounded-full bg-sky-400/60" />
-          <span className="hidden md:block text-[10px] font-medium text-slate-400 tracking-widest uppercase whitespace-nowrap">
-            SprinkleX Analytics
-          </span>
-        </h1>
       </div>
 
       {/* Right: Notifications, Profile */}
@@ -327,7 +326,7 @@ export function TopNav({
               type="button"
               onClick={() => setUploadOpen(true)}
               className={cn(
-                "relative hidden sm:inline-flex rounded-lg p-2 transition-colors animate-glow-pulse",
+                "sx-hover-brighten-control relative hidden sm:inline-flex rounded-lg p-2 transition-colors animate-glow-pulse",
                 importedLoans
                   ? "text-sky-500 hover:bg-white/30 hover:text-sky-600"
                   : "text-slate-400 hover:bg-white/30 hover:text-slate-600"
@@ -343,7 +342,7 @@ export function TopNav({
             <button
               type="button"
               onClick={startTour}
-              className="relative hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-normal text-slate-800 transition-colors hover:bg-sky-50 hover:text-sky-600"
+              className="sx-hover-brighten-control relative hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-normal text-slate-800 transition-colors hover:bg-sky-50 hover:text-sky-600"
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
               <span className="hidden sm:inline">Guided Tour</span>
@@ -354,7 +353,7 @@ export function TopNav({
               type="button"
               onClick={() => setNotifOpen((o) => !o)}
               className={cn(
-                "relative rounded-lg p-2 transition-colors",
+                "sx-hover-brighten-control relative rounded-lg p-2 transition-colors",
                 notifOpen
                   ? "bg-white/30 text-slate-700"
                   : "text-slate-400 hover:bg-white/30 hover:text-slate-600"

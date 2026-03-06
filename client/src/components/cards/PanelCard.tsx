@@ -45,7 +45,7 @@ export function PanelCard({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-[var(--radius-card)] border border-white/50 bg-white/40 backdrop-blur-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 hover:bg-white/50 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]",
+        "sx-surface sx-hover-brighten overflow-hidden rounded-[var(--radius-card)]",
         className,
       )}
     >

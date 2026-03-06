@@ -102,6 +102,7 @@ export function loanRecordToStep2Loan(r: LoanRecord, index: number): Step2Loan {
     dti: r.dti ?? 36,
     ltv: r.ltv ?? 80,
     fico: r.fico ?? 720,
+    firstPaymentDate: r.firstPaymentDate ?? "",
   };
 }
 

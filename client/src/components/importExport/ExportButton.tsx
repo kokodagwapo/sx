@@ -55,7 +55,7 @@ export function ExportButton<T>({
         type="button"
         onClick={() => setOpen(!open)}
         disabled={disabled || data.length === 0}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Download className="h-3.5 w-3.5" strokeWidth={2} />
         Export

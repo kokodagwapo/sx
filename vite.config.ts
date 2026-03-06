@@ -27,6 +27,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes("recharts") || id.includes("react-simple-maps") || id.includes("topojson")) return "charts";
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
   },
   server: {
     fs: {
