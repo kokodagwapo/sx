@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef, useEffect } from "react";
+import { useState, useLayoutEffect, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import {
   Volume2, VolumeX, ChevronLeft, ChevronRight, X,
@@ -92,6 +92,70 @@ function computePosition(targetRect: DOMRect, bubbleW: number, bubbleH: number):
   const arrowX = (side === "bottom" || side === "top") ? clamp(cx - left, 16, effectiveW - 16) : undefined;
   const arrowY = (side === "left"   || side === "right") ? clamp(cy - top, 16, bubbleH - 16) : undefined;
   return { top, left, side, arrowX, arrowY };
+}
+
+function MagneticDots({
+  dotStart, dotEnd, stopIndex, goToStop,
+}: {
+  dotStart: number; dotEnd: number; stopIndex: number; goToStop: (i: number) => void;
+}) {
+  const count = dotEnd - dotStart;
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const getOffset = useCallback((i: number) => {
+    if (hoverIdx === null) return 0;
+    const dist = i - hoverIdx;
+    if (dist === 0) return 0;
+    const sign = dist > 0 ? 1 : -1;
+    const absDist = Math.abs(dist);
+    if (absDist > 3) return 0;
+    const push = [0, 3.5, 1.5, 0.5][absDist] ?? 0;
+    return sign * push;
+  }, [hoverIdx]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="flex items-center gap-[5px] py-1 px-1"
+      onMouseLeave={() => setHoverIdx(null)}
+    >
+      {Array.from({ length: count }, (_, i) => {
+        const realIdx = dotStart + i;
+        const isCurrent = realIdx === stopIndex;
+        const isVisited = realIdx < stopIndex;
+        const isHovered = hoverIdx === i;
+        const offset = getOffset(i);
+
+        return (
+          <button
+            key={realIdx}
+            type="button"
+            onClick={() => goToStop(realIdx)}
+            onMouseEnter={() => setHoverIdx(i)}
+            title={`Stop ${realIdx + 1}: ${COHI_TOUR_STOPS[realIdx]?.title ?? ""}`}
+            className="relative border-0 bg-transparent p-0 cursor-pointer"
+            style={{
+              transform: `translateX(${offset}px) scale(${isHovered ? 1.6 : 1})`,
+              transition: "transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
+            <span
+              className={cn(
+                "block rounded-full transition-all duration-300",
+                isCurrent
+                  ? "w-4 h-[5px] bg-sky-500 shadow-[0_0_6px_rgba(14,165,233,0.4)]"
+                  : isVisited
+                    ? "w-[5px] h-[5px] bg-sky-300"
+                    : "w-[5px] h-[5px] bg-slate-200",
+                isHovered && !isCurrent && "bg-sky-400 shadow-[0_0_4px_rgba(14,165,233,0.3)]"
+              )}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 function TargetHighlight({ rect }: { rect: DOMRect }) {
@@ -468,27 +532,12 @@ export function CohiTourPanel() {
                 Prev
               </button>
 
-              <div className="flex items-center gap-1">
-                {Array.from({ length: dotEnd - dotStart }, (_, i) => {
-                  const realIdx = dotStart + i;
-                  return (
-                    <button
-                      key={realIdx}
-                      type="button"
-                      onClick={() => goToStop(realIdx)}
-                      title={`Stop ${realIdx + 1}: ${COHI_TOUR_STOPS[realIdx]?.title ?? ""}`}
-                      className={cn(
-                        "rounded-full transition-all duration-300 hover:scale-150 active:scale-100",
-                        realIdx === stopIndex
-                          ? "w-4 h-1.5 bg-sky-500"
-                          : realIdx < stopIndex
-                            ? "w-1.5 h-1.5 bg-sky-300 hover:bg-sky-400"
-                            : "w-1.5 h-1.5 bg-slate-200 hover:bg-slate-400"
-                      )}
-                    />
-                  );
-                })}
-              </div>
+              <MagneticDots
+                dotStart={dotStart}
+                dotEnd={dotEnd}
+                stopIndex={stopIndex}
+                goToStop={goToStop}
+              />
 
               <button
                 type="button"
