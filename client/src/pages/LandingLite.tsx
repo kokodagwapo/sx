@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Building2, Globe, LayoutList, Search } from "lucide-react";
+import { ArrowRight, Building2, Globe, LayoutList, Search, Scale, ListChecks } from "lucide-react";
 import { SprinkleXLogo } from "@/components/ui/SprinkleXLogo";
 import { cn } from "@/lib/utils";
-import { CelestialDots } from "@/components/backgrounds/CelestialDots";
+import { FlickeringGrid } from "@/components/ui/flickering-grid";
 
 type PortfolioStats = {
   totalLoans: number;
@@ -64,7 +64,14 @@ export default function LandingLite() {
         <div className="absolute -top-32 -left-32 h-[520px] w-[520px] rounded-full bg-sky-200/35 blur-3xl" />
         <div className="absolute -top-40 right-[-180px] h-[560px] w-[560px] rounded-full bg-indigo-200/30 blur-3xl" />
         <div className="absolute bottom-[-220px] left-[20%] h-[560px] w-[560px] rounded-full bg-teal-200/25 blur-3xl" />
-        <CelestialDots className="opacity-[0.95]" />
+        <FlickeringGrid
+          className="absolute inset-0 size-full opacity-[0.9]"
+          squareSize={4}
+          gridGap={7}
+          color="#007B8A"
+          maxOpacity={0.20}
+          flickerChance={0.12}
+        />
         {/* gentle vignette for depth */}
         <div className="absolute inset-0 bg-[radial-gradient(900px_520px_at_50%_0%,rgba(255,255,255,0),rgba(255,255,255,0.78)_70%,rgba(255,255,255,0.92))]" />
       </div>
@@ -141,31 +148,49 @@ export default function LandingLite() {
           className="mt-[240px]"
         >
           <div className="mx-auto max-w-[900px] sx-floating">
-            <div className="mb-2.5 flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold text-slate-500">
-              <Link
-                to="/step/2"
-                className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full bg-white/35 px-3 py-1 backdrop-blur hover:bg-white/50 hover:text-slate-700"
-              >
-                <LayoutList className="h-3.5 w-3.5 text-sky-600" />
-                Loan Search
-              </Link>
-              <Link
-                to="/step/1"
-                className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full bg-white/35 px-3 py-1 backdrop-blur hover:bg-white/50 hover:text-slate-700"
-              >
-                <Globe className="h-3.5 w-3.5 text-sky-600" />
-                Geographic
-              </Link>
-              <Link
-                to="/marketplace"
-                className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full bg-white/25 px-3 py-1 backdrop-blur hover:bg-white/45 hover:text-slate-700"
-              >
-                <Building2 className="h-3.5 w-3.5 text-slate-500" />
-                Marketplace
-              </Link>
-            </div>
+            <div className="relative sx-surface rounded-[26px] p-3 sm:p-4">
+              {/* pastel aura behind the panel */}
+              <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[34px] bg-gradient-to-r from-sky-200/35 via-emerald-200/25 to-violet-200/30 blur-2xl" />
 
-            <div className="sx-surface sx-hover-brighten flex items-center gap-3 rounded-2xl px-3 py-2">
+              <div className="mb-3 flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold">
+                <Link
+                  to="/step/2"
+                  className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full border border-sky-200/50 bg-sky-100/50 px-3 py-1 backdrop-blur text-sky-800 hover:bg-sky-100/70"
+                >
+                  <LayoutList className="h-3.5 w-3.5 text-sky-700" />
+                  Loan Search
+                </Link>
+                <Link
+                  to="/step/1"
+                  className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full border border-emerald-200/50 bg-emerald-100/45 px-3 py-1 backdrop-blur text-emerald-800 hover:bg-emerald-100/65"
+                >
+                  <Globe className="h-3.5 w-3.5 text-emerald-700" />
+                  Geographic
+                </Link>
+                <Link
+                  to="/marketplace"
+                  className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full border border-violet-200/50 bg-violet-100/45 px-3 py-1 backdrop-blur text-violet-800 hover:bg-violet-100/65"
+                >
+                  <Building2 className="h-3.5 w-3.5 text-violet-700" />
+                  Marketplace
+                </Link>
+                <Link
+                  to="/step/4"
+                  className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full border border-amber-200/50 bg-amber-100/50 px-3 py-1 backdrop-blur text-amber-900 hover:bg-amber-100/70"
+                >
+                  <Scale className="h-3.5 w-3.5 text-amber-700" />
+                  Pricing
+                </Link>
+                <Link
+                  to="/step/7"
+                  className="sx-hover-brighten-control inline-flex items-center gap-1.5 rounded-full border border-rose-200/50 bg-rose-100/45 px-3 py-1 backdrop-blur text-rose-900 hover:bg-rose-100/65"
+                >
+                  <ListChecks className="h-3.5 w-3.5 text-rose-700" />
+                  Schedule
+                </Link>
+              </div>
+
+              <div className="sx-surface sx-hover-brighten flex items-center gap-3 rounded-2xl px-3 py-2">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600">
                 <Search className="h-4 w-4" strokeWidth={2} />
               </div>
@@ -178,15 +203,16 @@ export default function LandingLite() {
               <button
                 type="submit"
                 className={cn(
-                  "sx-hover-brighten-control inline-flex h-9 shrink-0 items-center gap-2 rounded-xl bg-sky-600 px-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-sky-700",
+                  "sx-hover-brighten-control inline-flex h-9 shrink-0 items-center gap-2 rounded-xl bg-[#007B8A] px-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#006775]",
                   !prompt.trim() && "bg-slate-400 hover:bg-slate-500"
                 )}
               >
                 Search <ArrowRight className="h-4 w-4" />
               </button>
             </div>
-            <div className="mt-2 text-center text-[11px] text-slate-400">
-              Tip: press Enter to search. Results load in batches.
+              <div className="mt-2 text-center text-[11px] text-slate-400">
+                Tip: press Enter to search. Results load in batches.
+              </div>
             </div>
           </div>
         </form>
